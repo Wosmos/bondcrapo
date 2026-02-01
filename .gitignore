@@ -4,3 +4,6 @@ bonds_scraper.log
 Scripts/
 bond_data/
 prize_bonds_complete/
+prize_bonds.db
+raw_data/
+parsed_data/
