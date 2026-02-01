@@ -16,10 +16,12 @@ import sqlite3
 from datetime import datetime
 import os
 
-app = Flask(__name__, static_folder='.')
+app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app)
 
-DB_PATH = "parsed_data/prize_bonds.db"
+# Use absolute path for robustness
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, '..', 'database', 'prize_bonds.db')
 
 def get_db_connection():
     """Get database connection"""
@@ -30,7 +32,7 @@ def get_db_connection():
 @app.route('/')
 def index():
     """Serve index.html"""
-    return send_from_directory('.', 'index.html')
+    return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/api/search', methods=['GET'])
 def search_bond():
@@ -66,46 +68,114 @@ def search_bond():
 
 @app.route('/api/draws', methods=['GET'])
 def get_draws():
-    """Get draws for a denomination"""
+    """Get draws with advanced filtering and sorting"""
     denomination = request.args.get('denomination', type=int)
     limit = request.args.get('limit', 50, type=int)
     offset = request.args.get('offset', 0, type=int)
     prize_position = request.args.get('position', '')
+    year = request.args.get('year', '')
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    min_amount = request.args.get('min_amount', type=int)
+    max_amount = request.args.get('max_amount', type=int)
+    bond_number = request.args.get('bond_number', '')
+    bond_list = request.args.get('bond_list', '') # Comma-separated list for random checking
+    start_bond = request.args.get('start_bond', '') # Bulk series start
+    end_bond = request.args.get('end_bond', '') # Bulk series end
+    sort_by = request.args.get('sort_by', 'draw_date')
+    sort_order = request.args.get('sort_order', 'DESC').upper()
+
+    # Validate sort order and column
+    valid_sort_cols = ['bond_number', 'draw_date', 'prize_amount', 'denomination']
+    if sort_by not in valid_sort_cols:
+        sort_by = 'draw_date'
+    if sort_order not in ['ASC', 'DESC']:
+        sort_order = 'DESC'
     
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        query = 'SELECT * FROM winners WHERE 1=1'
+        base_query = 'FROM winners WHERE 1=1'
         params = []
         
+        # Bond Filtering (Grouped with OR for multi-mode search)
+        bond_filters = []
+        bond_params = []
+
+        if bond_number:
+            bond_filters.append('bond_number LIKE ?')
+            bond_params.append(f'{bond_number}%')
+            
+        if bond_list:
+            bonds = [b.strip() for b in bond_list.split(',') if b.strip()]
+            if bonds:
+                placeholders = ','.join(['?'] * len(bonds))
+                bond_filters.append(f'bond_number IN ({placeholders})')
+                bond_params.extend(bonds)
+                
+        if start_bond and end_bond:
+            bond_filters.append('CAST(bond_number AS INTEGER) BETWEEN ? AND ?')
+            bond_params.append(start_bond)
+            bond_params.append(end_bond)
+        elif start_bond:
+            bond_filters.append('CAST(bond_number AS INTEGER) >= ?')
+            bond_params.append(start_bond)
+        elif end_bond:
+            bond_filters.append('CAST(bond_number AS INTEGER) <= ?')
+            bond_params.append(end_bond)
+
+        if bond_filters:
+            base_query += f" AND ({' OR '.join(bond_filters)})"
+            params.extend(bond_params)
+        
         if denomination:
-            query += ' AND denomination = ?'
+            base_query += ' AND denomination = ?'
             params.append(denomination)
         
         if prize_position:
-            query += ' AND prize_position = ?'
+            base_query += ' AND prize_position = ?'
             params.append(prize_position)
+
+        if year:
+            base_query += ' AND draw_year = ?'
+            params.append(year)
         
-        query += ' ORDER BY draw_date DESC LIMIT ? OFFSET ?'
-        params.extend([limit, offset])
+        # SQLite date conversion for range filtering: 'DD-MM-YYYY' -> 'YYYY-MM-YYYY' for comparison
+        # We use substr(col, 7, 4) || '-' || substr(col, 4, 2) || '-' || substr(col, 1, 2)
+        sql_date = "substr(draw_date, 7, 4) || '-' || substr(draw_date, 4, 2) || '-' || substr(draw_date, 1, 2)"
         
-        cursor.execute(query, params)
+        if start_date:
+            # Assuming start_date comes as YYYY-MM-DD from HTML5 date input
+            base_query += f' AND {sql_date} >= ?'
+            params.append(start_date)
+        
+        if end_date:
+            base_query += f' AND {sql_date} <= ?'
+            params.append(end_date)
+
+        if min_amount:
+            base_query += ' AND prize_amount >= ?'
+            params.append(min_amount)
+        
+        if max_amount:
+            base_query += ' AND prize_amount <= ?'
+            params.append(max_amount)
+        
+        # Sorting logic enhancement
+        sort_col = sort_by
+        if sort_by == 'draw_date':
+            sort_col = sql_date
+            
+        # Get results
+        query = f'SELECT * {base_query} ORDER BY {sort_col} {sort_order} LIMIT ? OFFSET ?'
+        result_params = params + [limit, offset]
+        
+        cursor.execute(query, result_params)
         results = [dict(row) for row in cursor.fetchall()]
         
         # Get total count
-        count_query = 'SELECT COUNT(*) as total FROM winners WHERE 1=1'
-        count_params = []
-        
-        if denomination:
-            count_query += ' AND denomination = ?'
-            count_params.append(denomination)
-        
-        if prize_position:
-            count_query += ' AND prize_position = ?'
-            count_params.append(prize_position)
-        
-        cursor.execute(count_query, count_params)
+        cursor.execute(f'SELECT COUNT(*) as total {base_query}', params)
         total = cursor.fetchone()['total']
         
         conn.close()

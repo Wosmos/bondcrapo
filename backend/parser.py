@@ -404,9 +404,13 @@ def main():
 ╚══════════════════════════════════════════════════════════════════════════════╝
 """)
     
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    RAW_DIR = os.path.join(BASE_DIR, '..', 'database', 'raw_data')
+    OUT_DIR = os.path.join(BASE_DIR, '..', 'database')
+
     parser = PrizeBondParser(
-        raw_data_dir="raw_data",
-        output_dir="parsed_data"
+        raw_data_dir=RAW_DIR,
+        output_dir=OUT_DIR
     )
     
     # Parse files

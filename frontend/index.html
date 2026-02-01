@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BondCheck // Onyx</title>
+    
+    <!-- Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (Via CDN for immediate use) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Grid.js (For High Performance Tables) -->
+    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+
+    <!-- PDF Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- OCR / Vision Library -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+    <!-- PDF Reader Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+
+    <!-- Tailwind Config for "Onyx" Theme -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        onyx: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            800: '#1f2937',
+                            900: '#0f172a', /* The "Onyx" Black */
+                            950: '#020617',
+                        },
+                        accent: '#2563EB', // Electric Blue
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* --- Override Grid.js Standard Styles for Onyx Look --- */
+        .gridjs-container { font-family: 'Inter', sans-serif; color: #0f172a; box-shadow: none !important; }
+        .gridjs-wrapper { border-radius: 4px; border: 1px solid #e2e8f0; box-shadow: none; }
+        .gridjs-table { width: 100%; }
+        
+        /* Headers */
+        .gridjs-th {
+            background-color: #f8fafc;
+            border-bottom: 2px solid #0f172a; /* Sharp contrast line */
+            color: #475569;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 12px 16px;
+        }
+
+        /* Cells */
+        .gridjs-td {
+            border-bottom: 1px solid #f1f5f9;
+            padding: 14px 16px;
+            font-size: 0.9rem;
+        }
+        
+        /* Pagination Bar */
+        .gridjs-footer { background: #fff; border-top: 1px solid #e2e8f0; }
+        
+        /* Buttons inside Grid */
+        .gridjs-pagination .gridjs-pages button {
+            border-radius: 4px !important;
+            border: 1px solid #e2e8f0;
+            background: white;
+            font-family: 'Inter';
+            font-weight: 500;
+        }
+        .gridjs-pagination .gridjs-pages button:hover { background: #0f172a; color: white; border-color: #0f172a; }
+        .gridjs-pagination .gridjs-pages button.gridjs-currentPage {
+            background-color: #0f172a;
+            color: white;
+            border-color: #0f172a;
+        }
+
+        /* Loading Skeleton Animation */
+        @keyframes pulse-fast { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        .loading-skeleton { animation: pulse-fast 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; background: #f1f5f9; color: transparent; border-radius: 2px;}
+
+        /* Form Controls */
+        select, input {
+            transition: all 0.15s ease-in-out;
+            outline: none;
+        }
+        select:focus, input:focus {
+            border-color: #0f172a;
+            box-shadow: 0 0 0 1px #0f172a;
+        }
+
+        /* Hover Effects */
+        .gridjs-tr:hover {
+            background-color: #f8fafc !important;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-hover {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-hover:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .btn-hover:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Utility for Copy */
+        .copy-tooltip {
+            position: absolute;
+            background: #0f172a;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+        .copyable:hover .copy-tooltip {
+            opacity: 1;
+        }
+        
+        /* Grid Transition */
+        #grid-wrapper {
+            transition: opacity 0.3s ease;
+        }
+        /* Custom Scrollbar for Scanner Results */
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 4px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen text-onyx-900 selection:bg-onyx-900 selection:text-white">
+
+    <!-- Top Border -->
+    <div class="h-1 w-full bg-onyx-900"></div>
+
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-10 border-b border-gray-100 pb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-onyx-900 flex items-center justify-center text-white font-bold rounded-sm">
+                    B
+                </div>
+                <h1 class="text-xl font-bold tracking-tight">BondCheck <span class="text-gray-400 font-normal">PRO</span></h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="refreshData()" class="p-2 text-gray-400 hover:text-onyx-900 transition-colors rounded-full hover:bg-gray-100" title="Reload Data">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+                <div class="flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-medium uppercase tracking-wide text-gray-500">System Online</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Dashboard -->
+       <div class="grid grid-cols-3 border border-gray-200 divide-x divide-gray-200 rounded-sm mb-10 bg-white">
+    <div class="p-3 md:p-6 flex flex-col justify-center">
+        <p class="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-tight md:tracking-wider mb-1">DB Size</p>
+        <h3 class="text-lg md:text-3xl font-mono font-semibold" id="total-draws">...</h3>
+        <span class="text-[9px] md:text-xs text-gray-400 mt-1 block leading-tight">Total draws</span>
+    </div>
+
+    <div class="p-3 md:p-6 flex flex-col justify-center">
+        <p class="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-tight md:tracking-wider mb-1">Winners</p>
+        <h3 class="text-lg md:text-3xl font-mono font-semibold text-emerald-600" id="total-winners">...</h3>
+        <span class="text-[9px] md:text-xs text-gray-400 mt-1 block leading-tight">Match history</span>
+    </div>
+
+    <div class="p-3 md:p-6 flex flex-col justify-center">
+        <p class="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-tight md:tracking-wider mb-1">Payout</p>
+        <h3 class="text-lg md:text-3xl font-mono font-semibold tracking-tighter md:tracking-tight" id="total-amount">...</h3>
+        <span class="text-[9px] md:text-xs text-gray-400 mt-1 block leading-tight">Total PKR</span>
+    </div>
+</div>
+
+        <!-- Advanced Filters Section -->
+        <div class="filter-panel p-6 rounded-lg mb-8 shadow-sm border border-gray-100 bg-white/50 backdrop-blur-md">
+            <div class="flex flex-col gap-6">
+                
+                <!-- Row 1: Search Type & Inputs -->
+                <div class="flex flex-wrap lg:flex-nowrap gap-6 items-start">
+                    <!-- Search Mode Selector -->
+                    <div class="w-full lg:w-48">
+                        <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Search Mode</label>
+                        <select id="search-mode" onchange="toggleSearchMode()" class="w-full h-10 pl-3 pr-8 bg-white border border-gray-200 text-sm font-medium rounded-md appearance-none cursor-pointer hover:border-gray-300 transition-all">
+                            <option value="single">Single Search</option>
+                            <option value="multi">Multi-Search</option>
+                            <option value="series">Bulk Series</option>
+                            <option value="mixed">Combined (Advanced)</option>
+                        </select>
+                    </div>
+
+                    <!-- Smart Scanner Button -->
+                    <div class="w-full lg:w-auto">
+                        <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest invisible">Scan</label>
+                        <button onclick="openScanner()" class="h-10 px-4 bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-100 rounded-md flex items-center gap-2 transition-all font-bold text-[10px] uppercase tracking-widest">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            Smart Scan
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Input Container -->
+                    <div class="flex-1 flex gap-4 items-end">
+                        <!-- Single Search -->
+                        <div id="mode-single" class="w-full search-mode-div">
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Bond Number (Prefix)</label>
+                            <div class="relative">
+                                <input type="text" id="bond-number" 
+                                       class="w-full h-10 pl-4 pr-10 bg-white border border-gray-200 text-sm font-medium focus:border-onyx-900 rounded-md transition-all"
+                                       placeholder="e.g. 123456 or 123...">
+                                <div class="absolute right-3 top-2.5 text-gray-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Multi-Search -->
+                        <div id="mode-multi" class="w-full search-mode-div hidden">
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Bond Numbers (Comma Separated)</label>
+                            <input type="text" id="bond-list" 
+                                   class="w-full h-10 px-4 bg-white border border-gray-200 text-sm font-medium focus:border-onyx-900 rounded-md transition-all"
+                                   placeholder="e.g. 112233, 445566, 778899">
+                        </div>
+
+                        <!-- Series Search -->
+                        <div id="mode-series" class="w-full search-mode-div hidden flex gap-3">
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Series Start</label>
+                                <input type="number" id="start-bond" 
+                                       class="w-full h-10 px-4 bg-white border border-gray-200 text-sm font-medium focus:border-onyx-900 rounded-md transition-all"
+                                       placeholder="100001">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Series End</label>
+                                <input type="number" id="end-bond" 
+                                       class="w-full h-10 px-4 bg-white border border-gray-200 text-sm font-medium focus:border-onyx-900 rounded-md transition-all"
+                                       placeholder="100200">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Core Filters -->
+                <div class="flex flex-wrap lg:flex-nowrap gap-4 items-end pt-4 border-t border-gray-100">
+
+                    <!-- Filters -->
+                    <div class="flex flex-wrap gap-4 items-end">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Denomination</label>
+                            <select id="denom-filter" class="h-10 pl-3 pr-8 bg-white border border-gray-200 text-sm font-medium rounded-md min-w-[130px] appearance-none cursor-pointer hover:border-gray-300">
+                                <option value="">All Denoms</option>
+                                <option value="100">Rs. 100</option>
+                                <option value="200">Rs. 200</option>
+                                <option value="750">Rs. 750</option>
+                                <option value="1500">Rs. 1500</option>
+                                <option value="7500">Rs. 7500</option>
+                                <option value="15000">Rs. 15000</option>
+                                <option value="25000">Rs. 25000</option>
+                                <option value="40000">Rs. 40000</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Prize Rank</label>
+                            <select id="rank-filter" class="h-10 pl-3 pr-8 bg-white border border-gray-200 text-sm font-medium rounded-md min-w-[130px] appearance-none cursor-pointer hover:border-gray-300">
+                                <option value="">All Ranks</option>
+                                <option value="1st">1st Prize</option>
+                                <option value="2nd">2nd Prize</option>
+                                <option value="3rd">3rd Prize</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Year</label>
+                            <select id="year-filter" class="h-10 pl-3 pr-8 bg-white border border-gray-200 text-sm font-medium rounded-md min-w-[90px] appearance-none cursor-pointer hover:border-gray-300">
+                                <option value="">All</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="2021">2021</option>
+                                <option value="2020">2020</option>
+                                <option value="2019">2019</option>
+
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Sort</label>
+                            <select id="sort-filter" class="h-10 pl-3 pr-8 bg-white border border-gray-200 text-sm font-medium rounded-md min-w-[130px] appearance-none cursor-pointer hover:border-gray-300">
+                                <option value="draw_date">Latest Date</option>
+                                <option value="prize_amount">Highest Prize</option>
+                                <option value="bond_number">Bond Number</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Rows</label>
+                            <div class="flex items-center gap-1">
+                                <select id="row-limit" class="h-10 pl-3 pr-8 bg-white border border-gray-200 text-sm font-medium rounded-md min-w-[70px] appearance-none cursor-pointer hover:border-gray-300">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50" selected>50</option>
+                                    <option value="100">100</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                                <input type="number" id="custom-rows" class="hidden h-10 w-16 px-2 bg-white border border-gray-200 text-sm font-medium rounded-md" placeholder="Qty">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Advanced & Actions -->
+                <div class="flex flex-wrap lg:flex-nowrap gap-6 items-end border-t border-gray-100 pt-6">
+                    <!-- Date Range -->
+                    <div class="flex-1 min-w-[280px]">
+                        <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Draw Date Range</label>
+                        <div class="flex items-center gap-3">
+                            <input type="date" id="start-date" class="h-10 w-full px-3 bg-white border border-gray-200 text-xs font-semibold rounded-md focus:border-onyx-900">
+                            <span class="text-gray-300">to</span>
+                            <input type="date" id="end-date" class="h-10 w-full px-3 bg-white border border-gray-200 text-xs font-semibold rounded-md focus:border-onyx-900">
+                        </div>
+                    </div>
+
+                    <!-- Min Amount -->
+                    <div class="min-w-[160px]">
+                        <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1.5 tracking-widest">Min Prize (PKR)</label>
+                        <input type="number" id="min-amount" class="h-10 w-full px-3 bg-white border border-gray-200 text-sm font-medium rounded-md focus:border-onyx-900" placeholder="0">
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-2 lg:ml-auto">
+                        <button onclick="exportToPDF()" class="h-10 px-4 border border-gray-200 bg-white hover:bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-500 rounded-md flex items-center gap-2 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export PDF
+                        </button>
+                        <button onclick="resetFilters()" class="h-10 px-4 bg-gray-50 text-gray-500 text-[10px] font-bold uppercase tracking-widest rounded-md hover:bg-gray-100 transition-colors">
+                            Clear
+                        </button>
+                        <button onclick="updateGridConfig()" class="h-10 px-8 bg-onyx-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-md btn-hover shadow-lg shadow-onyx-900/20">
+                            Search Records
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- The Advanced Grid -->
+        <div id="grid-wrapper"></div>
+
+    </div>
+
+    <script>
+        const API_BASE = ''; // Keep empty if hosted on same origin
+        let bondGrid;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initGrid();
+            fetchStats();
+            setupFilterListeners();
+            toggleSearchMode(); // Initialize default mode
+        });
+
+        // 0. UI HELPERS
+        function toggleSearchMode() {
+            const mode = document.getElementById('search-mode').value;
+            // Hide all first
+            document.querySelectorAll('.search-mode-div').forEach(div => div.classList.add('hidden'));
+            
+            if (mode === 'mixed') {
+                // Show both List and Series inputs
+                document.getElementById('mode-multi').classList.remove('hidden');
+                document.getElementById('mode-series').classList.remove('hidden');
+            } else {
+                // Standard single mode display
+                document.getElementById(`mode-${mode}`).classList.remove('hidden');
+            }
+        }
+
+        // --- SCANNER LOGIC ---
+        let extractedBonds = [];
+
+        function openScanner() {
+            document.getElementById('scanner-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            resetScanner();
+        }
+
+        function closeScanner() {
+            document.getElementById('scanner-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function resetScanner() {
+            document.getElementById('drop-zone').classList.remove('hidden');
+            document.getElementById('scan-progress').classList.add('hidden');
+            document.getElementById('scan-results').classList.add('hidden');
+            document.getElementById('progress-bar').style.width = '0%';
+            extractedBonds = [];
+        }
+
+        async function processFile(file) {
+            if (!file) return;
+            
+            document.getElementById('drop-zone').classList.add('hidden');
+            document.getElementById('scan-progress').classList.remove('hidden');
+            const statusBox = document.getElementById('progress-status');
+            const percentBox = document.getElementById('progress-percent');
+            const bar = document.getElementById('progress-bar');
+
+            try {
+                let text = "";
+                const fileType = file.type;
+                const fileName = file.name.toLowerCase();
+
+                if (fileType === "application/pdf" || fileName.endsWith('.pdf')) {
+                    statusBox.innerText = "Extracting PDF Text...";
+                    text = await extractTextFromPDF(file, (p) => {
+                        percentBox.innerText = p + '%';
+                        bar.style.width = p + '%';
+                    });
+                } else if (fileType === "text/plain" || fileName.endsWith('.txt')) {
+                    statusBox.innerText = "Reading Text File...";
+                    text = await file.text();
+                    bar.style.width = '100%';
+                    percentBox.innerText = '100%';
+                } else {
+                    // Assume Image for OCR
+                    statusBox.innerText = "Running AI OCR...";
+                    const worker = await Tesseract.createWorker({
+                        logger: m => {
+                            if (m.status === 'recognizing text') {
+                                const p = Math.floor(m.progress * 100);
+                                percentBox.innerText = p + '%';
+                                bar.style.width = p + '%';
+                            }
+                        }
+                    });
+                    await worker.loadLanguage('eng');
+                    await worker.initialize('eng');
+                    await worker.setParameters({ tessedit_char_whitelist: '0123456789' });
+                    const result = await worker.recognize(file);
+                    text = result.data.text;
+                    await worker.terminate();
+                }
+
+                // Extract unique 6-digit numbers
+                const matches = text.match(/\b\d{6}\b/g) || [];
+                extractedBonds = [...new Set(matches)];
+
+                displayResults();
+            } catch (err) {
+                console.error("Extraction Error", err);
+                alert("Failed to process file. Ensure it is a valid document.");
+                resetScanner();
+            }
+        }
+
+        async function extractTextFromPDF(file, onProgress) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = "";
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                const strings = content.items.map(item => item.str);
+                fullText += strings.join(" ") + " ";
+                if (onProgress) onProgress(Math.floor((i / pdf.numPages) * 100));
+            }
+            return fullText;
+        }
+
+        function displayResults() {
+            document.getElementById('scan-progress').classList.add('hidden');
+            document.getElementById('scan-results').classList.remove('hidden');
+            const container = document.getElementById('found-numbers');
+            
+            if (extractedBonds.length === 0) {
+                container.innerHTML = `<span class="text-xs text-gray-500 italic">No 6-digit numbers found. Try another image.</span>`;
+            } else {
+                container.innerHTML = extractedBonds.map(num => `
+                    <span class="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono font-bold text-onyx-900 shadow-sm">${num}</span>
+                `).join('');
+            }
+        }
+
+        function applyFoundNumbers() {
+            if (extractedBonds.length > 0) {
+                const currentList = document.getElementById('bond-list').value;
+                const newList = [currentList, ...extractedBonds].filter(x => x).join(', ');
+                document.getElementById('bond-list').value = newList;
+                
+                // Switch to mixed or multi mode automatically
+                const modeSelect = document.getElementById('search-mode');
+                if (modeSelect.value === 'single' || modeSelect.value === 'series') {
+                    modeSelect.value = 'multi';
+                    toggleSearchMode();
+                }
+                
+                updateGridConfig();
+            }
+            closeScanner();
+        }
+
+        // 1. GRID INITIALIZATION (Using Grid.js)
+        function initGrid() {
+            bondGrid = new gridjs.Grid({
+                columns: [
+                    { id: 'bond_number', name: 'Bond #', 
+                      formatter: (cell) => gridjs.html(`
+                        <div class="relative group/copy cursor-pointer flex items-center gap-2 copyable" onclick="copyToClipboard('${cell}', this)">
+                            <span class="font-mono font-bold text-onyx-900 text-base">${cell}</span>
+                            <svg class="w-3 h-3 text-gray-300 opacity-0 group-hover/copy:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                            <span class="copy-tooltip">Copy</span>
+                        </div>
+                      `) 
+                    },
+                    { id: 'denomination', name: 'Value',
+                      formatter: (cell) => `Rs. ${cell}` 
+                    },
+                    { id: 'prize_position', name: 'Rank', 
+                      formatter: (cell) => {
+                          let color = cell.includes('1st') ? 'text-amber-600 bg-amber-50 border-amber-200' : 
+                                      cell.includes('2nd') ? 'text-blue-600 bg-blue-50 border-blue-200' : 
+                                      'text-emerald-600 bg-emerald-50 border-emerald-200';
+                          return gridjs.html(`<span class="px-2 py-1 text-xs font-bold uppercase border rounded-sm ${color}">${cell}</span>`);
+                      }
+                    },
+                    { id: 'prize_amount', name: 'Prize', 
+                      formatter: (cell) => gridjs.html(`<span class="font-mono font-semibold">Rs. ${cell.toLocaleString()}</span>`) 
+                    },
+                    { id: 'draw_date', name: 'Date', 
+                      formatter: (cell, row) => gridjs.html(`<span class="text-gray-600 font-medium">${formatDate(cell || row.cells[5].data)}</span>`)
+                    },
+                    { id: 'draw_year', name: 'Year', hidden: true }, 
+                    { id: 'source', name: 'Source', 
+                      formatter: (cell) => gridjs.html(`<span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">${cell || 'Official'}</span>`)
+                    }
+                ],
+                server: {
+                    url: `${API_BASE}/api/draws`,
+                    then: data => data.draws.map(draw => [
+                        draw.bond_number,
+                        draw.denomination,
+                        draw.prize_position,
+                        draw.prize_amount,
+                        draw.draw_date,
+                        draw.draw_year,
+                        draw.source
+                    ]),
+                    total: data => data.total
+                },
+                pagination: {
+                    enabled: true,
+                    limit: parseInt(document.getElementById('row-limit').value) || 10,
+                    server: {
+                        url: (prev, page, limit) => `${prev}?limit=${limit}&offset=${page * limit}`
+                    },
+                    summary: true // Shows "Displaying 1 to 10 of..."
+                },
+                style: { 
+                    table: { 'white-space': 'nowrap' }
+                },
+                className: {
+                    table: 'w-full text-left',
+                }
+            }).render(document.getElementById("grid-wrapper"));
+        }
+
+        // 2. SEARCH & FILTER LOGIC
+        function updateGridConfig() {
+            const gridEl = document.getElementById("grid-wrapper");
+            gridEl.style.opacity = "0.5";
+            
+            const searchMode = document.getElementById('search-mode').value;
+            const bondNum = document.getElementById('bond-number').value.trim();
+            const bondList = document.getElementById('bond-list').value.trim();
+            const startBond = document.getElementById('start-bond').value.trim();
+            const endBond = document.getElementById('end-bond').value.trim();
+
+            const denom = document.getElementById('denom-filter').value;
+            const rank = document.getElementById('rank-filter').value;
+            const year = document.getElementById('year-filter').value;
+            const sortBy = document.getElementById('sort-filter').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const minAmount = document.getElementById('min-amount').value;
+            
+            // Handle row limit
+            const limitSelect = document.getElementById('row-limit');
+            const customInput = document.getElementById('custom-rows');
+            let limit = parseInt(limitSelect.value);
+            if (limitSelect.value === 'custom') {
+                limit = parseInt(customInput.value) || 10;
+            }
+
+            // Helper to build search params
+            const getSearchParams = () => {
+                let p = '';
+                // In single mode, only bond_number
+                if (searchMode === 'single' && bondNum) p += `&bond_number=${bondNum}`;
+                
+                // In multi or mixed mode, check bond_list
+                if ((searchMode === 'multi' || searchMode === 'mixed') && bondList) p += `&bond_list=${bondList}`;
+                
+                // In series or mixed mode, check series
+                if (searchMode === 'series' || searchMode === 'mixed') {
+                    if (startBond) p += `&start_bond=${startBond}`;
+                    if (endBond) p += `&end_bond=${endBond}`;
+                }
+                
+                if (denom) p += `&denomination=${denom}`;
+                if (rank) p += `&position=${rank}`;
+                if (year) p += `&year=${year}`;
+                if (sortBy) p += `&sort_by=${sortBy}`;
+                if (startDate) p += `&start_date=${startDate}`;
+                if (endDate) p += `&end_date=${endDate}`;
+                if (minAmount) p += `&min_amount=${minAmount}`;
+                return p;
+            };
+
+            // Grid.js Server-side URL Generator
+            const urlGenerator = (prev, page, limit) => {
+                return `${API_BASE}/api/draws?limit=${limit}&offset=${page * limit}${getSearchParams()}`;
+            };
+
+            // Force update the grid configuration
+            bondGrid.updateConfig({
+                pagination: {
+                    enabled: true,
+                    limit: limit,
+                    server: { url: urlGenerator }
+                },
+                server: {
+                    url: `${API_BASE}/api/draws?limit=${limit}${getSearchParams()}`,
+                    then: data => {
+                        gridEl.style.opacity = "1";
+                        if (!data.draws) return [];
+                        return data.draws.map(draw => [
+                            draw.bond_number,
+                            draw.denomination,
+                            draw.prize_position,
+                            draw.prize_amount,
+                            draw.draw_date,
+                            draw.draw_year,
+                            draw.source
+                        ]);
+                    },
+                    total: data => data.total || 0
+                }
+            }).forceRender();
+        }
+
+        function resetFilters() {
+            document.getElementById('search-mode').value = 'single';
+            toggleSearchMode();
+            document.getElementById('denom-filter').value = '';
+            document.getElementById('rank-filter').value = '';
+            document.getElementById('year-filter').value = '';
+            document.getElementById('sort-filter').value = 'draw_date';
+            document.getElementById('bond-number').value = '';
+            document.getElementById('bond-list').value = '';
+            document.getElementById('start-bond').value = '';
+            document.getElementById('end-bond').value = '';
+            document.getElementById('row-limit').value = '50';
+            document.getElementById('start-date').value = '';
+            document.getElementById('end-date').value = '';
+            document.getElementById('min-amount').value = '';
+            document.getElementById('custom-rows').classList.add('hidden');
+            updateGridConfig();
+        }
+
+        function refreshData() {
+            fetchStats();
+            updateGridConfig();
+        }
+
+        // 3. STATS FETCHING
+        async function fetchStats() {
+            try {
+                const res = await fetch(`${API_BASE}/api/stats`);
+                const data = await res.json();
+                
+                animateValue("total-winners", 0, data.total_winners, 1000);
+                
+                // Estimates based on winners count (since we don't have explicit totals in stats api)
+                const draws = Math.floor(data.total_winners / 1000); 
+                document.getElementById('total-draws').innerText = draws.toLocaleString();
+                
+                const amount = data.by_position.reduce((acc, curr) => acc + curr.total_amount, 0);
+                document.getElementById('total-amount').innerText = formatCompact(amount);
+            } catch (err) { console.error("Stats error", err); }
+        }
+
+        // 4. QUICK SEARCH
+        async function triggerSearch(explicitNum = null) {
+            const num = explicitNum || document.getElementById('bond-number').value.trim();
+            if(!num || num.length !== 6) {
+                if (!explicitNum) alert("Please enter a valid 6-digit bond number");
+                return;
+            }
+
+            // Create a custom data source for the grid for search mode
+            bondGrid.updateConfig({
+                pagination: { enabled: false }, 
+                server: {
+                    url: `${API_BASE}/api/search?number=${num}`,
+                    then: data => {
+                        if(!data.wins || data.wins.length === 0) {
+                            alert("No records found for " + num);
+                            return [];
+                        }
+                        return data.wins.map(w => [w.bond_number, w.denomination, w.prize_position, w.prize_amount, w.draw_date, w.draw_year, w.source])
+                    },
+                    total: data => data.total_wins
+                }
+            }).forceRender();
+        }
+
+        // Helpers
+        function setupFilterListeners() {
+            // We removed auto-listeners to use the "Apply" button for better control, 
+            // but we can keep them for dropdowns if preferred. 
+            // Let's keep them for seamless feel.
+            document.getElementById('denom-filter').addEventListener('change', updateGridConfig);
+            document.getElementById('rank-filter').addEventListener('change', updateGridConfig);
+            document.getElementById('year-filter').addEventListener('change', updateGridConfig);
+            document.getElementById('sort-filter').addEventListener('change', updateGridConfig);
+            document.getElementById('start-date').addEventListener('change', updateGridConfig);
+            document.getElementById('end-date').addEventListener('change', updateGridConfig);
+            document.getElementById('min-amount').addEventListener('change', updateGridConfig);
+            
+            document.getElementById('row-limit').addEventListener('change', (e) => {
+                const customInput = document.getElementById('custom-rows');
+                if (e.target.value === 'custom') {
+                    customInput.classList.remove('hidden');
+                } else {
+                    customInput.classList.add('hidden');
+                    updateGridConfig();
+                }
+            });
+
+            document.getElementById('custom-rows').addEventListener('change', updateGridConfig);
+            
+            // Bond Number Enter Key
+            document.getElementById('bond-number').addEventListener('keyup', (e) => {
+                if(e.key === 'Enter') updateGridConfig();
+            });
+            document.getElementById('bond-list').addEventListener('keyup', (e) => {
+                if(e.key === 'Enter') updateGridConfig();
+            });
+            document.getElementById('start-bond').addEventListener('keyup', (e) => {
+                if(e.key === 'Enter') updateGridConfig();
+            });
+            document.getElementById('end-bond').addEventListener('keyup', (e) => {
+                if(e.key === 'Enter') updateGridConfig();
+            });
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            if (!dateStr.includes('-')) return dateStr;
+            
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length !== 3) return dateStr;
+                
+                let day = parseInt(parts[0]);
+                let monthStr = parts[1].trim();
+                let year = parts[2].trim();
+                
+                let month;
+                // Handle numeric month (01-12)
+                if (!isNaN(monthStr)) {
+                    month = parseInt(monthStr) - 1;
+                } else {
+                    // Handle textual month (Jan, Feb, etc.)
+                    const months = {
+                        'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5,
+                        'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11
+                    };
+                    month = months[monthStr.toLowerCase().substring(0, 3)];
+                }
+                
+                if (isNaN(day) || month === undefined || isNaN(month)) return dateStr;
+
+                const date = new Date(year, month, day);
+                if (isNaN(date.getTime())) return dateStr;
+                
+                const suffix = (d) => {
+                    if (d > 3 && d < 21) return 'th';
+                    switch (d % 10) {
+                        case 1:  return "st";
+                        case 2:  return "nd";
+                        case 3:  return "rd";
+                        default: return "th";
+                    }
+                }
+                
+                const monthName = date.toLocaleString('en-US', { month: 'short' });
+                return `${day}${suffix(day)} ${monthName}, ${year}`;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        async function copyToClipboard(text, el) {
+            try {
+                await navigator.clipboard.writeText(text);
+                const tooltip = el.querySelector('.copy-tooltip');
+                const originalText = tooltip.innerText;
+                tooltip.innerText = 'Copied!';
+                tooltip.style.opacity = '1';
+                setTimeout(() => {
+                    tooltip.innerText = originalText;
+                    tooltip.style.opacity = '';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+            }
+        }
+
+        function formatCompact(num) {
+            return Intl.NumberFormat('en-US', { notation: "compact", maximumFractionDigits: 1 }).format(num);
+        }
+
+        function animateValue(id, start, end, duration) {
+            if (start === end) return;
+            var obj = document.getElementById(id);
+            if (!obj) return;
+            
+            var range = end - start;
+            var current = start;
+            var increment = end > start? Math.ceil(range / (duration / 10)) : Math.floor(range / (duration / 10));
+            
+            var timer = setInterval(function() {
+                current += increment;
+                if((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                obj.innerHTML = current.toLocaleString();
+            }, 10);
+        }
+
+        // 5. PDF EXPORT FEATURE
+        async function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            
+            // Show loading state on button
+            const btn = event.currentTarget;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<span class="animate-spin mr-2">◌</span> Generating...`;
+            btn.disabled = true;
+
+            try {
+                // Construct URL with current filters to get ALL matching data (unlimited)
+                const denom = document.getElementById('denom-filter').value;
+                const rank = document.getElementById('rank-filter').value;
+                const year = document.getElementById('year-filter').value;
+                const sortBy = document.getElementById('sort-filter').value;
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+                const minAmount = document.getElementById('min-amount').value;
+                
+                let exportUrl = `${API_BASE}/api/draws?limit=5000&offset=0`; // High limit for export
+                if (denom) exportUrl += `&denomination=${denom}`;
+                if (rank) exportUrl += `&position=${rank}`;
+                if (year) exportUrl += `&year=${year}`;
+                if (sortBy) exportUrl += `&sort_by=${sortBy}`;
+                if (startDate) exportUrl += `&start_date=${startDate}`;
+                if (endDate) exportUrl += `&end_date=${endDate}`;
+                if (minAmount) exportUrl += `&min_amount=${minAmount}`;
+
+                const response = await fetch(exportUrl);
+                const data = await response.json();
+                
+                if (!data.draws || data.draws.length === 0) {
+                    alert("No data available to export with current filters.");
+                    return;
+                }
+
+                // --- PDF Header Design ---
+                doc.setFillColor(15, 23, 42); // Onyx 900
+                doc.rect(0, 0, 595, 80, 'F'); // Increased height
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(20);
+                doc.setFont('helvetica', 'bold');
+                doc.text('BondCheck PRO', 40, 45); 
+                
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'normal');
+                // Use right alignment with a safer margin
+                doc.text('Prize Bond Report', 545, 40, { align: 'right' });
+                doc.text(new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }), 545, 53, { align: 'right' });
+
+                // Filter Summary
+                doc.setTextColor(71, 85, 105);
+                doc.setFontSize(8);
+                let filterSummary = "FILTERS: " + [
+                    denom ? `Denom: ${denom}` : "All Denoms",
+                    year ? `Year: ${year}` : "All Years",
+                    rank ? `Rank: ${rank}` : "All Ranks",
+                    startDate ? `From: ${startDate}` : null,
+                    endDate ? `To: ${endDate}` : null
+                ].filter(Boolean).join(" | ");
+                doc.text(filterSummary, 40, 105);
+
+                // --- Table Generation ---
+                const tableData = data.draws.map(d => [
+                    d.bond_number,
+                    'Rs. ' + d.denomination,
+                    d.prize_position,
+                    'Rs. ' + (d.prize_amount || 0).toLocaleString(),
+                    formatDate(d.draw_date),
+                    d.source || 'Official'
+                ]);
+
+                doc.autoTable({
+                    startY: 120,
+                    head: [['Bond #', 'Denom', 'Rank', 'Prize Amount', 'Draw Date', 'Source']],
+                    body: tableData,
+                    theme: 'striped',
+                    headStyles: { 
+                        fillColor: [15, 23, 42], 
+                        textColor: [255, 255, 255],
+                        fontSize: 9,
+                        fontStyle: 'bold',
+                        halign: 'center'
+                    },
+                    bodyStyles: { 
+                        fontSize: 8,
+                        valign: 'middle'
+                    },
+                    columnStyles: {
+                        0: { halign: 'center', fontStyle: 'bold' },
+                        1: { halign: 'center' },
+                        2: { halign: 'center' },
+                        3: { halign: 'right' },
+                        4: { halign: 'center' },
+                        5: { halign: 'center' }
+                    },
+                    margin: { left: 40, right: 40 },
+                    didDrawPage: function (data) {
+                        // --- Footer Design ---
+                        const pageSize = doc.internal.pageSize;
+                        const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+                        
+                        doc.setDrawColor(226, 232, 240);
+                        doc.line(40, pageHeight - 40, 555, pageHeight - 40);
+                        
+                        doc.setFontSize(8);
+                        doc.setTextColor(148, 163, 184);
+                        doc.text('bondcheckpro.internal', 40, pageHeight - 25);
+                        
+                        const str = "Page " + doc.internal.getNumberOfPages();
+                        doc.text(str, 520, pageHeight - 25);
+                    }
+                });
+
+                doc.save(`BondCheck_Report_${new Date().getTime()}.pdf`);
+
+            } catch (error) {
+                console.error("PDF Export Error:", error);
+                alert("Failed to generate PDF. Check console for details.");
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+    </script>
+
+    <!-- Scanner Modal -->
+    <div id="scanner-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-onyx-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100">
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-600 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    AI Bond Vision
+                </h3>
+                <button onclick="closeScanner()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="p-8">
+                <div id="drop-zone" class="border-2 border-dashed border-gray-200 rounded-lg p-10 text-center hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer group"
+                     onclick="document.getElementById('file-input').click()">
+                    <input type="file" id="file-input" class="hidden" accept="image/*,.pdf,.txt" onchange="processFile(this.files[0])">
+                    <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    </div>
+                    <p class="text-sm font-semibold text-gray-700">Drop Image, PDF, or Text File</p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest mt-2">Supports JPG, PNG, PDF, TXT</p>
+                </div>
+
+                <div id="scan-progress" class="hidden mt-8">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600" id="progress-status">Reading Numbers...</span>
+                        <span class="text-xs font-mono text-emerald-600" id="progress-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+
+                <div id="scan-results" class="hidden mt-8">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Extraction Complete</p>
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 flex flex-wrap gap-2 max-h-60 overflow-y-auto scrollbar-thin shadow-inner" id="found-numbers">
+                        <!-- Numbers injected here -->
+                    </div>
+                    <button onclick="applyFoundNumbers()" class="w-full mt-6 h-12 bg-onyx-900 text-white rounded-md font-bold text-[11px] uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-onyx-900/10">
+                        Add to Search List
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -370,8 +370,12 @@ def main():
     confirm = input("\n🚀 Start scraping? (y/n): ").strip().lower()
     
     if confirm == 'y':
+        # Use absolute path
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        OUTPUT_DIR = os.path.join(BASE_DIR, '..', 'database', 'raw_data')
+        
         scraper = MultiSourceScraper(
-            output_dir="raw_data",
+            output_dir=OUTPUT_DIR,
             max_workers=max_workers
         )
         
