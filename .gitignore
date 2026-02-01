@@ -2,3 +2,5 @@ prize_bonds_data/
 venv/
 bonds_scraper.log
 Scripts/
+bond_data/
+prize_bonds_complete/

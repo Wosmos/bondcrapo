@@ -1,14 +1,13 @@
 """
-Pakistan Prize Bonds Advanced Scraper
-Powerful, optimized scraper with full user control
+Pakistan Prize Bonds Complete Scraper & Parser
+Scrapes draw listings, downloads TXT files, and extracts all winning numbers
 
 Features:
-- Multi-threaded downloading
-- Resume capability
-- Detailed progress tracking
-- Multiple output formats
-- Flexible filtering options
-- Data validation
+- Downloads all draw TXT files
+- Parses 1st, 2nd, and 3rd prize winners
+- Maps prize amounts automatically
+- Outputs structured CSV ready for database
+- Handles all denominations
 """
 
 import requests
@@ -21,56 +20,89 @@ import re
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import argparse
 import logging
 
-class PrizeBondScraper:
-    """Advanced Pakistan Prize Bonds Scraper"""
+class CompletePrizeBondScraper:
+    """Complete scraper with number extraction"""
     
     BASE_URL = "https://savings.gov.pk"
+    
+    # Prize structure from the official table
+    PRIZE_STRUCTURE = {
+        100: {
+            '1st': {'amount': 700000, 'count': 1},
+            '2nd': {'amount': 200000, 'count': 3},
+            '3rd': {'amount': 1000, 'count': 1199}
+        },
+        200: {
+            '1st': {'amount': 750000, 'count': 1},
+            '2nd': {'amount': 250000, 'count': 5},
+            '3rd': {'amount': 1250, 'count': 2394}
+        },
+        750: {
+            '1st': {'amount': 1500000, 'count': 1},
+            '2nd': {'amount': 500000, 'count': 3},
+            '3rd': {'amount': 9300, 'count': 1696}
+        },
+        1500: {
+            '1st': {'amount': 3000000, 'count': 1},
+            '2nd': {'amount': 1000000, 'count': 3},
+            '3rd': {'amount': 18500, 'count': 1696}
+        },
+        7500: {
+            '1st': {'amount': 15000000, 'count': 1},
+            '2nd': {'amount': 5000000, 'count': 3},
+            '3rd': {'amount': 93000, 'count': 1696}
+        },
+        15000: {
+            '1st': {'amount': 30000000, 'count': 1},
+            '2nd': {'amount': 10000000, 'count': 3},
+            '3rd': {'amount': 185000, 'count': 1696}
+        },
+        25000: {
+            '1st': {'amount': 50000000, 'count': 1},
+            '2nd': {'amount': 15000000, 'count': 3},
+            '3rd': {'amount': 312000, 'count': 1696}
+        },
+        40000: {
+            '1st': {'amount': 75000000, 'count': 1},
+            '2nd': {'amount': 25000000, 'count': 3},
+            '3rd': {'amount': 500000, 'count': 1696}
+        }
+    }
     
     DENOMINATIONS = {
         100: "rs-100-prize-bond-draw",
         200: "rs-200-prize-bond-draw",
         750: "rs-750-prize-bond-draw",
         1500: "rs-1500-prize-bond-draw",
+        7500: "rs-7500-prize-bond-draw",
+        15000: "rs-15000-prize-bond-draw",
         25000: "premium-prize-bond-rs-25000",
         40000: "premium-prize-bond-rs-40000"
     }
     
-    def __init__(self, output_dir: str = "prize_bonds_data", verbose: bool = True):
+    def __init__(self, output_dir: str = "prize_bonds_complete"):
         """Initialize scraper"""
         self.output_dir = output_dir
-        self.verbose = verbose
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         })
         
-        # Create directory structure
-        self.create_directories()
-        
-        # Setup logging
+        self.setup_directories()
         self.setup_logging()
         
-        # Statistics
-        self.stats = {
-            'total_draws': 0,
-            'total_downloaded': 0,
-            'total_failed': 0,
-            'start_time': None,
-            'end_time': None
-        }
+        self.all_winners = []  # Store all winners across all draws
     
-    def create_directories(self):
-        """Create output directory structure"""
+    def setup_directories(self):
+        """Create directory structure"""
         dirs = [
             self.output_dir,
-            f"{self.output_dir}/json",
+            f"{self.output_dir}/raw_txt",
             f"{self.output_dir}/csv",
-            f"{self.output_dir}/downloads",
-            f"{self.output_dir}/logs",
-            f"{self.output_dir}/cache"
+            f"{self.output_dir}/json",
+            f"{self.output_dir}/logs"
         ]
         for d in dirs:
             os.makedirs(d, exist_ok=True)
@@ -79,7 +111,7 @@ class PrizeBondScraper:
         """Setup logging"""
         log_file = f"{self.output_dir}/logs/scraper_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         logging.basicConfig(
-            level=logging.INFO if self.verbose else logging.WARNING,
+            level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
                 logging.FileHandler(log_file),
@@ -88,25 +120,8 @@ class PrizeBondScraper:
         )
         self.logger = logging.getLogger(__name__)
     
-    def parse_date(self, date_str: str) -> Optional[datetime]:
-        """Parse date string to datetime object"""
-        # Try different date formats
-        formats = [
-            '%d-%m-%Y',
-            '%d/%m/%Y',
-            '%Y-%m-%d',
-            '%d-%m-%y'
-        ]
-        
-        for fmt in formats:
-            try:
-                return datetime.strptime(date_str.split('(')[0].strip(), fmt)
-            except:
-                continue
-        return None
-    
-    def extract_draws_from_page(self, denomination: int) -> List[Dict]:
-        """Extract all draw information from a denomination page"""
+    def scrape_draw_listings(self, denomination: int) -> List[Dict]:
+        """Scrape all draw listings for a denomination"""
         url = f"{self.BASE_URL}/{self.DENOMINATIONS[denomination]}"
         self.logger.info(f"Scraping {url}")
         
@@ -118,18 +133,17 @@ class PrizeBondScraper:
             draws = []
             current_year = None
             
-            # Find all h2 tags
             h2_tags = soup.find_all('h2')
             
             for h2 in h2_tags:
                 text = h2.get_text(strip=True)
                 
-                # Check if it's a year header
+                # Check if it's a year
                 if text.isdigit() and len(text) == 4:
                     current_year = text
                     continue
                 
-                # Check if it has a link (draw entry)
+                # Check for draw link
                 link = h2.find('a')
                 if link and current_year:
                     href = link.get('href', '')
@@ -142,408 +156,401 @@ class PrizeBondScraper:
                     else:
                         file_url = href
                     
-                    # Extract file type
-                    file_type = 'unknown'
-                    if '.txt' in file_url.lower():
-                        file_type = 'txt'
-                    elif '.pdf' in file_url.lower():
-                        file_type = 'pdf'
-                    elif '.docx' in file_url.lower() or '.doc' in file_url.lower():
-                        file_type = 'docx'
-                    
-                    # Parse the date from text
-                    date_str = text
-                    parsed_date = self.parse_date(date_str)
+                    # Only process TXT files for now (most reliable)
+                    if '.txt' not in file_url.lower():
+                        continue
                     
                     draw = {
                         'denomination': denomination,
-                        'date_string': date_str,
-                        'date_parsed': parsed_date.strftime('%Y-%m-%d') if parsed_date else None,
+                        'date_string': text,
                         'year': current_year,
-                        'file_url': file_url,
-                        'file_type': file_type,
-                        'downloaded': False,
-                        'local_path': None
+                        'file_url': file_url
                     }
                     
                     draws.append(draw)
-                    self.logger.debug(f"Found: {date_str} ({file_type})")
             
-            self.logger.info(f"Found {len(draws)} draws for Rs. {denomination}")
+            self.logger.info(f"Found {len(draws)} TXT draws for Rs. {denomination}")
             return draws
             
         except Exception as e:
             self.logger.error(f"Error scraping Rs. {denomination}: {e}")
             return []
     
-    def scrape_metadata(self, denominations: Optional[List[int]] = None,
-                       years: Optional[List[str]] = None) -> Dict:
-        """
-        Scrape metadata for specified denominations and years
-        
-        Args:
-            denominations: List of denominations to scrape (None = all)
-            years: List of years to filter (None = all)
-        
-        Returns:
-            Dictionary with all scraped metadata
-        """
-        self.stats['start_time'] = datetime.now()
-        
-        if denominations is None:
-            denominations = list(self.DENOMINATIONS.keys())
-        
-        all_data = {}
-        
-        print("\n" + "="*80)
-        print("📊 SCRAPING PRIZE BOND METADATA")
-        print("="*80)
-        
-        for denom in denominations:
-            if denom not in self.DENOMINATIONS:
-                self.logger.warning(f"Invalid denomination: {denom}, skipping")
-                continue
-            
-            print(f"\n🎯 Rs. {denom} Prize Bonds")
-            print("-"*80)
-            
-            draws = self.extract_draws_from_page(denom)
-            
-            # Filter by years if specified
-            if years:
-                draws = [d for d in draws if d['year'] in years]
-                print(f"   Filtered to years: {', '.join(years)}")
-            
-            all_data[denom] = draws
-            self.stats['total_draws'] += len(draws)
-            
-            print(f"   ✓ Found {len(draws)} draws")
-            
-            # Save individual denomination data
-            self.save_denomination_data(denom, draws)
-            
-            time.sleep(1)  # Rate limiting
-        
-        # Save combined data
-        self.save_combined_data(all_data)
-        
-        self.stats['end_time'] = datetime.now()
-        
-        return all_data
-    
-    def save_denomination_data(self, denomination: int, draws: List[Dict]):
-        """Save data for a single denomination"""
-        # JSON
-        json_file = f"{self.output_dir}/json/draws_{denomination}.json"
-        with open(json_file, 'w', encoding='utf-8') as f:
-            json.dump(draws, f, indent=2, ensure_ascii=False)
-        
-        # CSV
-        if draws:
-            csv_file = f"{self.output_dir}/csv/draws_{denomination}.csv"
-            with open(csv_file, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.DictWriter(f, fieldnames=draws[0].keys())
-                writer.writeheader()
-                writer.writerows(draws)
-    
-    def save_combined_data(self, all_data: Dict):
-        """Save combined data across all denominations"""
-        json_file = f"{self.output_dir}/all_draws.json"
-        with open(json_file, 'w', encoding='utf-8') as f:
-            json.dump(all_data, f, indent=2, ensure_ascii=False)
-        
-        self.logger.info(f"Saved combined data to {json_file}")
-    
-    def download_file(self, draw: Dict) -> Tuple[bool, str]:
-        """
-        Download a single draw file
-        
-        Returns:
-            (success, message)
-        """
+    def download_txt_file(self, draw: Dict) -> Optional[str]:
+        """Download a TXT file"""
         try:
-            filename = f"{draw['denomination']}_{draw['date_string'].replace('/', '-').replace(' ', '_')}.{draw['file_type']}"
-            filepath = f"{self.output_dir}/downloads/{filename}"
+            filename = f"{draw['denomination']}_{draw['date_string'].replace('/', '-').replace(' ', '_')}.txt"
+            filepath = f"{self.output_dir}/raw_txt/{filename}"
             
-            # Check if already exists
+            # Skip if exists
             if os.path.exists(filepath):
-                return True, f"Already exists: {filename}"
+                self.logger.info(f"File exists: {filename}")
+                return filepath
             
-            # Download
             response = self.session.get(draw['file_url'], timeout=30)
             response.raise_for_status()
             
             with open(filepath, 'wb') as f:
                 f.write(response.content)
             
-            draw['downloaded'] = True
-            draw['local_path'] = filepath
+            self.logger.info(f"Downloaded: {filename}")
+            time.sleep(0.5)  # Rate limiting
             
-            return True, f"Downloaded: {filename}"
+            return filepath
             
         except Exception as e:
-            return False, f"Failed: {draw['date_string']} - {str(e)[:50]}"
+            self.logger.error(f"Error downloading {draw['file_url']}: {e}")
+            return None
     
-    def download_files_sequential(self, all_data: Dict, 
-                                  denominations: Optional[List[int]] = None,
-                                  limit_per_denom: Optional[int] = None) -> Dict:
-        """Download files sequentially"""
+    def parse_txt_file(self, filepath: str, draw: Dict) -> Dict:
+        """
+        Parse TXT file to extract all winning numbers
+        
+        The structure is:
+        - 1st Prize: First number mentioned (usually at top)
+        - 2nd Prize: Next 3-5 numbers (depending on denomination)
+        - 3rd Prize: ALL remaining numbers in the file
+        """
+        try:
+            # Try different encodings
+            content = None
+            for encoding in ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']:
+                try:
+                    with open(filepath, 'r', encoding=encoding) as f:
+                        content = f.read()
+                    break
+                except:
+                    continue
+            
+            if not content:
+                self.logger.error(f"Could not read {filepath}")
+                return None
+            
+            denomination = draw['denomination']
+            
+            # Extract all 6-digit numbers (prize bond format)
+            all_numbers = re.findall(r'\b\d{6}\b', content)
+            
+            if not all_numbers:
+                self.logger.warning(f"No numbers found in {filepath}")
+                return None
+            
+            # Remove duplicates while preserving order
+            seen = set()
+            unique_numbers = []
+            for num in all_numbers:
+                if num not in seen:
+                    seen.add(num)
+                    unique_numbers.append(num)
+            
+            # Get expected counts from prize structure
+            expected_2nd = self.PRIZE_STRUCTURE[denomination]['2nd']['count']
+            
+            # Parse based on position
+            first_prize = unique_numbers[0] if len(unique_numbers) > 0 else None
+            second_prizes = unique_numbers[1:1+expected_2nd] if len(unique_numbers) > expected_2nd else []
+            third_prizes = unique_numbers[1+expected_2nd:] if len(unique_numbers) > (1+expected_2nd) else []
+            
+            result = {
+                'denomination': denomination,
+                'date': draw['date_string'],
+                'year': draw['year'],
+                'first_prize': first_prize,
+                'second_prizes': second_prizes,
+                'third_prizes': third_prizes,
+                'total_numbers': len(unique_numbers),
+                'file_path': filepath
+            }
+            
+            self.logger.info(f"Parsed {filepath}: 1st={first_prize}, 2nd={len(second_prizes)}, 3rd={len(third_prizes)}")
+            
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Error parsing {filepath}: {e}")
+            return None
+    
+    def create_winners_records(self, parsed_data: Dict) -> List[Dict]:
+        """
+        Create individual winner records with prize info
+        Each record represents one winning bond number
+        """
+        if not parsed_data:
+            return []
+        
+        denomination = parsed_data['denomination']
+        date = parsed_data['date']
+        year = parsed_data['year']
+        
+        winners = []
+        
+        # 1st Prize
+        if parsed_data['first_prize']:
+            winners.append({
+                'denomination': denomination,
+                'draw_date': date,
+                'draw_year': year,
+                'bond_number': parsed_data['first_prize'],
+                'prize_position': '1st',
+                'prize_amount': self.PRIZE_STRUCTURE[denomination]['1st']['amount']
+            })
+        
+        # 2nd Prizes
+        for num in parsed_data['second_prizes']:
+            winners.append({
+                'denomination': denomination,
+                'draw_date': date,
+                'draw_year': year,
+                'bond_number': num,
+                'prize_position': '2nd',
+                'prize_amount': self.PRIZE_STRUCTURE[denomination]['2nd']['amount']
+            })
+        
+        # 3rd Prizes
+        for num in parsed_data['third_prizes']:
+            winners.append({
+                'denomination': denomination,
+                'draw_date': date,
+                'draw_year': year,
+                'bond_number': num,
+                'prize_position': '3rd',
+                'prize_amount': self.PRIZE_STRUCTURE[denomination]['3rd']['amount']
+            })
+        
+        return winners
+    
+    def scrape_and_parse_denomination(self, denomination: int, 
+                                     download_limit: Optional[int] = None) -> List[Dict]:
+        """Complete scraping and parsing for one denomination"""
+        print(f"\n{'='*80}")
+        print(f"🎯 Processing Rs. {denomination} Prize Bonds")
+        print(f"{'='*80}")
+        
+        # Step 1: Scrape listings
+        draws = self.scrape_draw_listings(denomination)
+        
+        if not draws:
+            print(f"❌ No draws found for Rs. {denomination}")
+            return []
+        
+        print(f"📋 Found {len(draws)} draws")
+        
+        # Apply limit if specified
+        if download_limit:
+            draws = draws[:download_limit]
+            print(f"⚡ Limited to {len(draws)} draws")
+        
+        all_winners = []
+        
+        # Step 2: Download and parse each draw
+        for i, draw in enumerate(draws, 1):
+            print(f"\n[{i}/{len(draws)}] {draw['date_string']}")
+            
+            # Download
+            filepath = self.download_txt_file(draw)
+            if not filepath:
+                print(f"  ❌ Download failed")
+                continue
+            
+            # Parse
+            parsed = self.parse_txt_file(filepath, draw)
+            if not parsed:
+                print(f"  ❌ Parse failed")
+                continue
+            
+            # Create winner records
+            winners = self.create_winners_records(parsed)
+            all_winners.extend(winners)
+            
+            print(f"  ✓ Extracted {len(winners)} winners")
+            print(f"    1st: {parsed['first_prize']}")
+            print(f"    2nd: {len(parsed['second_prizes'])} numbers")
+            print(f"    3rd: {len(parsed['third_prizes'])} numbers")
+        
+        return all_winners
+    
+    def save_to_csv(self, winners: List[Dict], filename: str):
+        """Save winners to CSV"""
+        if not winners:
+            return
+        
+        filepath = f"{self.output_dir}/csv/{filename}"
+        
+        with open(filepath, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=winners[0].keys())
+            writer.writeheader()
+            writer.writerows(winners)
+        
+        print(f"\n💾 Saved to CSV: {filepath}")
+    
+    def save_to_json(self, winners: List[Dict], filename: str):
+        """Save winners to JSON"""
+        if not winners:
+            return
+        
+        filepath = f"{self.output_dir}/json/{filename}"
+        
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(winners, f, indent=2, ensure_ascii=False)
+        
+        print(f"💾 Saved to JSON: {filepath}")
+    
+    def run_complete_scrape(self, denominations: Optional[List[int]] = None,
+                           download_limit: Optional[int] = None):
+        """Run complete scraping for all denominations"""
+        
+        if denominations is None:
+            denominations = list(self.DENOMINATIONS.keys())
+        
         print("\n" + "="*80)
-        print("📥 DOWNLOADING FILES (Sequential)")
+        print("🚀 PAKISTAN PRIZE BONDS COMPLETE SCRAPER")
+        print("="*80)
+        print(f"📊 Denominations: {', '.join(f'Rs. {d}' for d in denominations)}")
+        if download_limit:
+            print(f"⚡ Limit: {download_limit} draws per denomination")
         print("="*80)
         
-        for denom, draws in all_data.items():
-            if denominations and denom not in denominations:
-                continue
-            
-            if not draws:
-                continue
-            
-            print(f"\n🎯 Rs. {denom} Prize Bonds ({len(draws)} files)")
-            
-            # Apply limit
-            draws_to_download = draws[:limit_per_denom] if limit_per_denom else draws
-            
-            for i, draw in enumerate(draws_to_download, 1):
-                success, msg = self.download_file(draw)
-                
-                if success:
-                    self.stats['total_downloaded'] += 1
-                    print(f"   [{i}/{len(draws_to_download)}] ✓ {msg}")
-                else:
-                    self.stats['total_failed'] += 1
-                    print(f"   [{i}/{len(draws_to_download)}] ✗ {msg}")
-                
-                time.sleep(0.5)  # Rate limiting
+        start_time = datetime.now()
         
-        return all_data
+        all_winners = []
+        
+        for denom in denominations:
+            if denom not in self.DENOMINATIONS:
+                print(f"❌ Invalid denomination: {denom}")
+                continue
+            
+            winners = self.scrape_and_parse_denomination(denom, download_limit)
+            
+            if winners:
+                all_winners.extend(winners)
+                
+                # Save per denomination
+                self.save_to_csv(winners, f"winners_{denom}.csv")
+                self.save_to_json(winners, f"winners_{denom}.json")
+        
+        # Save combined data
+        if all_winners:
+            self.save_to_csv(all_winners, "all_winners_combined.csv")
+            self.save_to_json(all_winners, "all_winners_combined.json")
+        
+        # Generate summary
+        self.generate_summary(all_winners, start_time)
+        
+        print("\n🎉 SCRAPING COMPLETED!")
+        print(f"📂 Check '{self.output_dir}' folder for all data\n")
     
-    def download_files_parallel(self, all_data: Dict,
-                               denominations: Optional[List[int]] = None,
-                               limit_per_denom: Optional[int] = None,
-                               max_workers: int = 5) -> Dict:
-        """Download files in parallel"""
-        print("\n" + "="*80)
-        print(f"📥 DOWNLOADING FILES (Parallel - {max_workers} workers)")
-        print("="*80)
+    def generate_summary(self, all_winners: List[Dict], start_time: datetime):
+        """Generate summary report"""
+        end_time = datetime.now()
+        duration = end_time - start_time
         
-        all_draws = []
-        for denom, draws in all_data.items():
-            if denominations and denom not in denominations:
-                continue
+        summary_file = f"{self.output_dir}/SUMMARY_REPORT.txt"
+        
+        # Calculate statistics
+        stats_by_denom = {}
+        for winner in all_winners:
+            denom = winner['denomination']
+            if denom not in stats_by_denom:
+                stats_by_denom[denom] = {
+                    'total_winners': 0,
+                    'first_prizes': 0,
+                    'second_prizes': 0,
+                    'third_prizes': 0,
+                    'total_prize_money': 0
+                }
             
-            draws_to_add = draws[:limit_per_denom] if limit_per_denom else draws
-            all_draws.extend(draws_to_add)
-        
-        print(f"\n📊 Total files to download: {len(all_draws)}\n")
-        
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            future_to_draw = {executor.submit(self.download_file, draw): draw 
-                            for draw in all_draws}
+            stats_by_denom[denom]['total_winners'] += 1
             
-            for i, future in enumerate(as_completed(future_to_draw), 1):
-                success, msg = future.result()
-                
-                if success:
-                    self.stats['total_downloaded'] += 1
-                    print(f"[{i}/{len(all_draws)}] ✓ {msg}")
-                else:
-                    self.stats['total_failed'] += 1
-                    print(f"[{i}/{len(all_draws)}] ✗ {msg}")
+            # Map prize position to key
+            prize_pos = winner['prize_position']
+            if prize_pos == '1st':
+                stats_by_denom[denom]['first_prizes'] += 1
+            elif prize_pos == '2nd':
+                stats_by_denom[denom]['second_prizes'] += 1
+            elif prize_pos == '3rd':
+                stats_by_denom[denom]['third_prizes'] += 1
+            
+            stats_by_denom[denom]['total_prize_money'] += winner['prize_amount']
         
-        return all_data
-    
-    def generate_report(self, all_data: Dict):
-        """Generate comprehensive report"""
-        report_file = f"{self.output_dir}/scraping_report.txt"
-        
-        with open(report_file, 'w', encoding='utf-8') as f:
+        with open(summary_file, 'w', encoding='utf-8') as f:
             f.write("="*80 + "\n")
-            f.write("PAKISTAN PRIZE BONDS - SCRAPING REPORT\n")
+            f.write("PAKISTAN PRIZE BONDS - COMPLETE SCRAPING REPORT\n")
             f.write("="*80 + "\n\n")
             
-            f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Generated: {end_time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Duration: {duration}\n")
+            f.write(f"Total Winners Extracted: {len(all_winners):,}\n\n")
             
-            if self.stats['start_time'] and self.stats['end_time']:
-                duration = self.stats['end_time'] - self.stats['start_time']
-                f.write(f"Duration: {duration}\n")
-            
-            f.write(f"\nTotal Draws Found: {self.stats['total_draws']}\n")
-            f.write(f"Files Downloaded: {self.stats['total_downloaded']}\n")
-            f.write(f"Failed Downloads: {self.stats['total_failed']}\n")
-            
-            f.write("\n" + "="*80 + "\n")
+            f.write("="*80 + "\n")
             f.write("BREAKDOWN BY DENOMINATION\n")
             f.write("="*80 + "\n\n")
             
-            for denom, draws in sorted(all_data.items()):
+            for denom in sorted(stats_by_denom.keys()):
+                stats = stats_by_denom[denom]
                 f.write(f"Rs. {denom} Prize Bonds:\n")
-                f.write(f"  Total Draws: {len(draws)}\n")
-                
-                if draws:
-                    years = sorted(set(d['year'] for d in draws if d['year']), reverse=True)
-                    f.write(f"  Years: {', '.join(years)}\n")
-                    
-                    file_types = {}
-                    for draw in draws:
-                        ft = draw['file_type']
-                        file_types[ft] = file_types.get(ft, 0) + 1
-                    f.write(f"  File Types: {file_types}\n")
-                    
-                    downloaded = sum(1 for d in draws if d.get('downloaded', False))
-                    f.write(f"  Downloaded: {downloaded}\n")
-                
-                f.write("\n")
+                f.write(f"  Total Winners: {stats['total_winners']:,}\n")
+                f.write(f"  1st Prizes: {stats['first_prizes']}\n")
+                f.write(f"  2nd Prizes: {stats['second_prizes']}\n")
+                f.write(f"  3rd Prizes: {stats['third_prizes']:,}\n")
+                f.write(f"  Total Prize Money: Rs. {stats['total_prize_money']:,}\n\n")
             
             f.write("="*80 + "\n")
-            f.write(f"Output Directory: {self.output_dir}\n")
+            f.write("OUTPUT FILES\n")
+            f.write("="*80 + "\n\n")
+            f.write(f"CSV Files: {self.output_dir}/csv/\n")
+            f.write(f"JSON Files: {self.output_dir}/json/\n")
+            f.write(f"Raw TXT Files: {self.output_dir}/raw_txt/\n")
+            f.write(f"Logs: {self.output_dir}/logs/\n\n")
+            
             f.write("="*80 + "\n")
         
-        print(f"\n📄 Report saved: {report_file}")
-        return report_file
-    
-    def interactive_mode(self):
-        """Interactive mode with user prompts"""
-        print("\n" + "="*80)
-        print("🎯 PAKISTAN PRIZE BONDS SCRAPER - INTERACTIVE MODE")
-        print("="*80)
-        
-        # Select denominations
-        print("\n📊 Available Denominations:")
-        for i, denom in enumerate(self.DENOMINATIONS.keys(), 1):
-            print(f"  {i}. Rs. {denom}")
-        print(f"  {len(self.DENOMINATIONS)+1}. All")
-        
-        choice = input("\nSelect denomination (comma-separated numbers or 'all'): ").strip().lower()
-        
-        if choice == 'all' or str(len(self.DENOMINATIONS)+1) in choice:
-            selected_denoms = list(self.DENOMINATIONS.keys())
-        else:
-            try:
-                indices = [int(x.strip()) for x in choice.split(',')]
-                denoms_list = list(self.DENOMINATIONS.keys())
-                selected_denoms = [denoms_list[i-1] for i in indices if 1 <= i <= len(denoms_list)]
-            except:
-                print("Invalid input, using all denominations")
-                selected_denoms = list(self.DENOMINATIONS.keys())
-        
-        print(f"\n✓ Selected: {', '.join(f'Rs. {d}' for d in selected_denoms)}")
-        
-        # Year filter
-        year_filter = input("\nFilter by years? (e.g., 2024,2025 or press Enter for all): ").strip()
-        years = [y.strip() for y in year_filter.split(',') if y.strip()] if year_filter else None
-        
-        # Scrape metadata
-        print("\n🔍 Scraping metadata...")
-        all_data = self.scrape_metadata(denominations=selected_denoms, years=years)
-        
-        # Download files?
-        download = input("\n💾 Download files? (y/n): ").strip().lower()
-        
-        if download == 'y':
-            # Limit per denomination
-            limit = input("Limit per denomination (press Enter for all): ").strip()
-            limit_per_denom = int(limit) if limit.isdigit() else None
-            
-            # Parallel or sequential
-            method = input("Download method (p=parallel, s=sequential): ").strip().lower()
-            
-            if method == 'p':
-                workers = input("Number of parallel workers (default=5): ").strip()
-                max_workers = int(workers) if workers.isdigit() else 5
-                self.download_files_parallel(all_data, limit_per_denom=limit_per_denom, 
-                                           max_workers=max_workers)
-            else:
-                self.download_files_sequential(all_data, limit_per_denom=limit_per_denom)
-        
-        # Generate report
-        self.generate_report(all_data)
-        
-        print("\n🎉 ALL DONE!")
-        print(f"📂 Check '{self.output_dir}' folder for results\n")
+        print(f"\n📊 Summary Report: {summary_file}")
 
 
 def main():
-    """Main function with CLI support"""
-    parser = argparse.ArgumentParser(
-        description='Pakistan Prize Bonds Advanced Scraper',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Interactive mode
-  python %(prog)s
-
-  # Scrape all denominations
-  python %(prog)s --scrape-all
-
-  # Scrape specific denominations
-  python %(prog)s --denominations 100 200 750
-
-  # Scrape and download (parallel)
-  python %(prog)s --scrape-all --download --parallel --workers 10
-
-  # Scrape specific years
-  python %(prog)s --scrape-all --years 2024 2025
-
-  # Download only, limit 5 per denomination
-  python %(prog)s --scrape-all --download --limit 5
-        """
-    )
+    """Main function"""
+    print("""
+╔══════════════════════════════════════════════════════════════════════════════╗
+║          PAKISTAN PRIZE BONDS COMPLETE SCRAPER & PARSER                      ║
+║          Downloads TXT files and extracts ALL winning numbers                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+""")
     
-    parser.add_argument('--output-dir', default='prize_bonds_data',
-                       help='Output directory (default: prize_bonds_data)')
-    parser.add_argument('--scrape-all', action='store_true',
-                       help='Scrape all denominations')
-    parser.add_argument('--denominations', type=int, nargs='+',
-                       help='Specific denominations to scrape')
-    parser.add_argument('--years', nargs='+',
-                       help='Filter by specific years')
-    parser.add_argument('--download', action='store_true',
-                       help='Download files after scraping')
-    parser.add_argument('--parallel', action='store_true',
-                       help='Use parallel downloading')
-    parser.add_argument('--workers', type=int, default=5,
-                       help='Number of parallel workers (default: 5)')
-    parser.add_argument('--limit', type=int,
-                       help='Limit files per denomination')
-    parser.add_argument('--verbose', action='store_true',
-                       help='Verbose output')
+    scraper = CompletePrizeBondScraper()
     
-    args = parser.parse_args()
+    # Interactive mode
+    print("\n📊 Select Denominations:")
+    print("  1. Rs. 100")
+    print("  2. Rs. 200")
+    print("  3. Rs. 750")
+    print("  4. Rs. 1500")
+    print("  5. Rs. 7500")
+    print("  6. Rs. 15000")
+    print("  7. Rs. 25000")
+    print("  8. Rs. 40000")
+    print("  9. ALL")
     
-    # Create scraper
-    scraper = PrizeBondScraper(output_dir=args.output_dir, verbose=args.verbose)
+    choice = input("\nEnter choice (comma-separated or 'all'): ").strip().lower()
     
-    # If no args, run interactive mode
-    if not any([args.scrape_all, args.denominations]):
-        scraper.interactive_mode()
-        return
-    
-    # Determine denominations
-    if args.scrape_all:
-        denominations = None
-    elif args.denominations:
-        denominations = args.denominations
+    if choice == 'all' or choice == '9':
+        denominations = list(scraper.DENOMINATIONS.keys())
     else:
-        denominations = None
+        denom_map = [100, 200, 750, 1500, 7500, 15000, 25000, 40000]
+        try:
+            indices = [int(x.strip()) for x in choice.split(',')]
+            denominations = [denom_map[i-1] for i in indices if 1 <= i <= 8]
+        except:
+            print("Invalid input, using all denominations")
+            denominations = list(scraper.DENOMINATIONS.keys())
     
-    # Scrape metadata
-    print("\n🔍 Scraping metadata...")
-    all_data = scraper.scrape_metadata(denominations=denominations, years=args.years)
+    print(f"\n✓ Selected: {', '.join(f'Rs. {d}' for d in denominations)}")
     
-    # Download if requested
-    if args.download:
-        if args.parallel:
-            scraper.download_files_parallel(all_data, limit_per_denom=args.limit,
-                                          max_workers=args.workers)
-        else:
-            scraper.download_files_sequential(all_data, limit_per_denom=args.limit)
+    # Download limit
+    limit = input("\nLimit draws per denomination (press Enter for all): ").strip()
+    download_limit = int(limit) if limit.isdigit() else None
     
-    # Generate report
-    scraper.generate_report(all_data)
-    
-    print("\n🎉 COMPLETED!")
-    print(f"📂 Results in: {args.output_dir}\n")
+    # Run scraper
+    scraper.run_complete_scrape(denominations=denominations, download_limit=download_limit)
 
 
 if __name__ == "__main__":

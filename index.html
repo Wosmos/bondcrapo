@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pakistan Prize Bonds | Official Scraper Data</title>
+    <link rel="stylesheet" href="index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="bg-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+
+    <header>
+      <h1>Pakistan Prize Bonds</h1>
+      <p>Advanced Official Scraper & Data Portal</p>
+    </header>
+
+    <main class="container">
+      <div class="controls" id="denom-filters">
+        <button class="btn active" data-denom="all">All Bonds</button>
+        <button class="btn" data-denom="100">Rs. 100</button>
+        <button class="btn" data-denom="200">Rs. 200</button>
+        <button class="btn" data-denom="750">Rs. 750</button>
+        <button class="btn" data-denom="1500">Rs. 1500</button>
+        <button class="btn" data-denom="25000">Rs. 25000</button>
+        <button class="btn" data-denom="40000">Rs. 40000</button>
+      </div>
+
+      <div class="draws-grid" id="draws-container">
+        <!-- Content will be injected by JavaScript -->
+      </div>
+    </main>
+
+    <script src="index.js"></script>
+  </body>
+</html>
