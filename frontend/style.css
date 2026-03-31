@@ -1,0 +1,160 @@
+  /* --- 1. THE INDENTED DOTTED BACKGROUND --- */
+    body {
+        /* Base surface color (Light Slate) */
+        background-color: #f8fafc;
+        
+        /* The "Indented" Hole Effect */
+        /* We use a darker grey dot (#cbd5e1) on a lighter grey bg to look like a hole */
+        background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+        
+        /* Spacing (Breathing room for the tech feel) */
+        background-size: 24px 24px;
+        
+        /* Keeps the dots static when scrolling (Premium feel) */
+        background-attachment: fixed;
+        
+        color: #0f172a;
+    }
+
+    /* --- 2. GRID.JS OVERRIDES (Updated for background contrast) --- */
+    
+    .gridjs-container { 
+        font-family: 'Inter', sans-serif; 
+        color: #0f172a; 
+        box-shadow: none !important; 
+    }
+
+    /* We make the wrapper WHITE so it pops off the dotted background */
+    .gridjs-wrapper { 
+        background: white; 
+        border-radius: 8px; /* Slightly softer corners */
+        border: 1px solid #e2e8f0; 
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+        overflow: hidden; /* Contains the corners */
+    }
+
+    .gridjs-table { width: 100%; }
+    
+    /* Headers */
+    .gridjs-th {
+        background-color: #fff !important; /* White header to blend with wrapper */
+        border-bottom: 2px solid #0f172a !important; /* Sharp contrast line */
+        color: #475569;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        padding: 16px !important;
+    }
+
+    /* Cells */
+    .gridjs-td {
+        background-color: #fff; /* Ensure transparent dots dont show through rows */
+        border-bottom: 1px solid #f1f5f9;
+        padding: 14px 16px;
+        font-size: 0.9rem;
+    }
+    
+    /* Row Hover - darker than before to be visible */
+    .gridjs-tr:hover td {
+        background-color: #f1f5f9 !important; 
+        transition: background-color 0.1s ease-in-out;
+    }
+
+    /* Pagination Bar */
+    .gridjs-footer { 
+        background: #fff !important; 
+        border-top: 1px solid #e2e8f0 !important; 
+        padding: 16px !important;
+    }
+    
+    /* Buttons inside Grid */
+    .gridjs-pagination .gridjs-pages button {
+        border-radius: 6px !important;
+        border: 1px solid #e2e8f0;
+        background: white;
+        font-family: 'Inter';
+        font-weight: 500;
+        padding: 6px 12px !important;
+        outline: none;
+    }
+    .gridjs-pagination .gridjs-pages button:hover { 
+        background: #0f172a; 
+        color: white; 
+        border-color: #0f172a; 
+        transform: translateY(-1px); /* Slight lift */
+    }
+    .gridjs-pagination .gridjs-pages button.gridjs-currentPage {
+        background-color: #0f172a;
+        color: white;
+        border-color: #0f172a;
+        font-weight: 700;
+    }
+
+    /* --- 3. UI UTILITIES --- */
+    
+    /* Form Controls */
+    select, input {
+        background-color: white !important; /* Ensure inputs aren't transparent */
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        outline: none;
+    }
+    select:focus, input:focus {
+        border-color: #0f172a;
+        box-shadow: 0 0 0 1px #0f172a;
+    }
+
+    /* Loading Skeleton */
+    @keyframes pulse-fast { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+    .loading-skeleton { 
+        animation: pulse-fast 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; 
+        background: #f1f5f9; 
+        color: transparent; 
+        border-radius: 4px;
+    }
+
+    /* Button Hovers */
+    .btn-hover {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    .btn-hover:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+    .btn-hover:active {
+        transform: translateY(0) scale(0.98);
+    }
+
+    /* Utility for Copy Tooltip */
+    .copy-tooltip {
+        position: absolute;
+        background: #0f172a;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-4px);
+        opacity: 0;
+        transition: opacity 0.2s, transform 0.2s;
+        pointer-events: none;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .copyable:hover .copy-tooltip {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-8px);
+    }
+    
+    /* Grid Transition */
+    #grid-wrapper {
+        transition: opacity 0.3s ease;
+    }
+
+    /* Custom Scrollbar */
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

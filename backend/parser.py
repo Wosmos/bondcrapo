@@ -269,6 +269,18 @@ class PrizeBondParser:
         # Collect all TXT files
         all_files = []
         
+        # Get already parsed files from DB
+        parsed_files = set()
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT DISTINCT source, denomination, draw_date FROM winners")
+            for row in cursor.fetchall():
+                # Create a signature for each parsed draw
+                parsed_files.add((row[0], row[1], row[2]))
+            print(f"📚 Found {len(parsed_files)} already-parsed draws in DB")
+        except Exception as e:
+            self.logger.error(f"Error checking parsed files: {e}")
+        
         for source_dir in ['savings_gov_pk', 'prizeinfo_net', 'pakbond_com']:
             source_path = f"{self.raw_data_dir}/{source_dir}"
             if not os.path.exists(source_path):
@@ -278,10 +290,31 @@ class PrizeBondParser:
                 if filename.endswith('.txt'):
                     filepath = f"{source_path}/{filename}"
                     metadata_file = f"{self.raw_data_dir}/metadata/{filename}.json"
+                    
+                    # Check if already parsed
+                    try:
+                        if os.path.exists(metadata_file):
+                            with open(metadata_file, 'r') as f:
+                                metadata = json.load(f)
+                                file_sig = (
+                                    metadata.get('source', 'unknown'),
+                                    metadata.get('denomination', 0),
+                                    metadata.get('date', '')
+                                )
+                                if file_sig in parsed_files:
+                                    self.stats['files_failed'] += 1  # Count as skipped
+                                    continue
+                    except:
+                        pass
+                    
                     all_files.append((filepath, metadata_file))
         
-        print(f"📋 Found {len(all_files)} files to parse")
+        print(f"📋 Found {len(all_files)} new files to parse")
         print(f"⚡ Using {max_workers} workers\n")
+        
+        if len(all_files) == 0:
+            print("✅ All files already parsed! Nothing to do.\n")
+            return
         
         start_time = datetime.now()
         
@@ -300,8 +333,8 @@ class PrizeBondParser:
         print("="*80)
         print(f"⏱️  Time: {elapsed:.1f}s")
         print(f"✓ Files processed: {self.stats['files_processed']}")
-        print(f"✗ Files failed: {self.stats['files_failed']}")
-        print(f"🏆 Total winners: {self.stats['total_winners']:,}")
+        print(f"⏭️  Files skipped (already parsed): {self.stats['files_failed']}")
+        print(f"🏆 Total new winners: {self.stats['total_winners']:,}")
         print("="*80)
     
     def export_to_csv(self):

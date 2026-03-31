@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup
 import os
 import time
 import json
+import sqlite3
 from datetime import datetime
 from typing import Dict, List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -271,24 +272,57 @@ class MultiSourceScraper:
         # Collect all draw listings
         all_draws = []
         
+        # Connect to DB for checking
+        db_path = os.path.join(self.output_dir, '..', 'prize_bonds.db')
+        existing_draws = set()
+        try:
+            if os.path.exists(db_path):
+                conn = sqlite3.connect(db_path)
+                cursor = conn.cursor()
+                cursor.execute("SELECT source, denomination, draw_date FROM winners GROUP BY source, denomination, draw_date")
+                for row in cursor.fetchall():
+                    existing_draws.add((row[0], row[1], row[2])) # source, denom, date
+                conn.close()
+                print(f"📚 Found {len(existing_draws)} existing draws in DB (will skip these)")
+        except Exception as e:
+            self.logger.error(f"Error checking DB: {e}")
+
         for denom in denominations:
             print(f"\n🔍 Collecting listings for Rs. {denom}...")
             
             # Source 1: savings.gov.pk
             if denom in self.SOURCES['savings_gov_pk']['denominations']:
                 draws = self.scrape_savings_gov_pk_listings(denom)
-                all_draws.extend(draws)
+                # Filter out existing
+                new_draws = []
+                for d in draws:
+                    if (d['source'], d['denomination'], d['date']) not in existing_draws:
+                        new_draws.append(d)
+                    else:
+                        self.stats['skipped'] += 1
+                
+                all_draws.extend(new_draws)
+                print(f"  - savings.gov.pk: {len(new_draws)} new draws found ({len(draws) - len(new_draws)} skipped)")
                 time.sleep(0.5)
             
             # Source 2: prizeinfo.net
             if denom in self.SOURCES['prizeinfo_net']['denominations']:
                 draws = self.scrape_prizeinfo_net_listings(denom)
-                all_draws.extend(draws)
+                # Filter out existing
+                new_draws = []
+                for d in draws:
+                    if (d['source'], d['denomination'], d['date']) not in existing_draws:
+                        new_draws.append(d)
+                    else:
+                        self.stats['skipped'] += 1
+                
+                all_draws.extend(new_draws)
+                print(f"  - prizeinfo.net: {len(new_draws)} new draws found ({len(draws) - len(new_draws)} skipped)")
                 time.sleep(0.5)
         
         self.stats['total_files'] = len(all_draws)
         
-        print(f"\n\n📋 Total draws found: {len(all_draws)}")
+        print(f"\n\n📋 Total new draws to download: {len(all_draws)}")
         print(f"🚀 Starting parallel download with {self.max_workers} workers...\n")
         
         # Download in parallel
@@ -305,7 +339,7 @@ class MultiSourceScraper:
         print("="*80)
         print(f"⏱️  Time: {elapsed:.1f}s ({elapsed/60:.1f} minutes)")
         print(f"📥 Downloaded: {self.stats['downloaded']}")
-        print(f"⏭️  Skipped (exists): {self.stats['skipped']}")
+        print(f"⏭️  Skipped (DB/File): {self.stats['skipped']}")
         print(f"❌ Failed: {self.stats['failed']}")
         print(f"📂 Data saved to: {self.output_dir}/")
         print("="*80)

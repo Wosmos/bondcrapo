@@ -7,3 +7,6 @@ prize_bonds_complete/
 prize_bonds.db
 raw_data/
 parsed_data/
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
