@@ -1,3 +1,4 @@
+# Python
 prize_bonds_data/
 venv/
 bonds_scraper.log
@@ -7,6 +8,36 @@ prize_bonds_complete/
 prize_bonds.db
 raw_data/
 parsed_data/
+__pycache__/
+*.pyc
 
-#Ignore vscode AI rules
+# Next.js (bondcheck-next)
+bondcheck-next/node_modules/
+bondcheck-next/.next/
+bondcheck-next/out/
+bondcheck-next/.env
+bondcheck-next/.env.local
+bondcheck-next/.env.production.local
+bondcheck-next/.env.development.local
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Vercel
+.vercel
+
+# Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
