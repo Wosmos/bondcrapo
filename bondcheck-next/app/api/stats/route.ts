@@ -4,9 +4,19 @@ import { winners } from "@/lib/schema";
 import { rateLimit } from "@/lib/rate-limit";
 import { count, sum, max } from "drizzle-orm";
 
+// Server-side cache — stats barely change, no need to query 960K rows every time
+let cachedStats: { data: unknown; timestamp: number } | null = null;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 export async function GET(request: NextRequest) {
   const rl = rateLimit(request, 15, 10, "stats");
   if (!rl.success) return rl.response!;
+
+  // Return cached if fresh
+  if (cachedStats && Date.now() - cachedStats.timestamp < CACHE_TTL) {
+    return NextResponse.json(cachedStats.data);
+  }
+
   try {
     const [totalResult, byDenomination, byPosition, lastUpdateResult] =
       await Promise.all([
@@ -30,7 +40,7 @@ export async function GET(request: NextRequest) {
         db.select({ last_update: max(winners.createdAt) }).from(winners),
       ]);
 
-    return NextResponse.json({
+    const response = {
       total_winners: totalResult[0].total,
       by_denomination: byDenomination.map((d) => ({
         denomination: d.denomination,
@@ -43,7 +53,11 @@ export async function GET(request: NextRequest) {
         total_amount: Number(p.total_amount) || 0,
       })),
       last_update: lastUpdateResult[0].last_update,
-    });
+    };
+
+    cachedStats = { data: response, timestamp: Date.now() };
+
+    return NextResponse.json(response);
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

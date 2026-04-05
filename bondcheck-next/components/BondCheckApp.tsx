@@ -8,6 +8,8 @@ import { StatsDashboard } from "./StatsDashboard";
 import { FilterPanel } from "./FilterPanel";
 import { ResultsTable } from "./ResultsTable";
 import { ScannerModal } from "./ScannerModal";
+import { WalletPanel } from "./WalletPanel";
+import { useTelemetry } from "@/hooks/useTelemetry";
 import type { FilterState, DrawsResponse } from "@/types";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -21,6 +23,8 @@ const defaultFilters: FilterState = {
   denomination: "",
   rank: "",
   year: "",
+  city: "",
+  minDraw: "",
   sortBy: "draw_date",
   sortOrder: "DESC",
   startDate: "",
@@ -49,6 +53,8 @@ function buildQueryString(filters: FilterState, page: number): string {
   if (filters.denomination) params.set("denomination", filters.denomination);
   if (filters.rank) params.set("position", filters.rank);
   if (filters.year) params.set("year", filters.year);
+  if (filters.city) params.set("city", filters.city);
+  if (filters.minDraw) params.set("min_draw", filters.minDraw);
   if (filters.sortBy) params.set("sort_by", filters.sortBy);
   if (filters.sortOrder) params.set("sort_order", filters.sortOrder);
   if (filters.startDate) params.set("start_date", filters.startDate);
@@ -64,6 +70,7 @@ export function BondCheckApp() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [scannerOpen, setScannerOpen] = useState(false);
   const { mutate } = useSWRConfig();
+  const { track, getFingerprint } = useTelemetry();
 
   const queryString = buildQueryString(filters, page);
   const swrKey = `/api/draws?${queryString}`;
@@ -82,12 +89,25 @@ export function BondCheckApp() {
 
   const [handleSearch, searchDisabled] = useThrottle(useCallback(() => {
     setPage(0);
-  }, []), 500);
+    track({
+      event: "search",
+      data: {
+        mode: filters.searchMode,
+        bondNumber: filters.bondNumber,
+        bondList: filters.bondList,
+        denomination: filters.denomination || "all",
+        rank: filters.rank || "all",
+        year: filters.year || "all",
+        bondCount: filters.searchMode === "multi" ? filters.bondList.split(",").filter(Boolean).length : 1,
+      },
+    });
+  }, [filters, track]), 500);
 
   const [handleReset, resetDisabled] = useThrottle(useCallback(() => {
     setFilters(defaultFilters);
     setPage(0);
-  }, []), 500);
+    track({ event: "reset_filters" });
+  }, [track]), 500);
 
   const [handleRefresh, refreshDisabled] = useThrottle(useCallback(() => {
     setRefreshKey((k) => k + 1);
@@ -97,7 +117,10 @@ export function BondCheckApp() {
   const handleFilterChange = useCallback((key: string, value: string) => {
     setFilters((f) => ({ ...f, [key]: value }));
     setPage(0);
-  }, []);
+    if (value && (key === "denomination" || key === "rank" || key === "year")) {
+      track({ event: "filter_change", data: { filter: key, value } });
+    }
+  }, [track]);
 
   const [handleSort] = useThrottle(useCallback((columnKey: string) => {
     setFilters((f) => {
@@ -126,6 +149,7 @@ export function BondCheckApp() {
   }, [handleSearch]);
 
   const [handleExportPDF, exportDisabled] = useThrottle(useCallback(async () => {
+    track({ event: "export_pdf", data: { denomination: filters.denomination || "all", year: filters.year || "all" } });
     const [{ jsPDF }, { default: autoTable }] = await Promise.all([
       import("jspdf"),
       import("jspdf-autotable"),
@@ -177,6 +201,8 @@ export function BondCheckApp() {
     const tableData = exportData.draws.map((d, i) => [
       i + 1,
       d.bond_number,
+      d.draw_number ? `#${d.draw_number}` : "-",
+      d.city || "-",
       `Rs. ${d.denomination}`,
       d.prize_position,
       `Rs. ${(d.prize_amount || 0).toLocaleString()}`,
@@ -185,18 +211,20 @@ export function BondCheckApp() {
 
     autoTable(doc, {
       startY: 120,
-      head: [["#", "Bond #", "Denom", "Rank", "Prize Amount", "Draw Date"]],
+      head: [["#", "Bond #", "Draw", "City", "Denom", "Rank", "Prize Amount", "Draw Date"]],
       body: tableData,
       theme: "striped",
       headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontSize: 9, fontStyle: "bold", halign: "center" },
       bodyStyles: { fontSize: 8, valign: "middle" },
       columnStyles: {
-        0: { halign: "center", fontStyle: "bold", cellWidth: 30 },
+        0: { halign: "center", fontStyle: "bold", cellWidth: 25 },
         1: { halign: "center", fontStyle: "bold" },
-        2: { halign: "center" },
+        2: { halign: "center", cellWidth: 35 },
         3: { halign: "center" },
-        4: { halign: "right" },
+        4: { halign: "center" },
         5: { halign: "center" },
+        6: { halign: "right" },
+        7: { halign: "center" },
       },
       margin: { left: 40, right: 40 },
       didDrawPage: () => {
@@ -221,8 +249,19 @@ export function BondCheckApp() {
     setScannerOpen(true);
   }, []), 500);
 
+  // Wallet: load bonds into multi-search
+  const handleWalletSearch = useCallback((bondList: string) => {
+    setFilters((f) => ({
+      ...f,
+      bondList,
+      searchMode: "multi" as const,
+    }));
+    setPage(0);
+    track({ event: "wallet_search", data: { bondCount: bondList.split(",").filter(Boolean).length } });
+  }, [track]);
+
   const hasActiveFilters = !!(
-    filters.denomination || filters.rank || filters.year || filters.minAmount
+    filters.denomination || filters.rank || filters.year || filters.minAmount || filters.city || filters.minDraw
   );
 
   return (
@@ -254,6 +293,8 @@ export function BondCheckApp() {
           denomination: filters.denomination,
           rank: filters.rank,
           year: filters.year,
+          city: filters.city,
+          minDraw: filters.minDraw,
           minAmount: filters.minAmount,
           sortBy: filters.sortBy,
           sortOrder: filters.sortOrder,
@@ -268,6 +309,11 @@ export function BondCheckApp() {
         isOpen={scannerOpen}
         onClose={() => setScannerOpen(false)}
         onBondsFound={handleBondsFound}
+      />
+      <WalletPanel
+        getFingerprint={getFingerprint}
+        onCheckResults={handleWalletSearch}
+        track={track}
       />
     </>
   );

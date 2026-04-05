@@ -12,12 +12,13 @@ import { PrizeRankBadge } from "./ui/PrizeRankBadge";
 import {
   SelectColumnFilter,
   InputColumnFilter,
+  TextColumnFilter,
   SortableHeader,
 } from "./ui/ColumnHeaderFilter";
 import { formatDate } from "@/lib/utils";
 import type { Winner, FilterState } from "@/types";
 
-type ColumnFilters = Pick<FilterState, "denomination" | "rank" | "year" | "minAmount" | "sortBy" | "sortOrder">;
+type ColumnFilters = Pick<FilterState, "denomination" | "rank" | "year" | "city" | "minDraw" | "minAmount" | "sortBy" | "sortOrder">;
 
 interface ResultsTableProps {
   draws: Winner[];
@@ -37,7 +38,7 @@ interface ResultsTableProps {
 
 const DENOMINATION_OPTIONS = [
   { value: "", label: "All" },
-  ...[100, 200, 750, 1500, 7500, 15000, 25000, 40000].map((d) => ({
+  ...[100, 200, 750, 1000, 1500, 2500, 5000, 7500, 10000, 15000, 25000, 40000].map((d) => ({
     value: String(d),
     label: `Rs. ${d.toLocaleString()}`,
   })),
@@ -52,7 +53,7 @@ const RANK_OPTIONS = [
 
 const YEAR_OPTIONS = [
   { value: "", label: "All" },
-  ...[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019].map((y) => ({
+  ...Array.from({ length: 2026 - 1999 + 1 }, (_, i) => 2026 - i).map((y) => ({
     value: String(y),
     label: String(y),
   })),
@@ -78,6 +79,18 @@ export function ResultsTable({
   const data = draws.map((d, i) => ({ ...d, index: page * limit + i + 1 }));
   const pageCount = Math.ceil(total / limit);
 
+  // Count how many times each bond number appears on this page
+  const bondCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const d of draws) {
+      counts[d.bond_number] = (counts[d.bond_number] || 0) + 1;
+    }
+    return counts;
+  }, [draws]);
+
+  // Track which bond numbers we've already shown the badge for (first occurrence only)
+  const shownBadge = useMemo(() => new Set<string>(), [draws]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const columns = useMemo(
     () => [
       columnHelper.accessor("index", {
@@ -99,7 +112,69 @@ export function ResultsTable({
             onSort={() => onSort("bond_number")}
           />
         ),
-        cell: (info) => <CopyButton value={info.getValue()} />,
+        cell: (info) => {
+          const bn = info.getValue();
+          const count = bondCounts[bn] || 1;
+          const isFirst = !shownBadge.has(bn);
+          if (isFirst && count > 1) shownBadge.add(bn);
+
+          return (
+            <div className="flex items-center gap-1.5">
+              <CopyButton value={bn} />
+              {count > 1 && isFirst && (
+                <span className="text-[9px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                  Won {count}x
+                </span>
+              )}
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor("draw_number", {
+        header: () => (
+          <InputColumnFilter
+            label="Draw"
+            value={filters.minDraw}
+            onChange={(v) => onFilterChange("minDraw", v)}
+            placeholder="Min #"
+            sortKey="draw_number"
+            sortBy={filters.sortBy}
+            sortOrder={filters.sortOrder}
+            onSort={() => onSort("draw_number")}
+          />
+        ),
+        size: 100,
+        cell: (info) => {
+          const val = info.getValue();
+          return val ? (
+            <span className="text-xs font-semibold text-gray-500">#{val}</span>
+          ) : (
+            <span className="text-xs text-gray-300">-</span>
+          );
+        },
+      }),
+      columnHelper.accessor("city", {
+        header: () => (
+          <TextColumnFilter
+            label="City"
+            value={filters.city}
+            onChange={(v) => onFilterChange("city", v)}
+            placeholder="Filter..."
+            sortKey="city"
+            sortBy={filters.sortBy}
+            sortOrder={filters.sortOrder}
+            onSort={() => onSort("city")}
+          />
+        ),
+        size: 120,
+        cell: (info) => {
+          const val = info.getValue();
+          return val ? (
+            <span className="text-xs font-medium text-gray-600">{val}</span>
+          ) : (
+            <span className="text-xs text-gray-300">-</span>
+          );
+        },
       }),
       columnHelper.accessor("denomination", {
         header: () => (
@@ -181,13 +256,13 @@ export function ResultsTable({
   return (
     <div className="relative group mt-6 border border-gray-100 rounded-lg p-1 flex flex-col" style={{ height: "calc(100vh - 260px)", minHeight: 400 }}>
       <div className="absolute -top-3 left-4 bg-[#f8fafc] px-2 z-20 text-[10px] uppercase font-bold text-gray-400 tracking-widest flex items-center gap-2">
-        Results
+        Prize Bond Results
         {hasActiveFilters && (
           <button
             onClick={onReset}
             className="text-[9px] font-semibold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-wider"
           >
-            Clear
+            Clear filters
           </button>
         )}
       </div>
@@ -217,20 +292,40 @@ export function ResultsTable({
               <tbody>
                 {table.getRowModel().rows.length === 0 ? (
                   <tr>
-                    <td colSpan={columns.length} className="text-center py-12 text-gray-400 text-sm">
-                      {isLoading ? "Loading..." : "No results found"}
+                    <td colSpan={columns.length} className="text-center py-16 text-gray-400">
+                      {isLoading ? (
+                        <div>
+                          <svg className="w-8 h-8 mx-auto mb-3 animate-spin text-gray-300" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          <p className="text-sm">Searching...</p>
+                        </div>
+                      ) : (
+                        <div>
+                          <svg className="w-10 h-10 mx-auto mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          <p className="text-sm font-medium text-gray-500">No matching bonds found</p>
+                          <p className="text-xs mt-1">Try a different number or change your filters</p>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ) : (
-                  table.getRowModel().rows.map((row) => (
-                    <tr key={row.id} className="hover:bg-gray-50 transition-colors">
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className="bg-white border-b border-gray-100 px-3 py-2.5 text-[0.85rem]">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
+                  table.getRowModel().rows.map((row) => {
+                    const bn = row.original.bond_number;
+                    const isRepeat = (bondCounts[bn] || 1) > 1;
+                    return (
+                      <tr key={row.id} className={`hover:bg-gray-50 transition-colors ${isRepeat ? "bg-amber-50/40" : ""}`}>
+                        {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id} className={`border-b border-gray-100 px-3 py-2.5 text-[0.85rem] ${isRepeat ? "bg-amber-50/40" : "bg-white"}`}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

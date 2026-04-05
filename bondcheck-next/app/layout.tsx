@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { CookieConsent } from "@/components/CookieConsent";
 import "./globals.css";
 
 const inter = Inter({
@@ -31,6 +32,7 @@ export default function RootLayout({
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {children}
         </div>
+        <CookieConsent />
       </body>
     </html>
   );

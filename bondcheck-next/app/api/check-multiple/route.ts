@@ -22,7 +22,9 @@ export async function POST(request: NextRequest) {
       .select({
         bond_number: winners.bondNumber,
         denomination: winners.denomination,
+        draw_number: winners.drawNumber,
         draw_date: winners.drawDate,
+        city: winners.city,
         prize_position: winners.prizePosition,
         prize_amount: winners.prizeAmount,
       })

@@ -10,17 +10,20 @@ export function Header({ onRefresh, refreshDisabled }: { onRefresh: () => void; 
             <path d="M9 12l2 2 4-4" />
           </svg>
         </div>
-        <h1 className="text-xl font-bold tracking-tight">
-          BondCheck{" "}
-          <span className="text-gray-400 font-normal">PRO</span>
-        </h1>
+        <div>
+          <h1 className="text-xl font-bold tracking-tight">
+            BondCheck{" "}
+            <span className="text-gray-400 font-normal">PRO</span>
+          </h1>
+          <p className="text-[10px] text-gray-400 -mt-0.5">Check your prize bonds instantly</p>
+        </div>
       </div>
       <div className="flex items-center gap-4">
         <button
           onClick={onRefresh}
           disabled={refreshDisabled}
           className="p-2 text-gray-400 hover:text-[#0f172a] transition-colors rounded-full hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none"
-          title={refreshDisabled ? "Loading..." : "Reload Data"}
+          title={refreshDisabled ? "Refreshing..." : "Refresh data"}
         >
           <svg className={`w-5 h-5 transition-transform${refreshDisabled ? " animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -28,8 +31,8 @@ export function Header({ onRefresh, refreshDisabled }: { onRefresh: () => void; 
         </button>
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
-            System Online
+          <span className="text-[10px] font-medium text-gray-400">
+            Live
           </span>
         </div>
       </div>

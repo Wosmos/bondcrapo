@@ -17,6 +17,10 @@ import {
   SQL,
 } from "drizzle-orm";
 
+// Cache estimated total for unfiltered queries (avoids full table scan)
+let cachedTotal: { value: number; timestamp: number } | null = null;
+const TOTAL_CACHE_TTL = 60 * 1000; // 1 minute
+
 export async function GET(request: NextRequest) {
   const rl = rateLimit(request, 5, 3, "draws");
   if (!rl.success) return rl.response!;
@@ -44,6 +48,8 @@ export async function GET(request: NextRequest) {
   const bondList = s.get("bond_list");
   const startBond = s.get("start_bond");
   const endBond = s.get("end_bond");
+  const city = s.get("city");
+  const minDraw = s.get("min_draw") ? parseInt(s.get("min_draw")!) : null;
   const sortBy = s.get("sort_by") || "draw_date";
   const sortOrder = s.get("sort_order") || "DESC";
 
@@ -84,6 +90,8 @@ export async function GET(request: NextRequest) {
     if (denomination) conditions.push(eq(winners.denomination, denomination));
     if (position) conditions.push(eq(winners.prizePosition, position));
     if (year) conditions.push(eq(winners.drawYear, year));
+    if (city) conditions.push(like(winners.city, `${city}%`));
+    if (minDraw) conditions.push(gte(winners.drawNumber, minDraw));
     if (minAmount) conditions.push(gte(winners.prizeAmount, minAmount));
     if (maxAmount) conditions.push(lte(winners.prizeAmount, maxAmount));
 
@@ -110,12 +118,42 @@ export async function GET(request: NextRequest) {
           ? winners.prizeAmount
           : sortBy === "denomination"
             ? winners.denomination
-            : null; // draw_date handled separately below
+            : sortBy === "draw_number"
+              ? winners.drawNumber
+              : sortBy === "city"
+                ? winners.city
+                : null; // draw_date handled separately below
 
     // For draw_date sort, use draw_year + id (safe, no TO_DATE parsing)
     const orderClauses = sortColumn !== null
       ? [orderFn(sortColumn)]
       : [orderFn(winners.drawYear), orderFn(winners.id)];
+
+    const hasFilters = conditions.length > 0;
+
+    // For unfiltered queries, use cached total (avoids ~1s COUNT on 960K rows)
+    let total: number;
+    if (!hasFilters && cachedTotal && Date.now() - cachedTotal.timestamp < TOTAL_CACHE_TTL) {
+      const draws = await db
+        .select({
+          id: winners.id,
+          source: winners.source,
+          denomination: winners.denomination,
+          draw_number: winners.drawNumber,
+          draw_date: winners.drawDate,
+          draw_year: winners.drawYear,
+          city: winners.city,
+          bond_number: winners.bondNumber,
+          prize_position: winners.prizePosition,
+          prize_amount: winners.prizeAmount,
+        })
+        .from(winners)
+        .orderBy(...orderClauses)
+        .limit(limit)
+        .offset(offset);
+
+      return NextResponse.json({ draws, total: cachedTotal.value, limit, offset });
+    }
 
     const [draws, totalResult] = await Promise.all([
       db
@@ -123,8 +161,10 @@ export async function GET(request: NextRequest) {
           id: winners.id,
           source: winners.source,
           denomination: winners.denomination,
+          draw_number: winners.drawNumber,
           draw_date: winners.drawDate,
           draw_year: winners.drawYear,
+          city: winners.city,
           bond_number: winners.bondNumber,
           prize_position: winners.prizePosition,
           prize_amount: winners.prizeAmount,
@@ -140,12 +180,14 @@ export async function GET(request: NextRequest) {
         .where(whereClause),
     ]);
 
-    return NextResponse.json({
-      draws,
-      total: totalResult[0].total,
-      limit,
-      offset,
-    });
+    total = totalResult[0].total;
+
+    // Cache unfiltered total
+    if (!hasFilters) {
+      cachedTotal = { value: total, timestamp: Date.now() };
+    }
+
+    return NextResponse.json({ draws, total, limit, offset });
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

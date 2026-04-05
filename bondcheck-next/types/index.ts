@@ -2,8 +2,10 @@ export interface Winner {
   id: number;
   source: string;
   denomination: number;
+  draw_number: number | null;
   draw_date: string;
   draw_year: string | null;
+  city: string | null;
   bond_number: string;
   prize_position: string;
   prize_amount: number;
@@ -47,6 +49,8 @@ export interface FilterState {
   denomination: string;
   rank: string;
   year: string;
+  city: string;
+  minDraw: string;
   sortBy: string;
   sortOrder: "ASC" | "DESC";
   startDate: string;

@@ -21,8 +21,10 @@ export async function GET(request: NextRequest) {
       .select({
         source: winners.source,
         denomination: winners.denomination,
+        draw_number: winners.drawNumber,
         draw_date: winners.drawDate,
         draw_year: winners.drawYear,
+        city: winners.city,
         bond_number: winners.bondNumber,
         prize_position: winners.prizePosition,
         prize_amount: winners.prizeAmount,

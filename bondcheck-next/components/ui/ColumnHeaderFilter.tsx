@@ -139,7 +139,7 @@ export function InputColumnFilter({
   onSort,
 }: InputFilterProps) {
   const [local, setLocal] = useState(value);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const isSorted = sortKey && sortBy === sortKey;
   const active = !!local;
 
@@ -166,6 +166,67 @@ export function InputColumnFilter({
       <div className="relative">
         <input
           type="number"
+          value={local}
+          onChange={(e) => handleChange(e.target.value)}
+          placeholder={placeholder}
+          className={`text-[10px] h-5 w-[72px] rounded-full px-2 font-semibold focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all ${
+            active
+              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              : "bg-gray-50 text-gray-400 border border-gray-200 placeholder:text-gray-300"
+          }`}
+        />
+        {active && (
+          <button
+            type="button"
+            onClick={() => { setLocal(""); onChange(""); }}
+            className="absolute right-1.5 top-1 text-[10px] text-gray-400 hover:text-red-500"
+          >
+            &times;
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function TextColumnFilter({
+  label,
+  value,
+  onChange,
+  placeholder = "Filter...",
+  sortKey,
+  sortBy,
+  sortOrder,
+  onSort,
+}: InputFilterProps) {
+  const [local, setLocal] = useState(value);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const isSorted = sortKey && sortBy === sortKey;
+  const active = !!local;
+
+  useEffect(() => {
+    setLocal(value);
+  }, [value]);
+
+  const handleChange = (v: string) => {
+    setLocal(v);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => onChange(v), 300);
+  };
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <button
+        type="button"
+        onClick={onSort}
+        className="flex items-center text-gray-500 font-bold uppercase text-[0.65rem] tracking-wider hover:text-gray-900 transition-colors cursor-pointer select-none whitespace-nowrap"
+      >
+        {label}
+        {onSort && <SortIcon direction={isSorted ? (sortOrder ?? null) : null} />}
+      </button>
+      <div className="relative">
+        <input
+          type="text"
           value={local}
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder}
