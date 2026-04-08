@@ -1,0 +1,41 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getDb } from "@/server/db";
+import { legacyWinners as winners } from "@bondcheck/db/schema";
+import { eq, desc } from "drizzle-orm";
+
+export async function GET(request: NextRequest) {
+  const number = request.nextUrl.searchParams.get("number");
+
+  if (!number || number.length < 6 || number.length > 6) {
+    return NextResponse.json(
+      { error: "number must be exactly 6 digits" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const results = await getDb()
+      .select({
+        source: winners.source,
+        denomination: winners.denomination,
+        draw_number: winners.drawNumber,
+        draw_date: winners.drawDate,
+        draw_year: winners.drawYear,
+        city: winners.city,
+        bond_number: winners.bondNumber,
+        prize_position: winners.prizePosition,
+        prize_amount: winners.prizeAmount,
+      })
+      .from(winners)
+      .where(eq(winners.bondNumber, number))
+      .orderBy(desc(winners.drawDate));
+
+    return NextResponse.json({
+      bond_number: number,
+      wins: results,
+      total_wins: results.length,
+    });
+  } catch (error) {
+    return NextResponse.json({ error: String(error) }, { status: 500 });
+  }
+}
