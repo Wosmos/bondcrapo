@@ -56,6 +56,9 @@ export async function GET(request: NextRequest) {
   try {
     const conditions: SQL[] = [];
 
+    // Prefer prizeinfo_net to avoid duplicates across sources
+    conditions.push(eq(winners.source, "prizeinfo_net"));
+
     // Bond filters (OR group)
     const bondConditions: SQL[] = [];
     if (bondNumber) {

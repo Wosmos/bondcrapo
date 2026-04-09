@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const results = await db
+    const raw = await db
       .select({
         source: winners.source,
         denomination: winners.denomination,
@@ -32,6 +32,15 @@ export async function GET(request: NextRequest) {
       .from(winners)
       .where(eq(winners.bondNumber, number))
       .orderBy(desc(winners.drawDate));
+
+    // Deduplicate across sources — same draw+bond = one result
+    const seen = new Set<string>();
+    const results = raw.filter((r) => {
+      const key = `${r.denomination}-${r.draw_date}-${r.bond_number}-${r.prize_position}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     return NextResponse.json({
       bond_number: number,

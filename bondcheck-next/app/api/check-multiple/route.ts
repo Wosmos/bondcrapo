@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const rows = await db
+    const raw = await db
       .select({
         bond_number: winners.bondNumber,
         denomination: winners.denomination,
@@ -31,6 +31,15 @@ export async function POST(request: NextRequest) {
       .from(winners)
       .where(inArray(winners.bondNumber, numbers))
       .orderBy(winners.bondNumber, desc(winners.drawDate));
+
+    // Deduplicate across sources
+    const seen = new Set<string>();
+    const rows = raw.filter((r) => {
+      const key = `${r.denomination}-${r.draw_date}-${r.bond_number}-${r.prize_position}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     const results: Record<string, typeof rows> = {};
     for (const row of rows) {
