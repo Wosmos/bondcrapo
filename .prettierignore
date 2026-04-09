@@ -1,0 +1,4 @@
+apps/
+pnpm-lock.yaml
+**/migrations/
+**/fixtures/
