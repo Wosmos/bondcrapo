@@ -3,6 +3,14 @@
     {
       "path": "/api/cron/scrape",
       "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/prices",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/daily-data",
+      "schedule": "0 12 * * *"
     }
   ]
 }

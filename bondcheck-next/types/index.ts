@@ -58,3 +58,113 @@ export interface FilterState {
   minAmount: string;
   rowLimit: number;
 }
+
+// ── Market Data Types ─────────────────────────────────────
+
+export interface GoldPrice {
+  karat: string;
+  unit: string;
+  price_pkr: number;
+  price_usd: number | null;
+  recorded_at: string;
+}
+
+export interface GoldResponse {
+  prices: GoldPrice[];
+  source: string;
+  updated_at: string;
+}
+
+export interface ExchangeRate {
+  base_currency: string;
+  quote_currency: string;
+  rate_type: string;
+  rate: number;
+  recorded_at: string;
+}
+
+export interface ForexResponse {
+  rates: ExchangeRate[];
+  source: string;
+  updated_at: string;
+}
+
+export interface CryptoPrice {
+  symbol: string;
+  price_usd: number;
+  price_pkr: number | null;
+  change_24h_percent: number | null;
+  volume_24h: number | null;
+  recorded_at: string;
+}
+
+export interface CryptoResponse {
+  prices: CryptoPrice[];
+  updated_at: string;
+}
+
+export interface SavingsRate {
+  certificate_type: string;
+  display_name: string;
+  rate_percent: number;
+  maturity_period: string | null;
+  min_investment: number | null;
+  eligibility: string | null;
+  profit_payment: string | null;
+  effective_date: string | null;
+}
+
+export interface SavingsRatesResponse {
+  rates: SavingsRate[];
+  source: string;
+  updated_at: string;
+}
+
+export interface DrawScheduleEntry {
+  denomination: number;
+  draw_number: number | null;
+  draw_date: string;
+  city: string | null;
+  status: string;
+  days_until: number | null;
+}
+
+export interface DrawScheduleResponse {
+  upcoming: DrawScheduleEntry[];
+  recent: DrawScheduleEntry[];
+}
+
+export interface MarketIndex {
+  index_name: string;
+  close_value: number | null;
+  change_percent: number | null;
+  trade_date: string;
+}
+
+export interface MarketPulse {
+  gold: { price_24k_tola: number | null; change_label: string | null } | null;
+  usd_pkr: { rate: number | null; rate_type: string } | null;
+  crypto: { btc_usd: number | null; eth_usd: number | null } | null;
+  kse100: { value: number | null; change_percent: number | null } | null;
+  next_draw: DrawScheduleEntry | null;
+  updated_at: string;
+}
+
+// ── Tax Calculator Types ──────────────────────────────────
+
+export interface PrizeBondTax {
+  gross_amount: number;
+  tax_rate: number;
+  tax_amount: number;
+  net_amount: number;
+  filer_status: "filer" | "non_filer";
+}
+
+export interface PriceAlert {
+  id: number;
+  alert_type: string;
+  target_value: number | null;
+  params: Record<string, unknown> | null;
+  triggered: boolean;
+  created_at: string;
+}

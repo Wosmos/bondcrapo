@@ -15,6 +15,13 @@
       "when": 1775398639977,
       "tag": "0001_dapper_molecule_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775709046547,
+      "tag": "0002_far_morgan_stark",
+      "breakpoints": true
     }
   ]
 }

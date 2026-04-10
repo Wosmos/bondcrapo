@@ -5,6 +5,9 @@ import useSWR, { useSWRConfig } from "swr";
 import { useThrottle } from "@/hooks/useThrottle";
 import { Header } from "./Header";
 import { StatsDashboard } from "./StatsDashboard";
+import { DrawCountdown } from "./DrawCountdown";
+import { WinProbability } from "./WinProbability";
+import { TaxCalculator } from "./TaxCalculator";
 import { FilterPanel } from "./FilterPanel";
 import { ResultsTable } from "./ResultsTable";
 import { ScannerModal } from "./ScannerModal";
@@ -268,6 +271,9 @@ export function BondCheckApp() {
     <>
       <Header onRefresh={handleRefresh} refreshDisabled={refreshDisabled || isLoading} />
       <StatsDashboard refreshKey={refreshKey} />
+      <DrawCountdown />
+      <WinProbability />
+      <TaxCalculator />
       <FilterPanel
         filters={filters}
         onChange={setFilters}
