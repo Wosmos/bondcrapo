@@ -1,127 +1,107 @@
-# BondCheck — Product Roadmap & Technical Guide
+# BondCheck — Halal Financial Literacy Platform for Pakistan
 
-> Evolving from a prize bond checker into Pakistan's first unified personal finance dashboard.
+> Helping ordinary Pakistanis understand their finances through a halal-only lens.
+
+---
+
+## CORE PRINCIPLE: HALAL ONLY
+
+This app will NEVER include:
+- Cryptocurrency (speculative, majority scholars say haram)
+- Forex trading features (speculative trading is haram)
+- Conventional interest/riba calculators or promotion
+- Conventional bank FD comparisons
+- Compound interest maturity calculators for conventional products
+- Stock market speculation features
+- Any content where scholars significantly disagree on permissibility
+
+This app WILL include:
+- Prize bonds (government savings program)
+- Gold & silver prices (halal real assets)
+- Currency exchange rates (informational — people need to know rates)
+- Government commodity prices (petrol, diesel, flour, sugar, ghee, cooking oil, essentials)
+- Islamic banking products ONLY (Meezan Bank, Al-Baraka, SISA, SITA, etc.)
+- Zakat calculator (obligatory Islamic duty)
+- Tax calculators (government compliance)
+- Government welfare schemes (BISP, Ehsaas, Kamyab Jawan)
+- Pakistani financial/economic news
+- Bill tracking, expense tracking
+- Islamic financial literacy education
+
+When promoting banking: Islamic banking ONLY. Sunni-agreed rulings. Include Shia-agreed where possible. No controversial fiqh.
 
 ---
 
 ## Table of Contents
 
-1. [Vision & Why](#vision--why)
-2. [Market Research (Real Numbers)](#market-research-real-numbers)
-3. [Competitive Landscape](#competitive-landscape)
-4. [Current Tech Stack](#current-tech-stack)
-5. [Current Codebase Structure](#current-codebase-structure)
-6. [Database Schema (All Tables)](#database-schema-all-tables)
-7. [All API Endpoints](#all-api-endpoints)
-8. [Cron Jobs](#cron-jobs)
-9. [Free Data Sources](#free-data-sources)
-10. [Phase 1: Prize Bond Dominance — DONE](#phase-1-prize-bond-dominance--done)
-11. [Phase 2: Daily Market Pulse — TODO](#phase-2-daily-market-pulse--todo)
-12. [Phase 3: National Savings Hub — TODO](#phase-3-national-savings-hub--todo)
-13. [Phase 4: Islamic Finance Tools — TODO](#phase-4-islamic-finance-tools--todo)
-14. [Phase 5: Tax & Government — TODO](#phase-5-tax--government--todo)
-15. [Phase 6: Personal Finance Layer — TODO](#phase-6-personal-finance-layer--todo)
-16. [Phase 7: Infra & Monetization — TODO](#phase-7-infra--monetization--todo)
-17. [Phase 8: Community & Growth — TODO](#phase-8-community--growth--todo)
-18. [Data Collection Strategy](#data-collection-strategy)
-19. [Monetization Plan](#monetization-plan)
-20. [Design System & Conventions](#design-system--conventions)
-21. [Important Notes for Development](#important-notes-for-development)
+1. [Vision](#vision)
+2. [Market Research](#market-research)
+3. [Tech Stack](#tech-stack)
+4. [Codebase Structure](#codebase-structure)
+5. [Database Schema](#database-schema)
+6. [API Endpoints](#api-endpoints)
+7. [Cron Jobs](#cron-jobs)
+8. [Free Data Sources](#free-data-sources)
+9. [Phase 1: Prize Bond Dominance — ~90% DONE](#phase-1-prize-bond-dominance--90-done)
+10. [Phase 2: Daily Price Dashboard — TODO](#phase-2-daily-price-dashboard--todo)
+11. [Phase 3: Islamic Finance Hub — TODO](#phase-3-islamic-finance-hub--todo)
+12. [Phase 4: Tax & Government — TODO](#phase-4-tax--government--todo)
+13. [Phase 5: Personal Finance — TODO](#phase-5-personal-finance--todo)
+14. [Phase 6: Infra & Scale — TODO](#phase-6-infra--scale--todo)
+15. [Phase 7: Community & Education — TODO](#phase-7-community--education--todo)
+16. [Design System](#design-system)
+17. [Dev Notes](#dev-notes)
 
 ---
 
-## Vision & Why
+## Vision
 
-BondCheck becomes Pakistan's personal finance super-app. Nobody in Pakistan combines prize bonds + gold + forex + savings + tax + Islamic finance + expense tracking in one place.
+BondCheck helps Pakistan's 7M+ National Savings investors and 117M internet users understand:
+- Did their prize bonds win? (we already do this better than anyone)
+- What's gold/silver worth today? (daily price tracking)
+- What's petrol/diesel/flour/sugar costing? (government commodity prices)
+- How to calculate and pay Zakat properly?
+- Which Islamic banking products offer the best halal returns?
+- What government welfare schemes are they eligible for?
+- How to file taxes correctly?
 
-**The market is massive and underserved:**
-- 7M+ National Savings investors through 376 CDNS branches
-- 117M internet users (45.6% penetration)
-- 194M mobile connections
-- 47M Raast users
-- 50.2% digital wallet penetration (was 10.5% in 2019)
-- Top competitor Pakbond has 1M+ users with JUST a basic checker — no analytics, no financial tools, no web version
-
-**Strategy:** Start from prize bond dominance (we already have the deepest database: ~960K records back to 2000), then expand concentrically into adjacent financial tools. Every feature brings users back more frequently and collects deeper data.
-
----
-
-## Market Research (Real Numbers)
-
-### Pakistani Prize Bond Market
-- CDNS total portfolio: Rs. 3.4 trillion (~$12.1B USD) across 7M+ investors
-- Prize bonds outstanding: ~Rs. 845B (~$3B USD)
-- ~70,600 Pakistanis win a combined Rs. 1.6B in prize money annually
-- Prize bond tax: 15% for filers, 30% for non-filers
-
-### Active Denominations (as of 2026)
-
-**Physical bearer bonds:**
-| Denom | 1st Prize | 2nd Prize (count) | 3rd Prize (count) |
-|-------|-----------|--------------------|--------------------|
-| Rs. 100 | Rs. 700,000 | Rs. 200,000 (x3) | Rs. 1,000 (x1,199) |
-| Rs. 200 | Rs. 750,000 | Rs. 250,000 (x5) | Rs. 1,250 (x2,394) |
-| Rs. 750 | Rs. 1,500,000 | Rs. 500,000 (x3) | Rs. 9,300 (x1,696) |
-| Rs. 1,500 | Rs. 3,000,000 | Rs. 1,000,000 (x3) | Rs. 18,500 (x1,696) |
-
-**Premium registered bonds:**
-| Denom | 1st Prize | 2nd Prize (count) | 3rd Prize (count) |
-|-------|-----------|--------------------|--------------------|
-| Rs. 25,000 | Rs. 30,000,000 (x2) | Rs. 10,000,000 (x5) | Rs. 300,000 (x700) |
-| Rs. 40,000 | Rs. 80,000,000 | Rs. 30,000,000 (x3) | Rs. 500,000 (x660) |
-
-**Digital registered bonds (launched 2025 — new, nobody tracks these yet):**
-| Denom | Max Prize |
-|-------|-----------|
-| Rs. 500 | Rs. 2,000,000 |
-| Rs. 1,000 | Rs. 4,000,000 |
-| Rs. 5,000 | Rs. 20,000,000 |
-| Rs. 10,000 | Rs. 40,000,000 |
-
-### Key Policy Changes
-- Bearer bonds (7500/15000/25000/40000) — DISCONTINUED. Final encashment deadline: Dec 31, 2024.
-- Digital Prize Bonds launched 2025 via National Savings Mobile App — completely paperless, registered to CNIC, prizes auto-credited.
-- Virtual Assets Act 2026 — crypto is now legally regulated in Pakistan.
-- Pakistan is 3rd globally in crypto adoption (30-40M users).
-
-### Fintech Landscape
-- JazzCash: 48M registered users, Rs. 10.7T in transactions
-- EasyPaisa: 2.7B transactions worth Rs. 9.5T in 2024 (~9% of GDP)
-- Raast: 47M users, 1.1M merchants, Rs. 18.5T processed in Q2 FY26
-- SadaPay/NayaPay: Growing neobanks targeting freelancers
-- 81% of all digital transactions done via mobile apps
-- NO app combines financial tools + investment tracking + savings management
-
-### National Savings Certificate Rates (Jan 5, 2026)
-| Scheme | Annual Rate | Notes |
-|--------|------------|-------|
-| Bahbood Savings | 12.48% | Widows, seniors, disabled only |
-| Defence Savings | 11.08% | 10-year maturity |
-| Special Savings | 10.20-11.00% | 3-year maturity |
-| Regular Income | 10.56% | Monthly payout |
-| Short Term (3M) | 10.32% | |
-| Short Term (6M) | 10.36% | |
-| Short Term (12M) | 10.68% | |
-| SISA (Islamic) | 8.40% | Shariah-compliant savings |
-| SITA (Islamic) | 10.80% | Shariah-compliant term |
-
-### Ad Revenue Reality
-- Google AdSense CPM for Pakistan: $0.11 (too low for primary revenue)
-- Finance CPC in Pakistan: $0.10-$0.40
-- 100K DAU with AdSense alone = ~$1,000/month
-- Better: lead gen for banks ($1-5/lead), premium features, API licensing, affiliate deals
-
-### Competition (Prize Bond Apps)
-| App | Users | Features | Missing |
-|-----|-------|----------|---------|
-| Pakbond | 1M+ | OCR scan, offline, notifications | No analytics, no web, no digital bonds |
-| Pak Bond Checker | ~500K | Save bonds, push alerts | No history, no tools |
-| Prize Bond Manager | ~100K | Basic checking | Minimal features |
-| **BondCheck (us)** | New | 960K records, multi-source, series/range search, analytics, wallet, PDF, OCR, web-based | Needs market data, more tools |
+No competitor does this. Pakbond (1M+ users) is just a bond checker. JazzCash/EasyPaisa are payment apps. Nobody is the "halal financial knowledge" app.
 
 ---
 
-## Current Tech Stack
+## Market Research
+
+### Pakistani Market (Real Numbers, April 2026)
+- CDNS total portfolio: Rs. 3.4 trillion (~$12.1B) across 7M+ investors
+- Internet users: 117M (45.6% penetration)
+- Mobile connections: 194M
+- Raast users: 47M
+- Digital wallet penetration: 50.2%
+- 81% of digital transactions via mobile apps
+- Only 23-26% of Pakistanis are financially literate (vs 33% global average)
+
+### Prize Bond Market
+- Active denominations: Rs. 100, 200, 750, 1500 (physical) + Rs. 25000, 40000 (premium registered)
+- Digital bonds launched 2025: Rs. 500, 1000, 5000, 10000 (registered to CNIC)
+- Bearer bonds (7500/15000/25000/40000) discontinued, encashment ended Dec 31 2024
+- Tax: 15% filer / 30% non-filer
+- ~70,600 winners per year, Rs. 1.6B total prize money
+
+### Gold Market
+- Pakistanis hold estimated 3,000-5,000 tonnes of gold ($40-70B)
+- Gold is deeply culturally embedded (weddings, savings, Zakat asset)
+- People check gold rates DAILY — this is the daily retention hook
+
+### Islamic Banking in Pakistan
+- Meezan Bank: largest Islamic bank
+- Islamic banking market share: ~20% and growing
+- SISA (Sarwa Islamic Savings Account): 8.40%
+- SITA (Sarwa Islamic Term Account): 10.80%
+- Demand for Islamic financial products is massive and underserved digitally
+
+---
+
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -134,196 +114,168 @@ BondCheck becomes Pakistan's personal finance super-app. Nobody in Pakistan comb
 | Table UI | TanStack React Table 8 |
 | PDF Export | jsPDF + jspdf-autotable |
 | OCR | Tesseract.js 7 |
-| Excel | xlsx 0.18.5 |
 | Hosting | Vercel |
-| Fonts | Inter + JetBrains Mono (Google Fonts) |
 
-**IMPORTANT:** This is Next.js 16 — it has breaking changes from earlier versions. Always check `node_modules/next/dist/docs/` before writing code. See `AGENTS.md`.
+**IMPORTANT:** Next.js 16 has breaking changes. Check `node_modules/next/dist/docs/` before writing code.
 
 ---
 
-## Current Codebase Structure
+## Codebase Structure
 
 ```
 bondcheck-next/
 ├── app/
-│   ├── layout.tsx                    # Root layout (Inter + JetBrains Mono fonts, CookieConsent)
-│   ├── page.tsx                      # Home — renders <BondCheckApp />
-│   ├── globals.css                   # Tailwind 4 + custom animations
-│   ├── admin/page.tsx                # Dev-only scraper admin (404 in production)
+│   ├── layout.tsx                    # Root layout
+│   ├── page.tsx                      # Home — <BondCheckApp />
+│   ├── globals.css                   # Tailwind 4 + custom styles
+│   ├── admin/page.tsx                # Dev-only scraper admin
 │   └── api/
-│       ├── health/route.ts           # DB health check
+│       ├── health/route.ts           # DB health
 │       ├── search/route.ts           # Single bond search
 │       ├── latest/route.ts           # Latest draw dates
 │       ├── stats/route.ts            # Aggregate stats (5min cache)
-│       ├── draws/route.ts            # Complex filtered/paginated draw results
-│       ├── check-multiple/route.ts   # Batch check up to 100 bonds
-│       ├── wallet/route.ts           # GET/POST/DELETE/PATCH wallet bonds
-│       ├── notifications/route.ts    # GET/PATCH wallet notifications
-│       ├── track/route.ts            # Telemetry event ingestion
-│       ├── device/register/route.ts  # Device fingerprint upsert
-│       ├── gold/route.ts             # [NEW] Gold prices (latest + history)
-│       ├── forex/route.ts            # [NEW] Exchange rates (latest + history)
-│       ├── crypto/route.ts           # [NEW] Crypto prices (latest + history)
-│       ├── savings-rates/route.ts    # [NEW] NS certificate rates
-│       ├── draw-schedule/route.ts    # [NEW] Upcoming/recent draws with countdown
-│       ├── market-pulse/route.ts     # [NEW] Unified feed (gold+USD+BTC+next draw)
-│       ├── tax/route.ts              # [NEW] Tax calculator (5 modes)
-│       ├── price-alerts/route.ts     # [NEW] CRUD for price alerts
+│       ├── draws/route.ts            # Filtered/paginated results
+│       ├── check-multiple/route.ts   # Batch check bonds
+│       ├── wallet/route.ts           # Wallet CRUD
+│       ├── notifications/route.ts    # Win notifications
+│       ├── track/route.ts            # Telemetry ingestion
+│       ├── device/register/route.ts  # Device fingerprint
+│       ├── gold/route.ts             # Gold prices
+│       ├── forex/route.ts            # Currency rates (informational)
+│       ├── crypto/route.ts           # [TO REMOVE — haram]
+│       ├── savings-rates/route.ts    # NS certificate rates
+│       ├── draw-schedule/route.ts    # Draw schedule + countdown
+│       ├── market-pulse/route.ts     # Unified feed
+│       ├── tax/route.ts              # Tax calculator
+│       ├── price-alerts/route.ts     # Price alerts CRUD
 │       └── cron/
-│           ├── scrape/route.ts       # Daily bond results scraper + wallet auto-check
-│           ├── prices/route.ts       # [NEW] Gold + forex + crypto every 5min
-│           └── daily-data/route.ts   # [NEW] Savings rates + draw schedule daily
+│           ├── scrape/route.ts       # Daily bond scraper
+│           ├── prices/route.ts       # Gold + currency prices
+│           └── daily-data/route.ts   # Savings rates + schedule
 ├── lib/
-│   ├── db.ts                         # Neon HTTP + Drizzle init
-│   ├── schema.ts                     # Drizzle schema (13 tables)
-│   ├── scraper-logic.ts              # Bond scraper (1228 lines, 2 sources)
+│   ├── db.ts                         # Neon + Drizzle init
+│   ├── schema.ts                     # 13 DB tables (remove crypto_prices)
+│   ├── scraper-logic.ts              # Bond scraper (1228 lines)
 │   ├── rate-limit.ts                 # Token-bucket rate limiter
-│   ├── fingerprint.ts                # Device fingerprinting (SHA-256 of 13+ signals)
-│   ├── history-db.ts                 # IndexedDB client-side history
-│   ├── utils.ts                      # formatDate, formatCompact helpers
-│   ├── tax.ts                        # [NEW] Tax calculator + expected value + maturity
+│   ├── fingerprint.ts                # Device fingerprinting
+│   ├── history-db.ts                 # IndexedDB history
+│   ├── utils.ts                      # Helpers
+│   ├── tax.ts                        # Tax + expected value (remove crypto refs)
 │   └── scrapers/
-│       ├── gold.ts                   # [NEW] goldpricez.com API fetcher
-│       ├── forex.ts                  # [NEW] Frankfurter API fetcher
-│       ├── crypto.ts                 # [NEW] CoinGecko API fetcher
-│       ├── savings-rates.ts          # [NEW] savings.gov.pk scraper + hardcoded fallback
-│       └── draw-schedule.ts          # [NEW] 2026 schedule + countdown logic
+│       ├── gold.ts                   # goldpricez.com API
+│       ├── forex.ts                  # Frankfurter API (informational)
+│       ├── crypto.ts                 # [TO REMOVE — haram]
+│       ├── savings-rates.ts          # savings.gov.pk
+│       └── draw-schedule.ts          # 2026 schedule
 ├── components/
-│   ├── BondCheckApp.tsx              # Main app (state, SWR, all handlers)
-│   ├── Header.tsx                    # Top bar with refresh + live indicator
-│   ├── StatsDashboard.tsx            # 3-col stats cards
-│   ├── DrawCountdown.tsx             # [NEW] Upcoming draw cards per denomination
-│   ├── WinProbability.tsx            # [NEW] Expected value table per denomination
-│   ├── TaxCalculator.tsx             # [NEW] Prize bond tax + savings maturity calc
-│   ├── ClaimAssistant.tsx            # [NEW] Claim guide modal (PDF gen, SBP offices)
-│   ├── FilterPanel.tsx               # Search modes + filters
-│   ├── ResultsTable.tsx              # Results grid (React Table)
-│   ├── ScannerModal.tsx              # OCR scanner modal
-│   ├── WalletPanel.tsx               # Saved bonds sidebar
-│   ├── CookieConsent.tsx             # Privacy consent banner
-│   └── ui/
-│       ├── AnimatedCounter.tsx       # Count-up animation
-│       ├── ColumnHeaderFilter.tsx    # Inline column filter
-│       ├── CopyButton.tsx            # Copy with tooltip
-│       └── PrizeRankBadge.tsx        # 1st/2nd/3rd badge
-├── hooks/
-│   ├── useTelemetry.ts              # Device registration + event tracking
-│   └── useThrottle.ts               # Throttled callback + disabled state
-├── actions/
-│   └── scraper.ts                   # Server actions for admin scraping
-├── types/
-│   └── index.ts                     # All TypeScript interfaces
-├── scripts/                          # One-off data scripts
-├── drizzle/                          # Migration files
-├── vercel.json                       # Cron configuration
-├── drizzle.config.ts                 # Drizzle config
-├── next.config.ts                    # Next.js config
-├── tsconfig.json                     # TypeScript config (strict, ES2018)
-└── package.json
+│   ├── BondCheckApp.tsx              # Main app
+│   ├── Header.tsx
+│   ├── StatsDashboard.tsx
+│   ├── DrawCountdown.tsx             # Upcoming draws
+│   ├── WinProbability.tsx            # Expected value table
+│   ├── TaxCalculator.tsx             # Tax calc (needs cleanup — remove savings interest mode)
+│   ├── ClaimAssistant.tsx            # Claim guide modal
+│   ├── FilterPanel.tsx
+│   ├── ResultsTable.tsx
+│   ├── ScannerModal.tsx
+│   ├── WalletPanel.tsx
+│   ├── CookieConsent.tsx
+│   └── ui/ (AnimatedCounter, CopyButton, PrizeRankBadge, etc.)
+├── hooks/ (useTelemetry, useThrottle)
+├── types/index.ts
+├── vercel.json                       # Cron config
+└── drizzle/                          # Migrations
 ```
 
----
-
-## Database Schema (All Tables)
-
-### 13 tables total (5 original + 8 new)
-
-**Original tables:**
-
-1. **winners** (~960K rows) — Prize bond draw results
-   - `id`, `source` (prizeinfo_net/pkprizebond_com), `denomination`, `draw_number`, `draw_date`, `draw_year`, `city`, `bond_number`, `prize_position`, `prize_amount`, `created_at`
-   - Unique: (source, denomination, draw_date, bond_number)
-   - Indexes: bond_number, denomination, draw_date, draw_number
-
-2. **devices** — Anonymous device fingerprints
-   - `id`, `fingerprint` (SHA-256, unique), `first_seen`, `last_seen`, `total_sessions`, `os`, `browser`, `device_type`, `screen_res`, `language`, `timezone`, `country`, `city`, `raw_meta` (JSONB)
-
-3. **wallet_bonds** — Saved bonds per device
-   - `id`, `device_fingerprint`, `bond_number`, `label`, `denomination`, `added_at`
-   - Unique: (device_fingerprint, bond_number)
-
-4. **wallet_notifications** — Auto-check win alerts
-   - `id`, `device_fingerprint`, `bond_number`, `winner_id`, `denomination`, `prize_position`, `prize_amount`, `draw_date`, `seen` (0/1), `created_at`
-
-5. **events** — Telemetry/analytics
-   - `id`, `device_fingerprint`, `session_id`, `event_type`, `event_data` (JSONB), `page`, `referrer`, `ip`, `user_agent`, `screen_width`, `screen_height`, `language`, `timezone`, `connection_type`, `battery_level`, `lat`, `lng`, `created_at`
-
-**New tables (Phase 1-2 backend):**
-
-6. **gold_prices** — Gold price time-series
-   - `id`, `source`, `karat` (24k/22k/21k), `unit` (tola/gram), `price_pkr`, `price_usd`, `recorded_at`
-   - Unique: (source, karat, unit, recorded_at)
-
-7. **exchange_rates** — Forex time-series
-   - `id`, `base_currency`, `quote_currency`, `rate_type` (interbank/open_market), `rate`, `source`, `recorded_at`
-   - Index: (base_currency, quote_currency, recorded_at)
-
-8. **crypto_prices** — Crypto snapshots
-   - `id`, `symbol` (BTC/ETH/USDT/BNB/SOL), `price_usd`, `price_pkr`, `change_24h_percent`, `volume_24h`, `source`, `recorded_at`
-
-9. **savings_rates** — NS certificate rates (historical)
-   - `id`, `certificate_type`, `display_name`, `rate_percent`, `effective_date`, `maturity_period`, `min_investment`, `eligibility`, `profit_payment`, `source`, `scraped_at`
-
-10. **draw_schedule** — Prize bond draw schedule
-    - `id`, `denomination`, `draw_number`, `draw_date`, `city`, `status` (scheduled/completed/results_available), `source`, `created_at`
-
-11. **crypto_prices** — Already listed above
-
-12. **price_alerts** — User-configured price alerts
-    - `id`, `device_fingerprint`, `alert_type` (gold_above/gold_below/usd_above/usd_below/btc_above/btc_below/draw_reminder), `target_value`, `params` (JSONB), `triggered`, `triggered_at`, `created_at`
-    - Max 20 active alerts per device
-
-13. **analytics_daily** — Aggregated daily stats
-    - `id`, `date` (unique), `total_sessions`, `unique_devices`, `total_searches`, `total_wallet_checks`, `total_bond_scans`, `top_denominations` (JSONB), `device_breakdown` (JSONB), `browser_breakdown` (JSONB)
-
-14. **market_indices** — KSE-100 etc. daily values
-    - `id`, `index_name`, `open_value`, `high_value`, `low_value`, `close_value`, `volume`, `change_percent`, `trade_date`, `source`, `recorded_at`
-
-**Migration file:** `drizzle/0002_far_morgan_stark.sql`
+### Files to REMOVE or MODIFY:
+- **REMOVE:** `lib/scrapers/crypto.ts` — haram
+- **REMOVE:** `app/api/crypto/route.ts` — haram
+- **MODIFY:** `lib/schema.ts` — remove `crypto_prices` table
+- **MODIFY:** `app/api/market-pulse/route.ts` — remove crypto from unified feed
+- **MODIFY:** `app/api/cron/prices/route.ts` — remove crypto fetch from cron
+- **MODIFY:** `lib/tax.ts` — remove crypto references if any
+- **MODIFY:** `types/index.ts` — remove CryptoPrice, CryptoResponse types
+- **MODIFY:** `components/TaxCalculator.tsx` — the "Savings Maturity" mode calculates compound interest for conventional NS certificates. Keep for Islamic products only (SISA/SITA) or remove the compound interest framing and show "expected profit" instead
 
 ---
 
-## All API Endpoints
+## Database Schema
 
-### Original (bond checking)
-| Method | Route | Rate Limit | Purpose |
-|--------|-------|------------|---------|
-| GET | `/api/health` | 15/10 | DB health + record count |
-| GET | `/api/search?number=XXXXXX` | 5/3 | Single bond lookup |
-| GET | `/api/latest?denomination=X` | 15/10 | Latest draw dates |
-| GET | `/api/stats` | 15/10 | Aggregate stats (5min cache) |
-| GET | `/api/draws?[filters]` | 5/3 | Complex filtering + pagination |
-| POST | `/api/check-multiple` | 5/3 | Batch check 1-100 bonds |
-| GET/POST/DELETE/PATCH | `/api/wallet` | - | Wallet CRUD + batch check |
-| GET/PATCH | `/api/notifications` | 10/5 | Wallet win notifications |
-| POST | `/api/track` | - | Telemetry event ingestion |
-| POST | `/api/device/register` | - | Device fingerprint upsert |
+### Existing tables (keep):
+1. **winners** (~960K rows) — prize bond results
+2. **devices** — anonymous fingerprints
+3. **wallet_bonds** — saved bonds per device
+4. **wallet_notifications** — win alerts
+5. **events** — telemetry
+6. **gold_prices** — gold time-series
+7. **exchange_rates** — currency rates (informational)
+8. **savings_rates** — NS certificate rates (Islamic products only going forward)
+9. **draw_schedule** — draw calendar
+10. **price_alerts** — user alerts (gold, currency, draw reminders)
+11. **analytics_daily** — aggregated stats
+12. **market_indices** — [REPURPOSE: use for govt commodity prices instead of KSE-100]
 
-### New (Phase 1-2 backend)
-| Method | Route | Rate Limit | Purpose |
-|--------|-------|------------|---------|
-| GET | `/api/gold?mode=latest\|history` | 15/10 | Gold prices (karat, unit, days params) |
-| GET | `/api/forex?mode=latest\|history` | 15/10 | Exchange rates (base, days params) |
-| GET | `/api/crypto?mode=latest\|history` | 15/10 | Crypto prices (symbol, days params) |
-| GET | `/api/savings-rates` | 15/10 | NS certificate rates |
-| GET | `/api/draw-schedule?mode=all\|next` | 15/10 | Draw schedule + countdown |
-| GET | `/api/market-pulse` | 15/10 | Unified feed (60s cache) |
-| GET | `/api/tax?mode=prize\|savings\|maturity\|expected_value\|compare` | 15/10 | Tax calculators |
-| GET/POST/DELETE | `/api/price-alerts?fp=X` | 10/5 | Price alert CRUD |
+### Table to REMOVE:
+- **crypto_prices** — haram, delete from schema and migration
 
-### Cron endpoints
-| Route | Schedule | Auth | Purpose |
-|-------|----------|------|---------|
-| `/api/cron/scrape` | `0 1 * * *` (1 AM UTC) | CRON_SECRET | Bond results + wallet auto-check |
-| `/api/cron/prices` | `*/5 * * * *` (every 5 min) | CRON_SECRET | Gold + forex + crypto |
-| `/api/cron/daily-data` | `0 12 * * *` (noon UTC) | CRON_SECRET | Savings rates + draw schedule |
+### New tables needed (future phases):
+- **commodity_prices** — petrol, diesel, flour, sugar, ghee, cooking oil, pulses (OGRA + PBS data)
+- **silver_prices** — silver PKR per tola (same structure as gold_prices)
+- **islamic_bank_rates** — profit rates from Meezan, Al-Baraka, BankIslami, etc.
+- **zakat_records** — user Zakat calculations (device_fp, year_hijri, assets JSONB, zakat_due)
+- **news_articles** — cached news from free API
+- **bill_accounts** / **bill_records** — utility bill tracking
+- **expenses** — expense tracking
+
+---
+
+## API Endpoints
+
+### Keep (bond checking — original):
+| Method | Route | Purpose |
+|--------|-------|---------|
+| GET | `/api/health` | DB health |
+| GET | `/api/search` | Single bond lookup |
+| GET | `/api/latest` | Latest draw dates |
+| GET | `/api/stats` | Aggregate stats |
+| GET | `/api/draws` | Filtered/paginated results |
+| POST | `/api/check-multiple` | Batch check bonds |
+| CRUD | `/api/wallet` | Wallet bonds |
+| GET/PATCH | `/api/notifications` | Win notifications |
+| POST | `/api/track` | Telemetry |
+| POST | `/api/device/register` | Device fingerprint |
+
+### Keep (Phase 1-2 — halal):
+| Method | Route | Purpose |
+|--------|-------|---------|
+| GET | `/api/gold` | Gold prices (latest + history) |
+| GET | `/api/forex` | Currency rates — informational (latest + history) |
+| GET | `/api/savings-rates` | Islamic savings product rates |
+| GET | `/api/draw-schedule` | Draw schedule + countdown |
+| GET | `/api/market-pulse` | Unified feed (remove crypto) |
+| GET | `/api/tax` | Tax calculators |
+| CRUD | `/api/price-alerts` | Price alerts |
+
+### REMOVE:
+| Route | Reason |
+|-------|--------|
+| `/api/crypto` | Haram — cryptocurrency |
+
+### New routes needed (future):
+| Route | Phase | Purpose |
+|-------|-------|---------|
+| `/api/silver` | 2 | Silver prices |
+| `/api/commodities` | 2 | Petrol, diesel, flour, sugar, ghee, cooking oil |
+| `/api/news` | 2 | Pakistani financial news feed |
+| `/api/islamic-banking` | 3 | Islamic bank profit rates |
+| `/api/zakat` | 3 | Zakat calculator CRUD |
+| `/api/income-tax` | 4 | Income tax slab calculator |
+| `/api/govt-schemes` | 4 | BISP, Kamyab Jawan eligibility |
 
 ---
 
 ## Cron Jobs
 
-Configured in `vercel.json`:
 ```json
 {
   "crons": [
@@ -334,387 +286,262 @@ Configured in `vercel.json`:
 }
 ```
 
-**Note:** Vercel Free tier = 1 cron job. Need Pro ($20/mo) for multiple crons.
+- `/api/cron/prices` — currently fetches gold + forex + ~~crypto~~. Remove crypto.
+- `/api/cron/daily-data` — savings rates + draw schedule. Add commodity prices later.
 
 ---
 
 ## Free Data Sources
 
-| Data | Source | Cost | Rate Limit |
-|------|--------|------|------------|
-| Gold PKR/tola | goldpricez.com/api | Free | 30-60 req/hr |
-| Forex (USD/EUR/GBP/SAR/AED to PKR) | api.frankfurter.dev | Free, no key | ~unlimited |
-| SBP official rates | sbp.org.pk scrape | Free | Be respectful |
-| NS certificate rates | savings.gov.pk scrape | Free | Be respectful |
-| KSE-100 index | dps.psx.com.pk scrape | Free | Be respectful |
-| Crypto (BTC/ETH/USDT/BNB/SOL) | api.coingecko.com | Free, no key | 10-30 req/min |
-| Draw schedule | savings.gov.pk | Free | Hardcoded + scrape |
-| Bond results | prizeinfo.net + pkprizebond.com | Free | Scrape |
-| CPI/Inflation | SBP EasyData | Free | Scrape |
-| Utility bills | ebillpakistan.com (future) | Free | Scrape |
+| Data | Source | Cost |
+|------|--------|------|
+| Gold PKR/tola (24K/22K/21K) | goldpricez.com/api | Free, 30-60 req/hr |
+| Silver PKR/tola | goldpricez.com/api (supports silver) | Free |
+| Currency rates (USD/EUR/GBP/SAR/AED/CAD/AUD to PKR) | api.frankfurter.dev | Free, no key |
+| SBP official rates | sbp.org.pk scrape | Free |
+| Petrol/diesel prices | OGRA (ogra.org.pk) scrape | Free |
+| Grocery commodity prices | PBS (pbs.gov.pk) or Utility Stores data | Free |
+| Islamic banking rates | Meezan Bank website scrape | Free |
+| NS Islamic products (SISA/SITA) | savings.gov.pk scrape | Free |
+| Prize bond results | prizeinfo.net + pkprizebond.com | Free |
+| Draw schedule | savings.gov.pk | Free |
+| News | GNews API (free tier: 100 req/day) or NewsData.io (free: 200 req/day) | Free |
 
 ---
 
-## Phase 1: Prize Bond Dominance — DONE
+## Phase 1: Prize Bond Dominance — ~90% DONE
 
-### What was built:
+### Done:
+- Draw schedule backend + frontend countdown per denomination
+- Digital bond support (Rs 500/1000/5000/10000) in prize structures + schedule
+- Win probability analytics backend + frontend table
+- Tax calculator backend (prize bond WHT, filer/non-filer) + frontend
+- Claim assistant (SBP office locator, geolocation, PDF claim guide generator)
+- All components integrated in BondCheckApp.tsx
 
-**Backend:**
-- Draw schedule API with 2026 dates for ALL denominations including digital bonds
-- Tax calculator: prize bond tax, savings WHT, compound maturity, expected value per denomination, denomination comparison
-- Price alerts CRUD (max 20 per device)
-- All new DB tables + migration
-- Gold/Forex/Crypto/Savings scrapers (backend only — feeds built for Phase 2)
-- 3 cron jobs configured
-
-**Frontend components (integrated into BondCheckApp.tsx):**
-- `DrawCountdown` — Cards per denomination showing days until next draw, pulsing indicator for urgent (<7 days)
-- `WinProbability` — Table with expected value, win probability, effective return per denomination. Filer/non-filer toggle.
-- `TaxCalculator` — Two modes: prize bond tax (with quick presets for common amounts) and savings maturity calculator (with quick presets for NS certificate rates). Filer/non-filer toggle.
-- `ClaimAssistant` — Modal with: win summary, tax breakdown, step-by-step claim process (different for 1st/2nd vs 3rd), SBP office locator with geolocation distance sorting, PDF claim guide generator
-
-**Digital bond support:**
-- Rs 500, 1000, 5000, 10000 added to prize structures in `lib/tax.ts`
-- Added to draw schedule in `lib/scrapers/draw-schedule.ts`
-- Labels added to `DrawCountdown` component
-
-**ClaimAssistant is triggered when a user finds a winning bond** — it needs to be wired up from the ResultsTable or WalletPanel (connection point exists but needs a trigger button on winning results).
+### Still TODO:
+- **Wire ClaimAssistant trigger** — add a "Claim Guide" button on winning bonds in ResultsTable and/or WalletPanel. The ClaimAssistant component exists but has no trigger button yet.
 
 ---
 
-## Phase 2: Daily Market Pulse — TODO
+## Phase 2: Daily Price Dashboard — TODO
 
-**Goal:** Give users a reason to open the app EVERY DAY, not just on draw days. Gold + USD + crypto prices change daily.
+**Goal:** People open the app DAILY to check gold prices, petrol prices, and news. Not just on draw days.
 
-### 2a. KSE-100 Scraper
-- **Backend exists:** `market_indices` table in schema
-- **Need:** `lib/scrapers/market-indices.ts` — scrape `dps.psx.com.pk/indices` for daily KSE-100/KSE-30/KMI-30
-- **Need:** `/api/market-indices` route (latest + history)
-- **Need:** Add to `/api/cron/daily-data` cron
-- **Note:** PSX data redistribution is gray area. Attribute clearly.
+### 2.1 Remove Crypto (cleanup)
+- Delete `lib/scrapers/crypto.ts`
+- Delete `app/api/crypto/route.ts`
+- Remove `crypto_prices` from `lib/schema.ts`
+- Remove crypto from `/api/market-pulse`
+- Remove crypto from `/api/cron/prices`
+- Remove `CryptoPrice`/`CryptoResponse` from `types/index.ts`
 
-### 2b. Market Pulse Frontend Widget
-- **Backend exists:** `/api/market-pulse` returns unified feed
-- **Need:** `components/MarketPulse.tsx` — single scrollable card showing:
-  - Gold 24K/tola price with change indicator
-  - USD/PKR rate
-  - BTC price in USD
-  - KSE-100 value + daily change %
-  - Next draw countdown (nearest)
-- **Design:** Match existing style — white card, gray-200 border, monospace numbers, compact layout
-- **Position:** Place between `StatsDashboard` and `DrawCountdown` in BondCheckApp
-- **SWR config:** revalidate every 60 seconds for prices
+### 2.2 Silver Price Tracker
+- Add silver to `lib/scrapers/gold.ts` (goldpricez.com supports silver — same API, different endpoint)
+- Or create `lib/scrapers/silver.ts`
+- Silver prices in PKR per tola (important for Zakat Nisab calculation)
+- Add to `/api/gold` route (or create `/api/silver`)
+- Add `silver_prices` table or reuse `gold_prices` with a `metal` column
 
-### 2c. Individual Market Pages (optional but high value)
-- Gold detail page: all karats, tola + gram, 1D/1W/1M/3M charts, price alerts UI
-- Forex detail: all 7 currencies vs PKR, interbank vs open market
-- Crypto detail: all 5 coins, PKR conversion, 24h change
-- These could be separate routes (`/gold`, `/forex`, `/crypto`) or collapsible sections
+### 2.3 Government Commodity Prices
+- **Petrol/Diesel:** OGRA announces prices on 1st and 16th of each month. Scrape ogra.org.pk or hardcode + update via cron.
+- **Grocery staples:** Flour (atta), sugar, ghee, cooking oil, rice, dal (pulses), chicken, eggs — PBS publishes weekly SPI (Sensitive Price Index). Scrape or use data.gov.pk.
+- New table: `commodity_prices` (commodity_name, unit, price_pkr, effective_date, source, recorded_at)
+- New scraper: `lib/scrapers/commodities.ts`
+- New route: `/api/commodities`
+- Add to daily cron
 
-### 2d. Price Alerts UI
-- **Backend exists:** `/api/price-alerts` CRUD
-- **Need:** Alert creation UI — dropdown for type, input for threshold value
-- **Need:** Alert list showing active alerts with delete button
-- **Could be:** Part of each market detail section or a unified alerts panel
+### 2.4 News Feed
+- Free API options:
+  - GNews (gnews.io) — 100 req/day free, Pakistani news supported
+  - NewsData.io — 200 req/day free, Pakistan filter
+  - MediaStack — 500 req/month free
+- New table: `news_articles` (title, description, url, source_name, image_url, published_at, category, fetched_at)
+- New scraper: `lib/scrapers/news.ts`
+- New route: `/api/news`
+- New component: `components/NewsFeed.tsx`
+- Cache articles, fetch every hour via cron or on-demand with SWR
+- Categories: economy, government, Islamic finance, gold, energy
 
-### 2e. Wire ClaimAssistant to Results
-- Add a "Claim Guide" button on winning bond results in `ResultsTable` or `WalletPanel`
-- When clicked, opens `ClaimAssistant` modal with the bond details pre-filled
+### 2.5 Market Pulse Frontend Widget
+- Unified card showing: Gold 24K/tola | Silver/tola | USD/PKR | Petrol | Next Draw
+- Component: `components/MarketPulse.tsx`
+- Place between StatsDashboard and DrawCountdown in app
+- SWR with 60-second revalidation
+- Update `/api/market-pulse` to include silver + commodities (remove crypto)
 
----
-
-## Phase 3: National Savings Hub — TODO
-
-**Goal:** Become THE app for all National Savings products. Same user base (NS investors = prize bond holders).
-
-### 3a. NS Product Explorer
-- **Backend exists:** `/api/savings-rates` returns all 11 certificate types
-- **Need:** `components/SavingsExplorer.tsx` — interactive catalog:
-  - Cards for each certificate type with current rate, maturity, min investment
-  - Eligibility filter (BSC = widows/elderly only, PBA = pensioners only)
-  - Click to expand with full details + "Calculate Returns" button linking to TaxCalculator
-- **Data:** Already in `lib/scrapers/savings-rates.ts` (CURRENT_RATES array)
-
-### 3b. Investment Comparison Calculator
-- **Need:** `components/InvestmentComparison.tsx`
-- Side-by-side comparison: NS certificates vs bank FD vs prize bonds
-- Inputs: investment amount, time horizon, filer status
-- Show: after-tax returns, inflation-adjusted real returns, risk comparison
-- Use CPI data from SBP for inflation adjustment
-- **New data needed:** Bank FD rates (hardcode top 5 banks initially, scrape later)
-
-### 3c. Profit Rate Alert System
-- When savings rates change (detected by daily scrape), notify users
-- **Needs web push (Phase 7)** to actually deliver alerts
-- For now: store rate change events, show "rates changed" banner in app
-
-### 3d. Savings Goal Tracker
-- **Need new table:** `savings_goals` (device_fingerprint, name, target_amount, current_amount, target_date, suggested_product)
-- **Need:** `components/SavingsGoal.tsx` — set target, track progress, suggest optimal NS product mix
-- **Need:** `/api/savings-goals` CRUD route
+### 2.6 Price Alerts UI
+- Backend exists (`/api/price-alerts`)
+- Need frontend: dropdown for type (gold above/below, silver, USD, petrol), threshold input
+- Alert list with delete
+- Component: `components/PriceAlerts.tsx`
 
 ---
 
-## Phase 4: Islamic Finance Tools — TODO
+## Phase 3: Islamic Finance Hub — TODO
 
-**Goal:** Build tools uniquely Pakistani/Muslim. Launch before Ramadan for 5-10x traffic spike.
+**Goal:** Be the go-to app for Islamic financial tools. Launch Zakat calc before Ramadan.
 
-### 4a. Zakat Calculator
-- **THE most data-rich feature** — a complete Zakat calc gives us the user's entire financial picture
-- **Need:** `components/ZakatCalculator.tsx`
-- Categories: cash on hand, bank balances, gold/silver (with live price integration from our gold API), stocks, business inventory, rental income, crypto holdings, prize bonds, NS certificates
-- Auto Nisab calculation: gold Nisab (~87.48g) and silver Nisab (~612.36g) using live gold/silver prices
-- Lunar year tracking (Zakat due on Islamic calendar anniversary)
-- Save annually for year-over-year comparison
-- **Need new table:** `zakat_records` (device_fingerprint, year_hijri, year_gregorian, assets JSONB, nisab_value, zakat_due, calculated_at)
-- Show both scholar positions on whether prize bonds are Zakat-able
+### 3.1 Zakat Calculator
+- **Categories (all scholars agree on):**
+  - Cash on hand + bank balances
+  - Gold holdings (use live gold price from our API)
+  - Silver holdings (use live silver price)
+  - Prize bonds at face value
+  - Business inventory/goods for sale
+  - Rental income receivable
+  - Debts owed to you
+  - Minus: debts you owe
+- **Auto Nisab:** Gold Nisab (~87.48g gold at live rate) and Silver Nisab (~612.36g silver at live rate)
+- **Zakat rate:** 2.5% of net Zakatable assets above Nisab
+- Lunar year tracking
+- Save annually for comparison
+- New table: `zakat_records`
+- Component: `components/ZakatCalculator.tsx`
+- Route: `/api/zakat`
 
-### 4b. Islamic Investment Comparator
-- Compare SISA/SITA (Shariah-compliant NS products) vs conventional NS products
-- Show PSX Shariah-compliant stock filter (KMI-30 index)
-- Flag which features involve riba concerns
-- Lighter feature — can be a section within SavingsExplorer
+### 3.2 Islamic Banking Explorer
+- Scrape profit rates from: Meezan Bank, BankIslami, Al-Baraka, Dubai Islamic, MCB Islamic
+- CDNS Islamic products: SISA (8.40%), SITA (10.80%)
+- Show: bank name, product name, profit rate, maturity, min deposit
+- New table: `islamic_bank_rates`
+- New scraper: `lib/scrapers/islamic-banking.ts`
+- Component: `components/IslamicBanking.tsx`
+- Route: `/api/islamic-banking`
 
----
-
-## Phase 5: Tax & Government — TODO
-
-**Goal:** Handle bureaucratic complexity that Pakistanis dread. Tax season (July-Sept) = massive traffic.
-
-### 5a. Income Tax Calculator
-- **Need:** `lib/income-tax.ts` with 2025-26 slab data
-- Salaried vs non-salaried slabs
-- Include common deductions and exemptions
-- Show effective tax rate
-- "How much tax will I save by investing in X?" scenarios
-- **Need:** `components/IncomeTaxCalculator.tsx`
-
-### 5b. Government Scheme Tracker
-- Consolidated dashboard: BISP/Ehsaas eligibility, Kamyab Jawan Program, PM Laptop Scheme, Naya Pakistan Housing
-- **Need:** Scrape or hardcode eligibility criteria
-- **Need:** `components/GovtSchemes.tsx`
-- "What government benefits am I eligible for?" questionnaire
-
-### 5c. FBR Active Taxpayer Checker
-- Quick CNIC check against FBR Active Taxpayer List
-- Show implications of non-filer status (double tax on everything)
-- Step-by-step guide to becoming a filer
-- **Note:** FBR has an online check — may need to proxy or scrape
+### 3.3 Halal Investment Guide
+- Educational content: What makes an investment halal?
+- Prize bonds: scholars' views (some debate, present both sides neutrally)
+- Gold/silver as savings
+- Islamic banking products explained
+- What is NOT halal (interest, speculation, etc.)
+- This is content, not a calculator — can be static pages
 
 ---
 
-## Phase 6: Personal Finance Layer — TODO
+## Phase 4: Tax & Government — TODO
 
-**Goal:** Own the user's daily financial life. This is where retention becomes unbreakable.
+### 4.1 Income Tax Calculator
+- Pakistan 2025-26 tax slabs (salaried + non-salaried)
+- Common deductions and exemptions
+- "Becoming a filer saves you Rs X on prize bonds" (15% vs 30%)
+- Effective tax rate display
+- Component: `components/IncomeTaxCalculator.tsx`
 
-### 6a. Bill Payment Tracker
-- NOT actual bill payment (that's JazzCash territory) — track and analyze bills
-- Input consumer numbers for LESCO, MEPCO, GEPCO, PESCO, SNGPL, SSGC, WASA, PTCL
-- Auto-fetch amounts from public APIs (ebillpakistan.com model)
-- Monthly trends, due date reminders, annual summary
-- **Need new tables:** `bill_accounts` (device_fingerprint, provider, consumer_number, label), `bill_records` (bill_account_id, amount, due_date, billing_month)
-- **Data collected:** Household size, location, consumption = income proxy
+### 4.2 Government Scheme Tracker
+- Consolidated dashboard: BISP/Ehsaas eligibility, Kamyab Jawan, PM Laptop, Naya Pakistan Housing
+- Scrape eligibility criteria or hardcode
+- "What schemes am I eligible for?" questionnaire
+- Component: `components/GovtSchemes.tsx`
 
-### 6b. Expense Tracker
-- Quick PKR-native logger with Pakistani categories: Grocery (kiryana), Transport (petrol/CNG/Careem), Utilities, School fees, Medical, Eid expenses, Ramadan expenses
-- SMS parser: detect JazzCash/EasyPaisa/bank transaction SMS and auto-categorize
+### 4.3 FBR Active Taxpayer Checker
+- CNIC lookup against FBR Active Taxpayer List
+- Show filer vs non-filer implications
+- Guide to becoming a filer
+- Component: `components/FbrChecker.tsx`
+
+---
+
+## Phase 5: Personal Finance — TODO
+
+### 5.1 Bill Payment Tracker
+- Track (not pay) utility bills: electricity (LESCO/MEPCO/etc.), gas (SNGPL/SSGC), water, PTCL
+- Input consumer number, fetch amounts from public APIs
+- Due date reminders, monthly trends
+- New tables: `bill_accounts`, `bill_records`
+
+### 5.2 Expense Tracker
+- PKR-native with Pakistani categories: Grocery (kiryana), Transport (petrol/CNG/rickshaw), Utilities, School fees, Medical, Eid, Ramadan, Qurbani, Sadaqah
 - Weekly/monthly reports
-- **Need new tables:** `expenses` (device_fingerprint, amount, category, note, date)
-- **Need:** `components/ExpenseTracker.tsx`
+- New table: `expenses`
 
-### 6c. Net Worth Dashboard
-- Aggregate view from all BondCheck data:
-  - Prize bonds in wallet (denomination values)
-  - Gold holdings (from Zakat calc, valued at live rates)
-  - Crypto holdings (from crypto tracker)
-  - NS certificates (manual entry)
-  - Bank savings (from Zakat calc)
-  - Property (manual entry)
-  - Minus: loans
-- "Your net worth over time" chart
-- **This is the crown jewel.** No Pakistani app provides this.
+### 5.3 Halal Net Worth Dashboard
+- Aggregate: prize bonds (face value) + gold/silver (live rates) + Islamic bank balances + property (manual)
+- Minus: debts
+- "Your halal net worth over time" chart
+- No conventional bank balances or haram investments
 
 ---
 
-## Phase 7: Infra & Monetization — TODO
+## Phase 6: Infra & Scale — TODO
 
-### 7a. PWA (Progressive Web App)
-- `public/manifest.json` with app icons (192x192, 512x512)
-- `public/sw.js` — custom service worker:
-  - Cache-first for static assets (HTML, CSS, JS, fonts)
-  - Network-first with stale fallback for API data
-  - Offline fallback page (`public/offline.html`)
-- Register SW in `app/layout.tsx`
-- "Install App" prompt component
-- **Critical for Pakistani market** — many users on slow mobile data
+### 6.1 PWA
+- manifest.json, service worker, offline fallback, install prompt
+- Critical for Pakistani mobile users on slow data
 
-### 7b. Web Push Notifications
-- Self-hosted via [web-push](https://www.npmjs.com/package/web-push) npm library with VAPID keys
-- Zero cost, no Firebase dependency
-- **Need new table:** `push_subscriptions` (device_fingerprint, endpoint, p256dh, auth, active)
-- **Triggers:**
-  - Draw results available (after scrape cron)
-  - Wallet bond won (critical priority)
-  - Draw reminder (1 day before)
-  - Price alert threshold crossed
-  - Savings rate change detected
+### 6.2 Web Push Notifications
+- VAPID (free, no Firebase)
+- Triggers: draw results, wallet wins, draw reminders, price alerts, rate changes
+- New table: `push_subscriptions`
 
-### 7c. Vercel KV (Redis)
-- Replace in-memory caches (rate limiter buckets, stats cache, total count cache)
+### 6.3 Vercel KV
+- Replace in-memory caches (rate limiter, stats cache)
 - Persistent across cold starts
-- Cost: Free = 30K req/day, Pro = $3-25/mo for 100K-1M req/day
-- Use for: rate limiting, cached stats, cached prices, session data
 
-### 7d. CDN Cache Headers
-- Add `Cache-Control: public, s-maxage=X, stale-while-revalidate=Y` to API responses
-- /api/stats: s-maxage=300 (5 min)
-- /api/gold, /api/forex: s-maxage=60 (1 min)
-- /api/market-pulse: s-maxage=60
-- /api/draw-schedule: s-maxage=3600 (1 hour)
-- /api/savings-rates: s-maxage=86400 (1 day)
-- Could reduce function invocations by 80-90%
+### 6.4 CDN Cache Headers
+- s-maxage on API responses to cut function invocations
 
-### 7e. Public API v1
-- Versioned endpoints: `/api/v1/gold`, `/api/v1/forex`, `/api/v1/bonds/search`, etc.
-- **Need new table:** `api_keys` (key_hash, owner, email, tier, rate_limit_per_day, requests_today, active)
-- Tiers: Free (100/day), Basic $9/mo (5K/day), Pro $29/mo (50K/day), Enterprise (custom)
-- Middleware for API key validation
+### 6.5 Public API v1
+- `/api/v1/` with API key auth
+- Monetize bond data + gold prices
+- Tiers: Free, Basic, Pro
 
-### 7f. Events Aggregation Pipeline
-- Daily cron at 3 AM: roll up raw events into `analytics_daily`
-- SQL: COUNT DISTINCT sessions, devices, searches by date
-- Delete raw events > 90 days old
-- This prevents the events table from growing infinitely
-
-### 7g. BondCheck PRO (Premium Tier)
-- Price: Rs. 500/month (~$2)
-- Features: unlimited wallet bonds (free = 50), advanced analytics, priority results, Excel export, SMS notifications, ad-free
-- **Need:** Payment integration (JazzCash/EasyPaisa API or Stripe Pakistan)
-- **Need:** Feature gating logic per device fingerprint
+### 6.6 Events Aggregation
+- Daily cron: roll up events into analytics_daily, prune old events
 
 ---
 
-## Phase 8: Community & Growth — TODO
+## Phase 7: Community & Education — TODO
 
-### 8a. Draw Day Live Feed
-- Real-time community experience on draw days
-- "X people checking bonds right now" counter
-- Anonymous winner celebration wall: "Someone in Lahore won Rs. 75 lakh!"
-- Stats: bonds checked in last hour
-- Creates FOMO, drives invites
+### 7.1 Draw Day Live Feed
+- Real-time checker count, anonymous winner celebrations
+- FOMO drives invites
 
-### 8b. Financial News Feed
-- Curated RSS from Dawn Business, Business Recorder, The News International
-- AI-filtered for relevance: SBP decisions, NS rate changes, gold moves, tax policy
-- Push notification for breaking financial news
+### 7.2 Islamic Financial Literacy
+- Bite-sized education: "Understanding Zakat", "Is my investment halal?", "Prize bonds explained", "Why become a tax filer?"
+- Quiz format, progress tracking
+- Shareable certificates (WhatsApp viral)
+- Aligned with SBP Financial Education Roadmap
 
-### 8c. Financial Literacy Mini-Courses
-- Bite-sized content: "Understanding Prize Bonds", "Filer vs Non-Filer", "NS Certificates Explained", "Islamic Finance Basics"
-- Quiz format with progress tracking
-- Shareable completion certificates (WhatsApp viral loop)
-- Aligned with SBP's National Financial Education Roadmap (2025-2029) — potential government partnership
+### 7.3 News Integration
+- If not done in Phase 2, add curated Pakistani economic news here
 
 ---
 
-## Data Collection Strategy
-
-Every feature collects a specific data dimension. The composite user profile WITHOUT requiring signup:
-
-| Data Dimension | Source Feature | Business Value |
-|----------------|---------------|----------------|
-| Device, OS, location | Fingerprinting (existing) | Segmentation |
-| Bond denominations held | Wallet (existing) | Investment level |
-| Search frequency/timing | Analytics (existing) | Engagement |
-| Investment risk appetite | Win probability / comparison tools | Sophistication |
-| Income range | Tax calculator, expense tracker | Monetization targeting |
-| Filer/non-filer status | Tax calculator | Regulatory signal |
-| Complete net worth | Zakat calculator, net worth dashboard | Full financial profile |
-| Religious finance preference | Islamic tools usage | Product recommendations |
-| Gold/crypto/equity interest | Market dashboard | Cross-sell |
-| Geographic location | Claim assistant, bill tracker | Hyperlocal targeting |
-| Financial literacy level | Mini-courses, quiz scores | Content personalization |
-| Spending patterns | Expense tracker | Behavioral finance |
-| Household size/utility usage | Bill tracker | Demographic profiling |
-
-**By Phase 6, BondCheck will have the most detailed anonymous financial profile database in Pakistan.**
-
----
-
-## Monetization Plan
-
-| Channel | Expected Revenue | When |
-|---------|-----------------|------|
-| BondCheck PRO subscription (Rs 500/mo) | High | Phase 7 |
-| API licensing (developer access to bond + market data) | Medium | Phase 7 |
-| Bank/investment affiliate leads ($1-5/lead) | Medium-High | Phase 8 |
-| Targeted ads (gold dealers, banks, JazzCash — denomination = wealth signal) | Low-Medium | Phase 8 |
-| Sponsored financial content from banks | Medium | Phase 8 |
-
-**Do NOT rely on AdSense** — Pakistan CPM is $0.11. Lead gen and premium features are the play.
-
----
-
-## Design System & Conventions
+## Design System
 
 ### Colors
-- Primary: `#0f172a` (slate-950, dark blue-black)
+- Primary: `#0f172a` (slate-950)
 - Background: `#f8fafc` (slate-50)
-- Success/positive: emerald-500/600
-- Error/negative: red-500
-- Muted text: gray-400, gray-500
-- Borders: gray-100, gray-200
+- Success: emerald-500/600
+- Error: red-500
+- Muted: gray-400/500
+- Borders: gray-100/200
 
 ### Typography
-- Sans: Inter (400, 500, 600, 700)
-- Mono: JetBrains Mono (400, 700) — used for numbers, prices, bond numbers
-- Labels: 10px uppercase tracking-wider font-semibold text-gray-500
-- Section headers: `text-xs font-semibold text-gray-500 uppercase tracking-wider`
+- Sans: Inter (400-700)
+- Mono: JetBrains Mono (400, 700) — numbers, prices, bond numbers
+- Labels: `text-[10px] font-semibold text-gray-500 uppercase tracking-wider`
 
-### Component Patterns
+### Patterns
 - Cards: `bg-white border border-gray-200 rounded-sm`
 - Buttons: `bg-[#0f172a] text-white text-xs font-medium py-2.5 px-4 rounded-sm`
-- Toggle groups: `bg-gray-100 rounded-sm overflow-hidden` with active state `bg-[#0f172a] text-white`
-- Stats numbers: `font-mono font-semibold`
-- Subtle dividers: `divide-y divide-gray-100` or `border-b border-gray-100`
-
-### Code Conventions
-- Files: PascalCase components, camelCase utilities/hooks
-- DB columns: snake_case (Drizzle schema uses camelCase JS → snake_case SQL)
-- API responses: snake_case JSON keys
-- Types: PascalCase interfaces in `types/index.ts`
-- Rate limiting: always use `rateLimit(request, maxTokens, refillRate, prefix)` pattern
-- Error responses: `{ error: String(error) }` with status 500
-- SWR: `revalidateOnFocus: false, revalidateIfStale: false` with manual refresh
-- New API routes: always include rate limiting as first line
+- Toggles: `bg-gray-100 rounded-sm overflow-hidden` with `bg-[#0f172a] text-white` active
+- Numbers: `font-mono font-semibold`
 
 ---
 
-## Important Notes for Development
+## Dev Notes
 
-1. **This is Next.js 16** — check `node_modules/next/dist/docs/` before writing code. Breaking changes from older versions. See `AGENTS.md`.
-
-2. **Run migration before deploying:** `npx drizzle-kit push` or `npx drizzle-kit migrate` to apply `drizzle/0002_far_morgan_stark.sql`.
-
-3. **Vercel Pro required** for multiple cron jobs. Free tier only allows 1 cron.
-
-4. **CRON_SECRET env var** must be set in Vercel for cron endpoint auth.
-
-5. **ClaimAssistant needs wiring** — the component exists but needs a trigger button added to ResultsTable/WalletPanel when a winning bond is found.
-
-6. **Digital bond prize structures are estimated** — the Rs 500/1000/5000/10000 prize amounts in `lib/tax.ts` are based on available information but may need updating when official CDNS data is confirmed.
-
-7. **Savings rates are hardcoded with scraper fallback** — `lib/scrapers/savings-rates.ts` has hardcoded Jan 2026 rates. The scraper attempts to fetch live data from savings.gov.pk but falls back to hardcoded. Update hardcoded values when rates change.
-
-8. **Draw schedule is hardcoded for 2026** — `lib/scrapers/draw-schedule.ts` has the full 2026 schedule. Needs manual update for 2027 or a more robust scraper.
-
-9. **Rate limiter is in-memory** — resets on cold starts. Phase 7 (Vercel KV) fixes this.
-
-10. **No user accounts** — everything is tied to device fingerprints (localStorage `bcp_device_fp`). This is intentional for frictionless UX but fragile across browser resets. Phase 7+ should add optional accounts.
-
-11. **Consent check is missing** — telemetry fires before checking cookie consent. Fix before scaling or there will be compliance issues.
-
-12. **goldpricez.com API** — free tier is 30-60 req/hour. Our 5-minute cron uses ~12 req/hour. Within limits.
-
-13. **Frankfurter API** — ECB-sourced, updates on business days only. Weekend rates are last Friday's rates.
-
-14. **CoinGecko free tier** — 10-30 req/min. Our cron fetches 1 endpoint every 5 min. Safe.
+1. **Next.js 16** — check `node_modules/next/dist/docs/` before writing. Breaking changes.
+2. **Run migration:** `npx drizzle-kit push` before deploying.
+3. **Vercel Pro needed** for multiple cron jobs ($20/mo).
+4. **CRON_SECRET** env var required for cron auth.
+5. **ClaimAssistant needs wiring** — component exists, no trigger button yet.
+6. **Digital bond prize amounts are estimated** — update when CDNS confirms.
+7. **Savings rates hardcoded** — update in `lib/scrapers/savings-rates.ts` when rates change.
+8. **Draw schedule hardcoded for 2026** — needs yearly update.
+9. **Rate limiter is in-memory** — resets on cold starts. Phase 6 (Vercel KV) fixes this.
+10. **No user accounts** — fingerprint-based identity. Add optional accounts later.
+11. **Consent check missing** — telemetry fires before consent. Fix before scaling.
+12. **HALAL ONLY** — before adding any financial feature, ask: "Would this promote haram?" If yes, don't build it.
