@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchGoldPrices } from "@/lib/scrapers/gold";
+import { fetchGoldPrices, fetchSilverPrices } from "@/lib/scrapers/gold";
 import { fetchForexRates } from "@/lib/scrapers/forex";
-import { fetchCryptoPrices } from "@/lib/scrapers/crypto";
 
 /**
- * Cron: Fetch gold, forex, and crypto prices.
+ * Cron: Fetch gold, silver, and forex prices.
  * Schedule: Every 5 minutes (configured in vercel.json)
  * Vercel crons require CRON_SECRET header validation.
  */
@@ -19,10 +18,10 @@ export async function GET(request: NextRequest) {
   const results: Record<string, { inserted: number; errors: string[] }> = {};
 
   // Fetch all price feeds in parallel
-  const [gold, forex, crypto] = await Promise.allSettled([
+  const [gold, silver, forex] = await Promise.allSettled([
     fetchGoldPrices(),
+    fetchSilverPrices(),
     fetchForexRates(),
-    fetchCryptoPrices(),
   ]);
 
   results.gold =
@@ -30,15 +29,15 @@ export async function GET(request: NextRequest) {
       ? gold.value
       : { inserted: 0, errors: [String(gold.reason)] };
 
+  results.silver =
+    silver.status === "fulfilled"
+      ? silver.value
+      : { inserted: 0, errors: [String(silver.reason)] };
+
   results.forex =
     forex.status === "fulfilled"
       ? forex.value
       : { inserted: 0, errors: [String(forex.reason)] };
-
-  results.crypto =
-    crypto.status === "fulfilled"
-      ? crypto.value
-      : { inserted: 0, errors: [String(crypto.reason)] };
 
   const totalInserted = Object.values(results).reduce((s, r) => s + r.inserted, 0);
   const totalErrors = Object.values(results).flatMap((r) => r.errors);

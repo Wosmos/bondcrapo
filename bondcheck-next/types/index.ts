@@ -89,17 +89,16 @@ export interface ForexResponse {
   updated_at: string;
 }
 
-export interface CryptoPrice {
-  symbol: string;
-  price_usd: number;
-  price_pkr: number | null;
-  change_24h_percent: number | null;
-  volume_24h: number | null;
+export interface SilverPrice {
+  unit: string;
+  price_pkr: number;
+  price_usd: number | null;
   recorded_at: string;
 }
 
-export interface CryptoResponse {
-  prices: CryptoPrice[];
+export interface SilverResponse {
+  prices: SilverPrice[];
+  source: string;
   updated_at: string;
 }
 
@@ -143,11 +142,29 @@ export interface MarketIndex {
 
 export interface MarketPulse {
   gold: { price_24k_tola: number | null; change_label: string | null } | null;
+  silver: { price_tola: number | null; price_gram: number | null } | null;
   usd_pkr: { rate: number | null; rate_type: string } | null;
-  crypto: { btc_usd: number | null; eth_usd: number | null } | null;
   kse100: { value: number | null; change_percent: number | null } | null;
   next_draw: DrawScheduleEntry | null;
   updated_at: string;
+}
+
+// ── Commodity Price Types ────────────────────────────────
+
+export interface CommodityPrice {
+  commodity: string;
+  display_name: string;
+  unit: string;
+  price_pkr: number;
+  city: string | null;
+  effective_date: string | null;
+  category: "fuel" | "grocery";
+}
+
+export interface CommodityResponse {
+  fuel: CommodityPrice[];
+  grocery: CommodityPrice[];
+  updated_at: string | null;
 }
 
 // ── Tax Calculator Types ──────────────────────────────────
@@ -158,6 +175,24 @@ export interface PrizeBondTax {
   tax_amount: number;
   net_amount: number;
   filer_status: "filer" | "non_filer";
+}
+
+// ── News Types ───────────────────────────────────────────
+
+export interface NewsArticle {
+  id: number;
+  title: string;
+  description: string | null;
+  url: string;
+  source_name: string | null;
+  image_url: string | null;
+  published_at: string | null;
+  category: string | null;
+}
+
+export interface NewsResponse {
+  articles: NewsArticle[];
+  total: number;
 }
 
 export interface PriceAlert {

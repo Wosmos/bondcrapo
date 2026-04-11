@@ -231,24 +231,6 @@ export const drawSchedule = pgTable(
   ]
 );
 
-// ── Crypto Prices (sampled snapshots) ─────────────────────
-export const cryptoPrices = pgTable(
-  "crypto_prices",
-  {
-    id: serial("id").primaryKey(),
-    symbol: text("symbol").notNull(), // 'BTC', 'ETH', 'USDT'
-    priceUsd: numeric("price_usd", { precision: 16, scale: 2 }).notNull(),
-    pricePkr: numeric("price_pkr", { precision: 16, scale: 2 }),
-    change24hPercent: numeric("change_24h_percent", { precision: 6, scale: 2 }),
-    volume24h: numeric("volume_24h", { precision: 20, scale: 2 }),
-    source: text("source").notNull(),
-    recordedAt: timestamp("recorded_at").defaultNow().notNull(),
-  },
-  (table) => [
-    index("idx_crypto_symbol_time").on(table.symbol, table.recordedAt),
-  ]
-);
-
 // ── Price Alerts (user-configured) ────────────────────────
 export const priceAlerts = pgTable(
   "price_alerts",
@@ -284,6 +266,46 @@ export const analyticsDaily = pgTable(
     browserBreakdown: jsonb("browser_breakdown"),
   },
   (table) => [uniqueIndex("uq_analytics_date").on(table.date)]
+);
+
+// ── Commodity Prices (fuel, grocery essentials) ───────────
+export const commodityPrices = pgTable(
+  "commodity_prices",
+  {
+    id: serial("id").primaryKey(),
+    commodity: text("commodity").notNull(), // 'petrol', 'diesel', 'flour_atta', etc.
+    unit: text("unit").notNull(), // 'liter', 'kg', 'dozen', 'per_liter'
+    pricePkr: numeric("price_pkr", { precision: 10, scale: 2 }).notNull(),
+    city: text("city"), // nullable — some prices are national like petrol
+    source: text("source").notNull(),
+    effectiveDate: date("effective_date"),
+    recordedAt: timestamp("recorded_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_commodity_date").on(table.commodity, table.effectiveDate),
+    index("idx_commodity_city").on(table.commodity, table.city),
+  ]
+);
+
+// ── News Articles ────────────────────────────────────────
+export const newsArticles = pgTable(
+  "news_articles",
+  {
+    id: serial("id").primaryKey(),
+    title: text("title").notNull(),
+    description: text("description"),
+    url: text("url").notNull(),
+    sourceName: text("source_name"),
+    imageUrl: text("image_url"),
+    publishedAt: timestamp("published_at"),
+    category: text("category"), // 'economy', 'government', 'islamic_finance', 'energy', 'agriculture'
+    fetchedAt: timestamp("fetched_at").defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("uq_news_url").on(table.url),
+    index("idx_news_published").on(table.publishedAt),
+    index("idx_news_category").on(table.category),
+  ]
 );
 
 // ── Market Indices (KSE-100, KSE-30, etc.) ────────────────

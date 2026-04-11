@@ -4,6 +4,7 @@ import {
   seedDrawSchedule,
   updateScheduleStatus,
 } from "@/lib/scrapers/draw-schedule";
+import { seedCommodityPrices } from "@/lib/scrapers/commodities";
 
 /**
  * Cron: Daily data refresh for savings rates, draw schedule, etc.
@@ -19,9 +20,10 @@ export async function GET(request: NextRequest) {
   const results: Record<string, { inserted: number; errors: string[] }> = {};
 
   // Run all daily data tasks in parallel
-  const [savings, schedule] = await Promise.allSettled([
+  const [savings, schedule, commodities] = await Promise.allSettled([
     fetchSavingsRates(),
     seedDrawSchedule(),
+    seedCommodityPrices(),
   ]);
 
   results.savings_rates =
@@ -33,6 +35,11 @@ export async function GET(request: NextRequest) {
     schedule.status === "fulfilled"
       ? schedule.value
       : { inserted: 0, errors: [String(schedule.reason)] };
+
+  results.commodity_prices =
+    commodities.status === "fulfilled"
+      ? commodities.value
+      : { inserted: 0, errors: [String(commodities.reason)] };
 
   // Update schedule status (mark past draws as completed)
   try {

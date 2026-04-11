@@ -1,0 +1,225 @@
+export const SUPPORTED_LOCALES = ['en', 'ur', 'pa', 'sd'] as const;
+export type Locale = (typeof SUPPORTED_LOCALES)[number];
+
+export const LOCALE_NAMES: Record<Locale, string> = {
+  en: 'EN',
+  ur: '\u0627\u0631\u062F\u0648',
+  pa: '\u067E\u0646\u062C\u0627\u0628\u06CC',
+  sd: '\u0633\u0646\u062F\u06BE\u06CC',
+};
+
+// ---------------------------------------------------------------------------
+// Translation dictionary
+// ---------------------------------------------------------------------------
+
+const translations: Record<string, Record<Locale, string>> = {
+  app_title: {
+    en: 'BondCheck',
+    ur: 'BondCheck',
+    pa: 'BondCheck',
+    sd: 'BondCheck',
+  },
+  app_tagline: {
+    en: 'Check your prize bonds instantly',
+    ur: '\u0627\u067E\u0646\u06D2 \u0627\u0646\u0639\u0627\u0645\u06CC \u0628\u0627\u0646\u0688\u0632 \u0641\u0648\u0631\u06CC \u0637\u0648\u0631 \u067E\u0631 \u0686\u06CC\u06A9 \u06A9\u0631\u06CC\u06BA',
+    pa: '\u0627\u067E\u0646\u06D2 \u0627\u0646\u0639\u0627\u0645\u06CC \u0628\u0627\u0646\u0688\u0632 \u0641\u0648\u0631\u06CC \u0686\u06CC\u06A9 \u06A9\u0631\u0648',
+    sd: '\u067E\u0646\u0647\u0646\u062C\u0627 \u0627\u0646\u0639\u0627\u0645\u064A \u0628\u0627\u0646\u0688\u0632 \u0641\u0648\u0631\u064A \u0686\u064A\u06A9 \u06AA\u0631\u064A\u0648',
+  },
+  draws_covered: {
+    en: 'Draws Covered',
+    ur: '\u0688\u0631\u0627 \u06A9\u06CC \u062A\u0639\u062F\u0627\u062F',
+    pa: '\u0688\u0631\u0627\u0632 \u062F\u06CC \u06AF\u0646\u062A\u06CC',
+    sd: '\u0688\u0631\u0627\u0626\u0632 \u062C\u064A \u062A\u0639\u062F\u0627\u062F',
+  },
+  prize_records: {
+    en: 'Prize Records',
+    ur: '\u0627\u0646\u0639\u0627\u0645\u06CC \u0631\u06CC\u06A9\u0627\u0631\u0688\u0632',
+    pa: '\u0627\u0646\u0639\u0627\u0645\u06CC \u0631\u06CC\u06A9\u0627\u0631\u0688',
+    sd: '\u0627\u0646\u0639\u0627\u0645\u064A \u0631\u064A\u06AA\u0627\u0631\u0688',
+  },
+  total_prizes: {
+    en: 'Total Prizes',
+    ur: '\u06A9\u0644 \u0627\u0646\u0639\u0627\u0645\u0627\u062A',
+    pa: '\u06A9\u0644 \u0627\u0646\u0639\u0627\u0645\u0627\u062A',
+    sd: '\u06AA\u0644 \u0627\u0646\u0639\u0627\u0645\u0627\u062A',
+  },
+  upcoming_draws: {
+    en: 'Upcoming Draws',
+    ur: '\u0622\u0646\u06D2 \u0648\u0627\u0644\u06D2 \u0688\u0631\u0627',
+    pa: '\u0622\u0646 \u0648\u0627\u0644\u06D2 \u0688\u0631\u0627',
+    sd: '\u0627\u0686\u0627\u0646\u0626\u064A\u0646 \u0688\u0631\u0627\u0626\u0632',
+  },
+  days_left: {
+    en: 'days left',
+    ur: '\u062F\u0646 \u0628\u0627\u0642\u06CC',
+    pa: '\u062F\u0646 \u0628\u0627\u0642\u06CC',
+    sd: '\u062F\u064A\u0646\u0647\u0646 \u0628\u0627\u0642\u064A',
+  },
+  day_left: {
+    en: 'day left',
+    ur: '\u062F\u0646 \u0628\u0627\u0642\u06CC',
+    pa: '\u062F\u0646 \u0628\u0627\u0642\u06CC',
+    sd: '\u062F\u064A\u0646\u0647\u0646 \u0628\u0627\u0642\u064A',
+  },
+  draw_day: {
+    en: 'Draw day!',
+    ur: '\u0688\u0631\u0627 \u06A9\u0627 \u062F\u0646!',
+    pa: '\u0688\u0631\u0627 \u062F\u0627 \u062F\u0646!',
+    sd: '\u0688\u0631\u0627\u0626\u0648 \u062C\u0648 \u062F\u064A\u0646\u0647\u0646!',
+  },
+  win_probability: {
+    en: 'Win Probability & Expected Value',
+    ur: '\u062C\u06CC\u062A\u0646\u06D2 \u06A9\u0627 \u0627\u0645\u06A9\u0627\u0646 \u0627\u0648\u0631 \u0645\u062A\u0648\u0642\u0639 \u0642\u06CC\u0645\u062A',
+    pa: '\u062C\u062A\u0646 \u062F\u0627 \u0627\u0645\u06A9\u0627\u0646 \u0627\u062A\u06D2 \u0645\u062A\u0648\u0642\u0639 \u0642\u06CC\u0645\u062A',
+    sd: '\u062C\u064A\u062A\u0627\u0646 \u062C\u0648 \u0627\u0645\u06AA\u0627\u0646 \u0627\u064A\u0646 \u0645\u062A\u0648\u0642\u0639 \u0642\u064A\u0645\u062A',
+  },
+  filer: {
+    en: 'Filer',
+    ur: '\u0641\u0627\u0626\u0644\u0631',
+    pa: '\u0641\u0627\u0626\u0644\u0631',
+    sd: '\u0641\u0627\u0626\u0644\u0631',
+  },
+  non_filer: {
+    en: 'Non-Filer',
+    ur: '\u0646\u0627\u0646 \u0641\u0627\u0626\u0644\u0631',
+    pa: '\u0646\u0627\u0646 \u0641\u0627\u0626\u0644\u0631',
+    sd: '\u0646\u0627\u0646 \u0641\u0627\u0626\u0644\u0631',
+  },
+  denomination: {
+    en: 'Denomination',
+    ur: '\u0645\u0627\u0644\u06CC\u062A',
+    pa: '\u0645\u0627\u0644\u06CC\u062A',
+    sd: '\u0645\u0627\u0644\u064A\u062A',
+  },
+  tax_calculator: {
+    en: 'Tax Calculator',
+    ur: '\u0679\u06CC\u06A9\u0633 \u06A9\u06CC\u0644\u06A9\u0648\u0644\u06CC\u0679\u0631',
+    pa: '\u0679\u06CC\u06A9\u0633 \u06A9\u06CC\u0644\u06A9\u0648\u0644\u06CC\u0679\u0631',
+    sd: '\u0679\u064A\u06AA\u0633 \u06AA\u064A\u0644\u06AA\u0648\u0644\u064A\u0679\u0631',
+  },
+  prize_bond_tax: {
+    en: 'Prize Bond Tax',
+    ur: '\u0627\u0646\u0639\u0627\u0645\u06CC \u0628\u0627\u0646\u0688 \u0679\u06CC\u06A9\u0633',
+    pa: '\u0627\u0646\u0639\u0627\u0645\u06CC \u0628\u0627\u0646\u0688 \u0679\u06CC\u06A9\u0633',
+    sd: '\u0627\u0646\u0639\u0627\u0645\u064A \u0628\u0627\u0646\u0688 \u0679\u064A\u06AA\u0633',
+  },
+  gross_prize: {
+    en: 'Gross Prize',
+    ur: '\u06A9\u0644 \u0627\u0646\u0639\u0627\u0645',
+    pa: '\u06A9\u0644 \u0627\u0646\u0639\u0627\u0645',
+    sd: '\u06AA\u0644 \u0627\u0646\u0639\u0627\u0645',
+  },
+  tax: {
+    en: 'Tax',
+    ur: '\u0679\u06CC\u06A9\u0633',
+    pa: '\u0679\u06CC\u06A9\u0633',
+    sd: '\u0679\u064A\u06AA\u0633',
+  },
+  you_receive: {
+    en: 'You Receive',
+    ur: '\u0622\u067E \u06A9\u0648 \u0645\u0644\u06D2 \u06AF\u0627',
+    pa: '\u062A\u0648\u0627\u0646\u0648\u06BA \u0645\u0644\u06D2 \u06AF\u0627',
+    sd: '\u062A\u0648\u0647\u0627\u0646 \u06A9\u064A \u0645\u0644\u0646\u062F\u0648',
+  },
+  search: {
+    en: 'Search',
+    ur: '\u062A\u0644\u0627\u0634 \u06A9\u0631\u06CC\u06BA',
+    pa: '\u0644\u0628\u06BE\u0648',
+    sd: '\u06B3\u0648\u0644\u064A\u0648',
+  },
+  latest_news: {
+    en: 'Latest News',
+    ur: '\u062A\u0627\u0632\u0647 \u062A\u0631\u06CC\u0646 \u062E\u0628\u0631\u06CC\u06BA',
+    pa: '\u062A\u0627\u0632\u06CC\u0627\u06BA \u062E\u0628\u0631\u0627\u06BA',
+    sd: '\u062A\u0627\u0632\u064A\u0648\u0646 \u062E\u0628\u0631\u0648\u0646',
+  },
+  gold_price: {
+    en: 'Gold Price',
+    ur: '\u0633\u0648\u0646\u06D2 \u06A9\u06CC \u0642\u06CC\u0645\u062A',
+    pa: '\u0633\u0648\u0646\u06D2 \u062F\u06CC \u0642\u06CC\u0645\u062A',
+    sd: '\u0633\u0648\u0646\u0627 \u062C\u064A \u0642\u064A\u0645\u062A',
+  },
+  silver_price: {
+    en: 'Silver Price',
+    ur: '\u0686\u0627\u0646\u062F\u06CC \u06A9\u06CC \u0642\u06CC\u0645\u062A',
+    pa: '\u0686\u0627\u0646\u062F\u06CC \u062F\u06CC \u0642\u06CC\u0645\u062A',
+    sd: '\u0686\u0627\u0646\u062F\u064A \u062C\u064A \u0642\u064A\u0645\u062A',
+  },
+  petrol_price: {
+    en: 'Petrol Price',
+    ur: '\u067E\u06CC\u0679\u0631\u0648\u0644 \u06A9\u06CC \u0642\u06CC\u0645\u062A',
+    pa: '\u067E\u0679\u0631\u0648\u0644 \u062F\u06CC \u0642\u06CC\u0645\u062A',
+    sd: '\u067E\u0679\u0631\u0648\u0644 \u062C\u064A \u0642\u064A\u0645\u062A',
+  },
+  next_draw: {
+    en: 'Next Draw',
+    ur: '\u0627\u06AF\u0644\u0627 \u0688\u0631\u0627',
+    pa: '\u0627\u06AF\u0644\u0627 \u0688\u0631\u0627',
+    sd: '\u0627\u06B3\u064A\u0646 \u0688\u0631\u0627\u0626\u0648',
+  },
+  market_pulse: {
+    en: 'Market Pulse',
+    ur: '\u0645\u0627\u0631\u06A9\u06CC\u0679 \u06A9\u06CC \u062D\u0627\u0644\u062A',
+    pa: '\u0645\u0627\u0631\u06A9\u06CC\u0679 \u062F\u06CC \u062D\u0627\u0644\u062A',
+    sd: '\u0645\u0627\u0631\u06AA\u064A\u0679 \u062C\u064A \u062D\u0627\u0644\u062A',
+  },
+  language: {
+    en: 'Language',
+    ur: '\u0632\u0628\u0627\u0646',
+    pa: '\u0632\u0628\u0627\u0646',
+    sd: '\u0632\u0628\u0627\u0646',
+  },
+  all_denominations: {
+    en: 'All denominations',
+    ur: '\u062A\u0645\u0627\u0645 \u0645\u0627\u0644\u06CC\u062A\u06CC\u06BA',
+    pa: '\u0633\u0627\u0631\u06CC\u0627\u06BA \u0645\u0627\u0644\u06CC\u062A\u0627\u06BA',
+    sd: '\u0633\u0627\u0631\u064A\u0648\u0646 \u0645\u0627\u0644\u064A\u062A\u0648\u0646',
+  },
+  winning_bonds: {
+    en: 'Winning bonds on file',
+    ur: '\u062C\u06CC\u062A\u0646\u06D2 \u0648\u0627\u0644\u06D2 \u0628\u0627\u0646\u0688\u0632',
+    pa: '\u062C\u062A\u0646 \u0648\u0627\u0644\u06D2 \u0628\u0627\u0646\u0688\u0632',
+    sd: '\u062C\u064A\u062A\u0627\u0646 \u0648\u0627\u0631\u0627 \u0628\u0627\u0646\u0688\u0632',
+  },
+  pkr_paid: {
+    en: 'PKR paid out',
+    ur: '\u0627\u062F\u0627 \u0634\u062F\u06C1 \u0631\u0642\u0645',
+    pa: '\u0627\u062F\u0627 \u06A9\u06CC\u062A\u06CC \u0631\u0642\u0645',
+    sd: '\u0627\u062F\u0627 \u067E\u064A\u0644 \u0631\u0642\u0645',
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+/**
+ * Return the translated string for the given key and locale.
+ * Falls back to English if no translation found, then to the raw key.
+ */
+export function t(key: string, locale: string): string {
+  const entry = translations[key];
+  if (!entry) return key;
+  return entry[locale as Locale] ?? entry.en ?? key;
+}
+
+/**
+ * Returns 'rtl' for Urdu, Punjabi (Shahmukhi), and Sindhi; 'ltr' otherwise.
+ */
+export function getDirection(locale: string): 'rtl' | 'ltr' {
+  return locale === 'ur' || locale === 'pa' || locale === 'sd' ? 'rtl' : 'ltr';
+}
+
+/**
+ * Returns the appropriate font family for the locale.
+ * Urdu and Sindhi use Noto Nastaliq Urdu; Punjabi Shahmukhi also benefits from it.
+ */
+export function getFont(locale: string): string {
+  return locale === 'ur' || locale === 'sd' || locale === 'pa'
+    ? 'Noto Nastaliq Urdu'
+    : 'inherit';
+}
+
+export function isRTL(locale: string): boolean {
+  return getDirection(locale) === 'rtl';
+}

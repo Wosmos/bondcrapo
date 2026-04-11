@@ -25,6 +25,8 @@ export function useTelemetry() {
   const geoRef = useRef<{ lat: number; lng: number } | null>(null);
   const metaRef = useRef<ReturnType<typeof collectDeviceMeta> | null>(null);
   const consentRef = useRef(false);
+  const scrollMilestonesRef = useRef<Set<number>>(new Set());
+  const timeOnPageTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // Register device + track page_view on mount (only with consent)
   useEffect(() => {
@@ -76,6 +78,63 @@ export function useTelemetry() {
     }
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Track scroll depth milestones (25%, 50%, 75%, 100%)
+  useEffect(() => {
+    const milestones = [25, 50, 75, 100];
+    scrollMilestonesRef.current = new Set();
+
+    function handleScroll() {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      if (scrollHeight <= 0) return;
+
+      const scrollPercent = Math.round((scrollTop / scrollHeight) * 100);
+
+      for (const milestone of milestones) {
+        if (scrollPercent >= milestone && !scrollMilestonesRef.current.has(milestone)) {
+          scrollMilestonesRef.current.add(milestone);
+          trackEvent({
+            event: "scroll_depth",
+            data: {
+              depth: milestone,
+              page: window.location.pathname,
+            },
+          });
+        }
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Track time on page (30s, 60s, 120s, 300s)
+  useEffect(() => {
+    const intervals = [30, 60, 120, 300]; // seconds
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    for (const seconds of intervals) {
+      const timer = setTimeout(() => {
+        trackEvent({
+          event: "time_on_page",
+          data: {
+            seconds,
+            page: window.location.pathname,
+          },
+        });
+      }, seconds * 1000);
+      timers.push(timer);
+    }
+
+    timeOnPageTimersRef.current = timers;
+
+    return () => {
+      timers.forEach((t) => clearTimeout(t));
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -134,7 +193,29 @@ export function useTelemetry() {
     }
   }, []);
 
+  /** Track a feature section being viewed (e.g. via IntersectionObserver) */
+  const trackFeatureView = useCallback(
+    (featureName: string) => {
+      trackEvent({
+        event: "feature_view",
+        data: { feature: featureName, page: window.location.pathname },
+      });
+    },
+    [trackEvent]
+  );
+
+  /** Track language/locale change */
+  const trackLanguageChange = useCallback(
+    (locale: string) => {
+      trackEvent({
+        event: "language_change",
+        data: { locale, previousLocale: navigator.language },
+      });
+    },
+    [trackEvent]
+  );
+
   const getFingerprint = useCallback(() => _fingerprint, []);
 
-  return { track: trackEvent, getFingerprint };
+  return { track: trackEvent, trackFeatureView, trackLanguageChange, getFingerprint };
 }

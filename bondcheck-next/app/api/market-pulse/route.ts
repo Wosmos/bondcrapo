@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
-import { getLatestGoldPrices } from "@/lib/scrapers/gold";
+import { getLatestGoldPrices, getLatestSilverPrices } from "@/lib/scrapers/gold";
 import { getLatestForexRates } from "@/lib/scrapers/forex";
-import { getLatestCryptoPrices } from "@/lib/scrapers/crypto";
 import { getNextDraw } from "@/lib/scrapers/draw-schedule";
 import type { MarketPulse } from "@/types";
 
@@ -20,10 +19,10 @@ export async function GET(request: NextRequest) {
 
   try {
     // Fetch all feeds in parallel — each returns null-safe data
-    const [goldData, forexData, cryptoData, nextDraw] = await Promise.allSettled([
+    const [goldData, silverData, forexData, nextDraw] = await Promise.allSettled([
       getLatestGoldPrices(),
+      getLatestSilverPrices(),
       getLatestForexRates(),
-      getLatestCryptoPrices(),
       getNextDraw(),
     ]);
 
@@ -41,6 +40,17 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Extract silver tola and gram prices
+    let silver: MarketPulse["silver"] = null;
+    if (silverData.status === "fulfilled" && silverData.value.prices.length > 0) {
+      const silverTola = silverData.value.prices.find((p) => p.unit === "tola");
+      const silverGram = silverData.value.prices.find((p) => p.unit === "gram");
+      silver = {
+        price_tola: silverTola?.price_pkr ?? null,
+        price_gram: silverGram?.price_pkr ?? null,
+      };
+    }
+
     // Extract USD/PKR rate
     let usdPkr: MarketPulse["usd_pkr"] = null;
     if (forexData.status === "fulfilled" && forexData.value.rates.length > 0) {
@@ -50,21 +60,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Extract BTC and ETH prices
-    let crypto: MarketPulse["crypto"] = null;
-    if (cryptoData.status === "fulfilled" && cryptoData.value.prices.length > 0) {
-      const btc = cryptoData.value.prices.find((p) => p.symbol === "BTC");
-      const eth = cryptoData.value.prices.find((p) => p.symbol === "ETH");
-      crypto = {
-        btc_usd: btc?.price_usd ?? null,
-        eth_usd: eth?.price_usd ?? null,
-      };
-    }
-
     const pulse: MarketPulse = {
       gold,
+      silver,
       usd_pkr: usdPkr,
-      crypto,
       kse100: null, // TODO: add when KSE scraper is built
       next_draw: nextDraw.status === "fulfilled" ? nextDraw.value : null,
       updated_at: new Date().toISOString(),

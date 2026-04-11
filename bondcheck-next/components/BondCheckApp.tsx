@@ -3,9 +3,12 @@
 import { useState, useCallback } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { useThrottle } from "@/hooks/useThrottle";
+import { useLocale } from "@/hooks/useLocale";
 import { Header } from "./Header";
 import { StatsDashboard } from "./StatsDashboard";
+import { MarketPulse } from "./MarketPulse";
 import { DrawCountdown } from "./DrawCountdown";
+import { PriceAlerts } from "./PriceAlerts";
 import { WinProbability } from "./WinProbability";
 import { TaxCalculator } from "./TaxCalculator";
 import { FilterPanel } from "./FilterPanel";
@@ -74,6 +77,7 @@ export function BondCheckApp() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const { mutate } = useSWRConfig();
   const { track, getFingerprint } = useTelemetry();
+  const { locale, setLocale, t } = useLocale();
 
   const queryString = buildQueryString(filters, page);
   const swrKey = `/api/draws?${queryString}`;
@@ -269,9 +273,11 @@ export function BondCheckApp() {
 
   return (
     <>
-      <Header onRefresh={handleRefresh} refreshDisabled={refreshDisabled || isLoading} />
+      <Header onRefresh={handleRefresh} refreshDisabled={refreshDisabled || isLoading} locale={locale} onLocaleChange={setLocale} t={t} />
       <StatsDashboard refreshKey={refreshKey} />
+      <MarketPulse />
       <DrawCountdown />
+      <PriceAlerts />
       <WinProbability />
       <TaxCalculator />
       <FilterPanel

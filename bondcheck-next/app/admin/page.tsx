@@ -1,237 +1,164 @@
-"use client";
+import { db } from "@/lib/db";
+import { devices, events, walletBonds, winners } from "@/lib/schema";
+import { count, sql, eq } from "drizzle-orm";
 
-import { useState } from "react";
-import { scrapeTarget, getScrapeTargets, scrapeAllHistorical, scrapePkPrizeBondDenom, getPkPrizeBondScrapeTargets } from "@/actions/scraper";
-import type { ScrapeResult } from "@/lib/scraper-logic";
+async function getOverviewStats() {
+  const today = new Date().toISOString().slice(0, 10);
 
-const IS_DEV = process.env.NODE_ENV !== "production";
+  const [
+    totalDevices,
+    totalEvents,
+    totalBonds,
+    totalPrizes,
+    activeToday,
+    topSearched,
+  ] = await Promise.all([
+    db.select({ value: count() }).from(devices),
+    db.select({ value: count() }).from(events),
+    db.select({ value: count() }).from(walletBonds),
+    db.select({ value: count() }).from(winners),
+    db
+      .select({ value: sql<number>`COUNT(DISTINCT ${events.deviceFingerprint})` })
+      .from(events)
+      .where(sql`${events.createdAt}::date = ${today}`),
+    db
+      .select({
+        bondNumber: sql<string>`${events.eventData}->>'bondNumber'`,
+        searches: count(),
+      })
+      .from(events)
+      .where(eq(events.eventType, "search"))
+      .groupBy(sql`${events.eventData}->>'bondNumber'`)
+      .orderBy(sql`COUNT(*) DESC`)
+      .limit(5),
+  ]);
 
-function AdminContent() {
-  const [running, setRunning] = useState(false);
-  const [runningHistorical, setRunningHistorical] = useState(false);
-  const [runningPkPrizeBond, setRunningPkPrizeBond] = useState(false);
-  const [currentTarget, setCurrentTarget] = useState("");
-  const [results, setResults] = useState<ScrapeResult[]>([]);
-  const [progress, setProgress] = useState({ done: 0, total: 0 });
-
-  const startHistoricalScrape = async () => {
-    setRunningHistorical(true);
-    setResults([]);
-    setCurrentTarget("Historical records (prizeinfo.net) — all denominations");
-    try {
-      const result = await scrapeAllHistorical();
-      setResults([result]);
-    } catch (err) {
-      setResults([{
-        source: "prizeinfo_net",
-        denomination: 0,
-        jobsFound: 0,
-        inserted: 0,
-        skipped: 0,
-        errors: [String(err)],
-      }]);
-    }
-    setCurrentTarget("");
-    setRunningHistorical(false);
+  return {
+    totalDevices: totalDevices[0]?.value ?? 0,
+    totalEvents: totalEvents[0]?.value ?? 0,
+    totalBonds: totalBonds[0]?.value ?? 0,
+    totalPrizes: totalPrizes[0]?.value ?? 0,
+    activeToday: activeToday[0]?.value ?? 0,
+    topSearched: topSearched.filter((r) => r.bondNumber),
   };
+}
 
-  const startPkPrizeBondScrape = async () => {
-    setRunningPkPrizeBond(true);
-    setResults([]);
-
-    const targets = await getPkPrizeBondScrapeTargets();
-    setProgress({ done: 0, total: targets.length });
-
-    for (let i = 0; i < targets.length; i++) {
-      const t = targets[i];
-      setCurrentTarget(`pkprizebond.com / Rs. ${t.denomination}`);
-      try {
-        const result = await scrapePkPrizeBondDenom(t.denomination);
-        if (result.inserted > 0 || result.errors.length > 0) {
-          setResults((prev) => [...prev, result]);
-        }
-      } catch (err) {
-        setResults((prev) => [
-          ...prev,
-          {
-            source: "pkprizebond_com",
-            denomination: t.denomination,
-            jobsFound: 0,
-            inserted: 0,
-            skipped: 0,
-            errors: [String(err)],
-          },
-        ]);
-      }
-      setProgress({ done: i + 1, total: targets.length });
-    }
-
-    setCurrentTarget("");
-    setRunningPkPrizeBond(false);
-  };
-
-  const startScrape = async () => {
-    setRunning(true);
-    setResults([]);
-
-    const targets = await getScrapeTargets();
-    setProgress({ done: 0, total: targets.length });
-
-    for (let i = 0; i < targets.length; i++) {
-      const t = targets[i];
-      setCurrentTarget(`${t.source} / Rs. ${t.denomination}`);
-      try {
-        const result = await scrapeTarget(t.source, t.denomination);
-        if (result.inserted > 0 || result.errors.length > 0) {
-          setResults((prev) => [...prev, result]);
-        }
-      } catch (err) {
-        setResults((prev) => [
-          ...prev,
-          {
-            source: t.source,
-            denomination: t.denomination,
-            jobsFound: 0,
-            inserted: 0,
-            skipped: 0,
-            errors: [String(err)],
-          },
-        ]);
-      }
-      setProgress({ done: i + 1, total: targets.length });
-    }
-
-    setCurrentTarget("");
-    setRunning(false);
-  };
-
-  const totalInserted = results.reduce((acc, r) => acc + r.inserted, 0);
-  const totalErrors = results.reduce((acc, r) => acc + r.errors.length, 0);
-
+function StatCard({
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  label: string;
+  value: string | number;
+  sub?: string;
+  accent?: boolean;
+}) {
   return (
-    <div className="max-w-3xl mx-auto mt-40">
-      <h1 className="text-2xl font-bold mb-2">Scraper Admin</h1>
-      <p className="text-sm text-gray-500 mb-8">
-        Scrape prize bond data from prizeinfo.net and pkprizebond.com.
-        &quot;Full Scrape&quot; fetches recent draws. &quot;Historical&quot; fetches 1st/2nd prize
-        records back to 2000 with draw numbers and cities.
+    <div className="bg-white rounded-lg border border-gray-200 p-5">
+      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest mb-2">
+        {label}
       </p>
-
-      <div className="flex flex-wrap gap-3">
-        <button
-          onClick={startScrape}
-          disabled={running || runningHistorical || runningPkPrizeBond}
-          className="h-12 px-8 bg-[#0f172a] text-white font-bold text-sm uppercase tracking-widest rounded-md disabled:opacity-50 btn-hover"
-        >
-          {running ? "Scraping..." : "Full Scrape"}
-        </button>
-        <button
-          onClick={startHistoricalScrape}
-          disabled={running || runningHistorical || runningPkPrizeBond}
-          className="h-12 px-8 bg-emerald-600 text-white font-bold text-sm uppercase tracking-widest rounded-md disabled:opacity-50 hover:bg-emerald-700 transition-colors"
-        >
-          {runningHistorical ? "Scraping..." : "Historical (2000+)"}
-        </button>
-        <button
-          onClick={startPkPrizeBondScrape}
-          disabled={running || runningHistorical || runningPkPrizeBond}
-          className="h-12 px-8 bg-blue-600 text-white font-bold text-sm uppercase tracking-widest rounded-md disabled:opacity-50 hover:bg-blue-700 transition-colors"
-        >
-          {runningPkPrizeBond ? "Scraping..." : "PkPrizeBond (2002+)"}
-        </button>
-      </div>
-
-      {(running || runningPkPrizeBond) && (
-        <div className="mt-6">
-          <div className="flex justify-between text-xs text-gray-500 mb-2">
-            <span>{currentTarget}</span>
-            <span>
-              {progress.done}/{progress.total}
-            </span>
-          </div>
-          <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-            <div
-              className="bg-emerald-500 h-full transition-all duration-300"
-              style={{
-                width: `${(progress.done / progress.total) * 100}%`,
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {results.length > 0 && (
-        <div className="mt-8">
-          <div className="flex gap-6 mb-4 text-sm">
-            <span className="text-emerald-600 font-bold">
-              {totalInserted.toLocaleString()} inserted
-            </span>
-            {totalErrors > 0 && (
-              <span className="text-red-500 font-bold">
-                {totalErrors} errors
-              </span>
-            )}
-          </div>
-
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left px-4 py-3 font-bold text-xs uppercase text-gray-500">
-                    Source
-                  </th>
-                  <th className="text-left px-4 py-3 font-bold text-xs uppercase text-gray-500">
-                    Denom
-                  </th>
-                  <th className="text-right px-4 py-3 font-bold text-xs uppercase text-gray-500">
-                    Found
-                  </th>
-                  <th className="text-right px-4 py-3 font-bold text-xs uppercase text-gray-500">
-                    Inserted
-                  </th>
-                  <th className="text-right px-4 py-3 font-bold text-xs uppercase text-gray-500">
-                    Skipped
-                  </th>
-                  <th className="text-left px-4 py-3 font-bold text-xs uppercase text-gray-500">
-                    Errors
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.map((r, i) => (
-                  <tr key={i} className="border-b border-gray-100">
-                    <td className="px-4 py-2 font-mono text-xs">{r.source}</td>
-                    <td className="px-4 py-2">Rs. {r.denomination}</td>
-                    <td className="px-4 py-2 text-right">{r.jobsFound}</td>
-                    <td className="px-4 py-2 text-right text-emerald-600 font-bold">
-                      {r.inserted}
-                    </td>
-                    <td className="px-4 py-2 text-right text-gray-400">
-                      {r.skipped}
-                    </td>
-                    <td className="px-4 py-2 text-red-500 text-xs truncate max-w-[200px]">
-                      {r.errors.join(", ") || "-"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <p
+        className={`text-2xl font-mono font-bold ${
+          accent ? "text-emerald-600" : "text-[#0f172a]"
+        }`}
+      >
+        {typeof value === "number" ? value.toLocaleString() : value}
+      </p>
+      {sub && (
+        <p className="text-xs text-gray-400 mt-1">{sub}</p>
       )}
     </div>
   );
 }
 
-export default function AdminPage() {
-  if (!IS_DEV) {
-    return (
-      <div className="max-w-3xl mx-auto py-20 text-center">
-        <h1 className="text-2xl font-bold text-gray-300 mb-2">404</h1>
-        <p className="text-sm text-gray-400">This page could not be found.</p>
-      </div>
-    );
-  }
+export default async function AdminOverviewPage() {
+  const stats = await getOverviewStats();
 
-  return <AdminContent />;
+  return (
+    <>
+      <div className="mb-8">
+        <h1 className="text-xl font-bold text-[#0f172a]">Overview</h1>
+        <p className="text-sm text-gray-400 mt-1">
+          System health and key metrics at a glance.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <StatCard
+          label="Registered Devices"
+          value={stats.totalDevices}
+          sub="Total unique fingerprints"
+        />
+        <StatCard
+          label="Events Tracked"
+          value={stats.totalEvents}
+          sub="All event types"
+        />
+        <StatCard
+          label="Wallet Bonds"
+          value={stats.totalBonds}
+          sub="Saved across all users"
+          accent
+        />
+        <StatCard
+          label="Prize Records"
+          value={stats.totalPrizes}
+          sub="Winners database"
+        />
+        <StatCard
+          label="Active Today"
+          value={stats.activeToday}
+          sub="Unique devices with events"
+          accent
+        />
+        <StatCard
+          label="Top Searches"
+          value={stats.topSearched.length > 0 ? stats.topSearched[0].bondNumber : "-"}
+          sub={
+            stats.topSearched.length > 0
+              ? `${stats.topSearched[0].searches} searches`
+              : "No search data yet"
+          }
+        />
+      </div>
+
+      {stats.topSearched.length > 0 && (
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100">
+            <h2 className="text-sm font-bold text-[#0f172a] uppercase tracking-wider">
+              Top 5 Most Searched Bond Numbers
+            </h2>
+          </div>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-left px-5 py-3 text-[10px] font-bold uppercase text-gray-400 tracking-wider">
+                  Rank
+                </th>
+                <th className="text-left px-5 py-3 text-[10px] font-bold uppercase text-gray-400 tracking-wider">
+                  Bond Number
+                </th>
+                <th className="text-right px-5 py-3 text-[10px] font-bold uppercase text-gray-400 tracking-wider">
+                  Searches
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.topSearched.map((item, i) => (
+                <tr key={item.bondNumber} className="border-b border-gray-50">
+                  <td className="px-5 py-3 text-gray-400 font-mono">{i + 1}</td>
+                  <td className="px-5 py-3 font-mono font-bold">{item.bondNumber}</td>
+                  <td className="px-5 py-3 text-right font-mono text-emerald-600">
+                    {item.searches.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
+  );
 }

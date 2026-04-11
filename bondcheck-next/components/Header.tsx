@@ -1,6 +1,25 @@
 "use client";
 
-export function Header({ onRefresh, refreshDisabled }: { onRefresh: () => void; refreshDisabled: boolean }) {
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import type { Locale } from "@/lib/i18n";
+
+interface HeaderProps {
+  onRefresh: () => void;
+  refreshDisabled: boolean;
+  locale?: Locale;
+  onLocaleChange?: (locale: Locale) => void;
+  t?: (key: string) => string;
+}
+
+export function Header({ onRefresh, refreshDisabled, locale, onLocaleChange, t }: HeaderProps) {
+  const tr = t ?? ((key: string) => {
+    const fallback: Record<string, string> = {
+      app_title: "BondCheck",
+      app_tagline: "Check your prize bonds instantly",
+    };
+    return fallback[key] ?? key;
+  });
+
   return (
     <header className="flex justify-between items-center mb-10 border-b border-gray-100 pb-6">
       <div className="flex items-center gap-3">
@@ -12,13 +31,16 @@ export function Header({ onRefresh, refreshDisabled }: { onRefresh: () => void; 
         </div>
         <div>
           <h1 className="text-xl font-bold tracking-tight">
-            BondCheck{" "}
+            {tr("app_title")}{" "}
             <span className="text-gray-400 font-normal">PRO</span>
           </h1>
-          <p className="text-[10px] text-gray-400 -mt-0.5">Check your prize bonds instantly</p>
+          <p className="text-[10px] text-gray-400 -mt-0.5">{tr("app_tagline")}</p>
         </div>
       </div>
       <div className="flex items-center gap-4">
+        {locale && onLocaleChange && (
+          <LanguageSwitcher locale={locale} onLocaleChange={onLocaleChange} />
+        )}
         <button
           onClick={onRefresh}
           disabled={refreshDisabled}

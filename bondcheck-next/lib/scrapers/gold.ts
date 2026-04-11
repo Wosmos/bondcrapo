@@ -118,6 +118,113 @@ export async function getLatestGoldPrices() {
   };
 }
 
+// ── Silver price fetching via goldpricez.com free API ────
+// Same provider as gold, supports silver in PKR per tola
+
+const SILVERPRICEZ_BASE = "https://goldpricez.com/api/rates/currency/pkr/measure/tola-pakistan/metal/silver";
+
+/**
+ * Fetch current silver prices from goldpricez.com API.
+ * Returns prices in PKR per tola and per gram.
+ */
+export async function fetchSilverPrices(): Promise<{
+  inserted: number;
+  errors: string[];
+}> {
+  const errors: string[] = [];
+  let inserted = 0;
+
+  try {
+    const res = await fetch(SILVERPRICEZ_BASE, {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(10_000),
+    });
+
+    if (!res.ok) {
+      errors.push(`goldpricez silver API returned ${res.status}`);
+      return { inserted, errors };
+    }
+
+    const data = await res.json() as GoldApiRate | GoldApiRate[];
+    const rates = Array.isArray(data) ? data : [data];
+
+    if (rates.length === 0 || !rates[0]?.price) {
+      errors.push("No price data in goldpricez silver response");
+      return { inserted, errors };
+    }
+
+    const priceTola = rates[0].price;
+
+    // 1 tola = 11.6638 grams
+    const TOLA_TO_GRAM = 11.6638;
+    const priceGram = Math.round((priceTola / TOLA_TO_GRAM) * 100) / 100;
+
+    const rows = [
+      { karat: "silver", unit: "tola", pricePkr: String(priceTola) },
+      { karat: "silver", unit: "gram", pricePkr: String(priceGram) },
+    ];
+
+    const now = new Date();
+    for (const row of rows) {
+      await db.insert(goldPrices).values({
+        source: "goldpricez_api",
+        karat: row.karat,
+        unit: row.unit,
+        pricePkr: row.pricePkr,
+        recordedAt: now,
+      });
+      inserted++;
+    }
+  } catch (err) {
+    errors.push(`Silver fetch failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  return { inserted, errors };
+}
+
+/**
+ * Get the latest silver prices from the database.
+ */
+export async function getLatestSilverPrices() {
+  const latest = await db
+    .select()
+    .from(goldPrices)
+    .where(
+      and(
+        eq(goldPrices.source, "goldpricez_api"),
+        eq(goldPrices.karat, "silver")
+      )
+    )
+    .orderBy(desc(goldPrices.recordedAt))
+    .limit(1);
+
+  if (latest.length === 0) return { prices: [], updated_at: null };
+
+  const latestTime = latest[0].recordedAt;
+
+  const prices = await db
+    .select()
+    .from(goldPrices)
+    .where(
+      and(
+        eq(goldPrices.source, "goldpricez_api"),
+        eq(goldPrices.karat, "silver"),
+        eq(goldPrices.recordedAt, latestTime)
+      )
+    );
+
+  return {
+    prices: prices.map((p) => ({
+      unit: p.unit,
+      price_pkr: Number(p.pricePkr),
+      price_usd: p.priceUsd ? Number(p.priceUsd) : null,
+      recorded_at: p.recordedAt.toISOString(),
+    })),
+    source: "goldpricez_api",
+    updated_at: latestTime.toISOString(),
+  };
+}
+
 /**
  * Get gold price history for charting.
  */
