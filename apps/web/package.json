@@ -1,0 +1,46 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@bondcheck/db": "workspace:*",
+    "@bondcheck/ingest": "workspace:*",
+    "@bondcheck/shared": "workspace:*",
+    "@tanstack/react-table": "8.21.3",
+    "@vercel/analytics": "2.0.1",
+    "@vercel/speed-insights": "2.0.0",
+    "drizzle-orm": "0.45.2",
+    "jspdf": "4.2.1",
+    "jspdf-autotable": "5.0.7",
+    "next": "16.2.1",
+    "next-intl": "4.14.9",
+    "pdfjs-dist": "5.6.205",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "server-only": "0.0.1",
+    "swr": "2.4.1",
+    "tesseract.js": "7.0.0",
+    "xlsx": "0.18.5",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.2.2",
+    "@types/node": "22.20.5",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.2.1",
+    "tailwindcss": "4.2.2",
+    "typescript": "5.9.3",
+    "vitest": "5.0.5"
+  }
+}

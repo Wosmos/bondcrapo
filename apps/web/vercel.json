@@ -1,0 +1,8 @@
+{
+  "crons": [
+    { "path": "/api/v1/cron/bonds-sync", "schedule": "0 16 * * *" },
+    { "path": "/api/v1/cron/metals-spot", "schedule": "0 12 * * *" },
+    { "path": "/api/v1/cron/fx-daily", "schedule": "0 13 * * *" },
+    { "path": "/api/v1/cron/pk-market", "schedule": "0 14 * * *" }
+  ]
+}
