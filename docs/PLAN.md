@@ -45,8 +45,8 @@ Read first: `docs/DATA_AUDIT.md` (what the current DB holds and why it must be r
      Cloudflare Cron Trigger (later) ---- scheduled() -> same handler +       |
    Backfill: `pnpm ingest:backfill` CLI (GitHub Actions workflow_dispatch or local) --+
 
-   Release assets: GitHub Release (private, canonical) + public object store
-   (Cloudflare R2 bucket, `latest.json` manifest) -> website /download and in-app update prompt.
+   Release assets: GitHub Release of this private repo (canonical), served by website
+   server routes /api/v1/releases/* using GITHUB_RELEASES_TOKEN -> /download and in-app update prompt.
 ```
 
 Principles:
@@ -369,7 +369,7 @@ Cron auth: `Authorization: Bearer ${CRON_SECRET}` compared in constant time; **f
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | web push | generate once |
 | `WALLET_PEPPER` | wallet hashing | HMAC key for token and sync code hashes |
 | `METALS_FALLBACK_API_KEY` | ingest | optional (MetalpriceAPI or GoldAPI) |
-| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `DOWNLOADS_PUBLIC_BASE_URL` | mobile release CI, web /download | public APK hosting |
+| `GITHUB_RELEASES_TOKEN`, `GITHUB_RELEASES_REPO` (default `Wosmos/bondcrapo`) | web `/api/v1/releases/*`, `/download` | fine-grained token with read-only Contents access to this repo only; set on the website host (Vercel), never in GitHub secrets or the client |
 | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` | mobile release CI | optional; unsigned build when absent |
 
 `apps/web/src/env.ts` validates env with zod at startup (server-only), never exposing server keys to the client.
@@ -493,12 +493,12 @@ Global rules for every lane:
 
 Scope:
 1. Delete `backend/`, `frontend/`, `AUTH_GUIDE.md`, `AUTH_SETUP.md`, root `readme.md`, `.agent/`, `.github/instructions/codacy.instructions.md`, `bondcheck-next/bun.lock`, `bondcheck-next/actions/`, `bondcheck-next/app/admin/`, `lib/fingerprint.ts`, `hooks/useTelemetry.ts`, `app/api/track`, `app/api/device`, `lib/rate-limit.ts`. Clean `.gitignore` of Python entries.
-2. `git mv bondcheck-next apps/web`; move code into `apps/web/src/`; keep `AGENTS.md`/`CLAUDE.md` (Next 16 agent rules) at repo root and in `apps/web`.
+2. `git mv bondcheck-next apps/web`; move code into `apps/web/src/`; delete `AGENTS.md`; `CLAUDE.md` moves to the repo root as the monorepo guide (it carries the Next 16 rules).
 3. Root workspace: `pnpm-workspace.yaml`, `package.json` (`packageManager: pnpm@10.x`, scripts `dev`, `build`, `lint`, `typecheck`, `test`, `db:generate`, `db:migrate`), `.npmrc` (`save-exact=true`), `.nvmrc` (22), `tsconfig.base.json`, shared ESLint config, Prettier. Re-pin every dependency to the exact currently resolved version.
 4. `packages/db`: full schema from section 3 (all tables, including those lanes will fill), first migration written to be safe on the live DB (rename `winners` to `legacy_winners`, copy `draw_schedule` into `draws`, drop listed tables), PGlite test harness `createTestDb()`. Do not run the migration against production in this milestone; the owner runs `pnpm db:migrate` after review.
 5. `packages/shared`: zod contracts for every endpoint in section 6 (request, response, error), `ApiClient` (fetch-based, works in RN), units, `formatBondNumber`, denomination constants, `RateLimiter` interface, wallet credential header helpers.
 6. `packages/ingest`: skeleton with `Fetcher` (rate limit, retries, sha256, UA), `Job` interface `{ name, run(ctx, cursor): Promise<{done, cursor, stats}> }`, `runJob` with `ingestion_runs` bookkeeping, CLI entry `src/cli.ts`.
-7. `apps/web`: `[locale]` routing with next-intl (en, ur) skeleton, `src/platform/{analytics,revalidate,waitUntil,env}.ts`, minimal UI primitives with frozen props (`Button`, `Card`, `PageHeader`, `DataTable`, `Stat`, `Badge`, `EmptyState`, `Skeleton`), nav registry `src/features/registry.ts` importing `src/features/<area>/nav.ts` stubs for bonds, markets, wallet, download; route stubs returning 501 for every `/api/v1` endpoint (each in its lane's folder); cron dispatcher `/api/v1/cron/[job]` with fail-closed auth and a job registry `src/server/jobs.ts` importing per-lane `jobs.ts` stubs; message files per namespace.
+7. `apps/web`: `[locale]` routing with next-intl (en, ur) skeleton, `src/platform/{analytics,revalidate,waitUntil,env}.ts`, minimal UI primitives with frozen props (`Button`, `Card`, `PageHeader`, `DataTable`, `Stat`, `Badge`, `EmptyState`, `Skeleton`), nav registry `src/features/registry.ts` importing `src/features/<area>/nav.ts` stubs for bonds, markets, wallet, download; route stubs returning 501 for every `/api/v1` endpoint (each in its lane's folder), including `/api/v1/releases/{latest,download/[asset],updater}` for Lane E; cron dispatcher `/api/v1/cron/[job]` with fail-closed auth and a job registry `src/server/jobs.ts` importing per-lane `jobs.ts` stubs; message files per namespace.
 8. CI workflow `ci.yml`; `vercel.json` with root directory note (Vercel project Root Directory must be changed to `apps/web` by the owner).
 9. Keep the existing user-facing checker working against `legacy_winners` via a temporary adapter so production is never broken.
 
@@ -541,7 +541,7 @@ Acceptance: unit tests for sync code entropy/format and HMAC hashing; integratio
 Scope: `/my` dashboard (owned bonds, total face value, wins, unclaimed reminder, upcoming draws for owned denominations), `/my/bonds` (add single, range, paste, CSV/XLSX import, OCR scan reuse), `/my/wins`, `/my/near-misses`, `/my/settings` (sync code display and QR, restore, notifications toggle, export PDF/XLSX, delete wallet); local-first cache in IndexedDB for offline viewing; migration of existing IndexedDB history from the old app (`lib/history-db.ts`) into the wallet on first visit.
 Acceptance: Playwright flow create, add, restore on a second browser context with sync code; offline view shows cached bonds; axe passes; keyboard-only flow works.
 
-### Lane D: shell, i18n, accessibility, PWA, SEO (owns `apps/web/src/app/[locale]/layout.tsx`, `apps/web/src/app/[locale]/page.tsx`, `apps/web/src/app/[locale]/{about,privacy,terms}/**`, `apps/web/src/components/**`, `apps/web/src/i18n/**`, `apps/web/messages/*/common.json`, `apps/web/src/app/{manifest.ts,robots.ts,sitemap.ts,opengraph-image.tsx}`, `apps/web/src/app/sw.ts` or `public/sw.js` (except `sw-push.js`), `apps/web/src/styles/**`, `apps/web/proxy.ts`, Lighthouse CI config)
+### Lane D: shell, i18n, accessibility, PWA, SEO (owns `apps/web/src/app/[locale]/layout.tsx`, `apps/web/src/app/[locale]/page.tsx`, `apps/web/src/app/[locale]/{about,privacy,terms}/**`, `apps/web/src/components/**`, `apps/web/src/i18n/**`, `apps/web/messages/*/common.json`, `apps/web/src/app/{manifest.ts,robots.ts,sitemap.ts,opengraph-image.tsx}`, `apps/web/src/app/sw.ts` or `public/sw.js` (except `sw-push.js`), `apps/web/src/styles/**`, `apps/web/src/proxy.ts`, Lighthouse CI config)
 Must not touch: lane feature folders, API routes, packages.
 Consumes: nav registry, message namespaces, UI primitive props (frozen).
 
@@ -553,7 +553,7 @@ Acceptance: axe zero serious issues on home in en and ur; visual snapshot tests 
 Scope: Serwist (or a hand-written service worker) with precache of shell, runtime cache for draw pages and market JSON (stale-while-revalidate), offline fallback page, installability (manifest, maskable icons), `sitemap.ts` generating all draw, denomination, country and pair URLs in both locales (sitemap index if > 50,000), `robots.ts`, canonical and hreflang helpers exported for lanes, OG image template, About/Privacy/Terms pages, data attribution page.
 Acceptance: Lighthouse PWA checks pass; offline reload of a visited draw page works (Playwright offline mode); sitemap validates and includes `ur` alternates.
 
-### Lane E: mobile app and distribution (owns `apps/mobile/**`, `.github/workflows/mobile-release.yml`, `scripts/version.mjs`, `apps/web/src/app/[locale]/download/**`, `apps/web/src/app/api/v1/app/**`, `apps/web/src/features/download/**`, `apps/web/messages/*/download.json`, `docs/MOBILE_RELEASE.md`)
+### Lane E: mobile app and distribution (owns `apps/mobile/**`, `.github/workflows/mobile-release.yml`, `scripts/version.mjs`, `apps/web/src/app/[locale]/download/**`, `apps/web/src/app/api/v1/app/**`, `apps/web/src/app/api/v1/releases/**`, `apps/web/src/features/download/**`, `apps/web/messages/*/download.json`, `docs/MOBILE_RELEASE.md`)
 Must not touch: other lanes, M1 files.
 Consumes: `packages/shared` contracts and `ApiClient`, wallet credential scheme.
 
@@ -562,7 +562,7 @@ Scope: Expo SDK (latest stable at implementation time), Expo Router, screens: ho
 Acceptance: `pnpm --filter mobile test` (Jest RNTL) green; `npx expo-doctor` clean; `npx expo prebuild --platform android --clean && cd android && ./gradlew assembleDebug` succeeds locally or in CI; typecheck uses shared contracts (no duplicated types).
 
 **E2. Mobile CI, versioning, downloads.**
-Scope: `scripts/version.mjs <x.y.z>` updates root and all workspace `package.json` versions, `apps/mobile/app.json` `expo.version` and `android.versionCode = major*10000 + minor*100 + patch`, and fails CI if the tag does not equal the version (`--check`); `mobile-release.yml` on `v*` tags: setup Node 22, pnpm, Java 17, Android SDK, `expo prebuild --platform android --no-install`, Gradle `assembleRelease`; if `ANDROID_KEYSTORE_BASE64` exists decode it and sign via Gradle signing config injected by an Expo config plugin, else build unsigned and name the file `*-unsigned.apk` with a release note; compute sha256; create GitHub Release with the APK; upload APK and `latest.json` (`version`, `versionCode`, `url`, `sha256`, `minSupportedVersionCode`, `notes`) to the public R2 bucket; `/download` page (en, ur) with version, size, sha256, install instructions, QR code; `/api/v1/app/latest` reads `latest.json` with 5 min cache.
+Scope: `scripts/version.mjs <x.y.z>` updates root and all workspace `package.json` versions, `apps/mobile/app.json` `expo.version` and `android.versionCode = major*10000 + minor*100 + patch`, and fails CI if the tag does not equal the version (`--check`); `mobile-release.yml` on `v*` tags: setup Node 22, pnpm, Java 17, Android SDK, `expo prebuild --platform android --no-install`, Gradle `assembleRelease`; if `ANDROID_KEYSTORE_BASE64` exists decode it and sign via Gradle signing config injected by an Expo config plugin, else build unsigned and name the file `*-unsigned.apk` with a release note; compute sha256; create the GitHub Release with the APK, `SHA256SUMS.txt` and `latest.json` (`version`, `versionCode`, `url`, `sha256`, `minSupportedVersionCode`, `notes`) as assets (no Cloudflare R2, see ADR 0006); the website serves them server side: `/api/v1/releases/latest` (public view, no token or GitHub URL), `/api/v1/releases/download/[asset]` (302 to the short lived signed asset URL, only names present in the latest release), `/api/v1/releases/updater` (the `latest.json` manifest), all through `GITHUB_RELEASES_TOKEN` and cached 5 min, following the owner's duolingo-clone `app/api/releases/**` pattern; desktop artefacts, if ever built, are picked up from the same release by asset name; `/download` page (en, ur) with version, size, sha256, install instructions, QR code; `/api/v1/app/latest` returns the manifest from the same source.
 Acceptance: workflow lint (`actionlint`); dry-run job on a test tag in a fork or with `workflow_dispatch` input `dry_run: true` producing an unsigned APK artifact; `/download` renders with a fixture manifest; `version.mjs --check` fails on mismatch (test).
 
 ### M-F. Integration and release v1.0.0 (runs last, single implementer)
@@ -578,7 +578,7 @@ Milestone count: M1, A1, A2, B1, B2, C1, C2, D1, D2, E1, E2, M-F = 12.
 
 1. Install Node 22 and Corepack on the dev machine (only bun exists today).
 2. Change the Vercel project Root Directory to `apps/web` after M1 merges; set env vars from section 5.4; run `pnpm db:migrate` against Neon after reviewing the M1 migration (consider a Neon branch first).
-3. Create a Cloudflare R2 bucket with public access (or a public `bondcheck-releases` GitHub repo as an alternative) and add the R2 secrets for APK distribution.
+3. Create a fine-grained GitHub token with read-only Contents access to this repository only and set it as `GITHUB_RELEASES_TOKEN` (and optionally `GITHUB_RELEASES_REPO`) on the website host. No Cloudflare R2 bucket is needed for releases.
 4. Optional Android signing keystore (secrets listed in 5.4). Without it, APKs ship unsigned and cannot be installed as updates over each other reliably; strongly recommended.
 5. Optional paid or free-key metals fallback (MetalpriceAPI or GoldAPI) key.
 6. Licence checks: freegoldapi.com history display; permission emails to prizeinfo.net and pkprizebond.com operators; decide on reported Gulf/India sources.
