@@ -1,0 +1,1552 @@
+[
+{
+"date": "2023-01-01",
+"price": 1897.71,
+"source": "worldbank"
+},
+{
+"date": "2023-02-01",
+"price": 1854.54,
+"source": "worldbank"
+},
+{
+"date": "2023-03-01",
+"price": 1912.73,
+"source": "worldbank"
+},
+{
+"date": "2023-04-01",
+"price": 1999.77,
+"source": "worldbank"
+},
+{
+"date": "2023-05-01",
+"price": 1992.13,
+"source": "worldbank"
+},
+{
+"date": "2023-06-01",
+"price": 1942.9,
+"source": "worldbank"
+},
+{
+"date": "2023-07-01",
+"price": 1951.02,
+"source": "worldbank"
+},
+{
+"date": "2023-08-01",
+"price": 1918.7,
+"source": "worldbank"
+},
+{
+"date": "2023-09-01",
+"price": 1915.95,
+"source": "worldbank"
+},
+{
+"date": "2023-10-01",
+"price": 1916.25,
+"source": "worldbank"
+},
+{
+"date": "2023-11-01",
+"price": 1984.11,
+"source": "worldbank"
+},
+{
+"date": "2023-12-01",
+"price": 2026.18,
+"source": "worldbank"
+},
+{
+"date": "2024-01-01",
+"price": 2034.04,
+"source": "worldbank"
+},
+{
+"date": "2024-02-01",
+"price": 2023.24,
+"source": "worldbank"
+},
+{
+"date": "2024-03-01",
+"price": 2158.01,
+"source": "worldbank"
+},
+{
+"date": "2024-04-01",
+"price": 2331.45,
+"source": "worldbank"
+},
+{
+"date": "2024-05-01",
+"price": 2351.13,
+"source": "worldbank"
+},
+{
+"date": "2024-06-01",
+"price": 2326.44,
+"source": "worldbank"
+},
+{
+"date": "2024-07-01",
+"price": 2398.2,
+"source": "worldbank"
+},
+{
+"date": "2024-08-01",
+"price": 2470.15,
+"source": "worldbank"
+},
+{
+"date": "2024-09-01",
+"price": 2570.55,
+"source": "worldbank"
+},
+{
+"date": "2024-10-01",
+"price": 2690.08,
+"source": "worldbank"
+},
+{
+"date": "2024-11-01",
+"price": 2651.13,
+"source": "worldbank"
+},
+{
+"date": "2024-12-01",
+"price": 2648.01,
+"source": "worldbank"
+},
+{
+"date": "2025-01-02",
+"price": 2658.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-03",
+"price": 2645.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-06",
+"price": 2638.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-07",
+"price": 2656.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-08",
+"price": 2664.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-09",
+"price": 2683.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-10",
+"price": 2708.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-13",
+"price": 2673.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-14",
+"price": 2677.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-15",
+"price": 2712.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-16",
+"price": 2746.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-17",
+"price": 2744.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-21",
+"price": 2755.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-22",
+"price": 2767.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-23",
+"price": 2763.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-24",
+"price": 2777.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-27",
+"price": 2737.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-28",
+"price": 2766.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-29",
+"price": 2769.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-30",
+"price": 2823.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-01-31",
+"price": 2812.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-03",
+"price": 2833.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-04",
+"price": 2853.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-05",
+"price": 2871.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-06",
+"price": 2856.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-07",
+"price": 2867.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-10",
+"price": 2914.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-11",
+"price": 2912.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-12",
+"price": 2909.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-13",
+"price": 2925.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-14",
+"price": 2883.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-18",
+"price": 2931.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-19",
+"price": 2919.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-20",
+"price": 2940.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-21",
+"price": 2937.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-24",
+"price": 2947.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-25",
+"price": 2904.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-26",
+"price": 2916.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-27",
+"price": 2883.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-02-28",
+"price": 2836.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-03",
+"price": 2890.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-04",
+"price": 2909.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-05",
+"price": 2915.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-06",
+"price": 2916.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-07",
+"price": 2904.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-10",
+"price": 2891.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-11",
+"price": 2912.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-12",
+"price": 2939.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-13",
+"price": 2984.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-14",
+"price": 2994.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-17",
+"price": 3000.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-18",
+"price": 3035.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-19",
+"price": 3035.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-20",
+"price": 3040.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-21",
+"price": 3018.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-24",
+"price": 3013.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-25",
+"price": 3023.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-26",
+"price": 3020.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-27",
+"price": 3060.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-28",
+"price": 3086.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-03-31",
+"price": 3122.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-01",
+"price": 3118.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-02",
+"price": 3139.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-03",
+"price": 3097.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-04",
+"price": 3012.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-07",
+"price": 2951.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-08",
+"price": 2968.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-09",
+"price": 3056.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-10",
+"price": 3155.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-11",
+"price": 3222.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-14",
+"price": 3204.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-15",
+"price": 3218.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-16",
+"price": 3326.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-17",
+"price": 3308.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-21",
+"price": 3406.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-22",
+"price": 3400.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-23",
+"price": 3276.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-24",
+"price": 3332.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-25",
+"price": 3282.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-28",
+"price": 3332.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-29",
+"price": 3318.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-04-30",
+"price": 3305.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-01",
+"price": 3210.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-02",
+"price": 3231.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-05",
+"price": 3311.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-06",
+"price": 3411.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-07",
+"price": 3381.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-08",
+"price": 3296.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-09",
+"price": 3335.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-12",
+"price": 3220.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-13",
+"price": 3240.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-14",
+"price": 3181.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-15",
+"price": 3220.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-16",
+"price": 3182.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-19",
+"price": 3228.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-20",
+"price": 3280.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-21",
+"price": 3309.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-22",
+"price": 3292.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-23",
+"price": 3363.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-27",
+"price": 3299.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-28",
+"price": 3293.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-29",
+"price": 3317.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-05-30",
+"price": 3288.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-02",
+"price": 3370.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-03",
+"price": 3350.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-04",
+"price": 3373.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-05",
+"price": 3350.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-06",
+"price": 3322.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-09",
+"price": 3332.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-10",
+"price": 3320.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-11",
+"price": 3321.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-12",
+"price": 3380.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-13",
+"price": 3431.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-16",
+"price": 3396.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-17",
+"price": 3386.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-18",
+"price": 3389.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-20",
+"price": 3368.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-23",
+"price": 3377.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-24",
+"price": 3317.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-25",
+"price": 3327.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-26",
+"price": 3333.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-27",
+"price": 3273.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-06-30",
+"price": 3294.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-01",
+"price": 3336.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-02",
+"price": 3348.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-03",
+"price": 3331.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-04",
+"price": 3332.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-07",
+"price": 3332.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-08",
+"price": 3307.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-09",
+"price": 3311.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-10",
+"price": 3317.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-11",
+"price": 3356.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-14",
+"price": 3351.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-15",
+"price": 3329.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-16",
+"price": 3352.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-17",
+"price": 3340.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-18",
+"price": 3353.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-21",
+"price": 3401.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-22",
+"price": 3439.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-23",
+"price": 3394.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-24",
+"price": 3371.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-25",
+"price": 3334.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-28",
+"price": 3309.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-29",
+"price": 3323.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-30",
+"price": 3295.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-07-31",
+"price": 3293.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-01",
+"price": 3347.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-04",
+"price": 3374.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-05",
+"price": 3381.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-06",
+"price": 3380.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-07",
+"price": 3400.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-08",
+"price": 3439.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-11",
+"price": 3353.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-12",
+"price": 3348.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-13",
+"price": 3358.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-14",
+"price": 3335.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-15",
+"price": 3336.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-18",
+"price": 3331.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-19",
+"price": 3313.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-20",
+"price": 3343.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-21",
+"price": 3336.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-22",
+"price": 3374.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-25",
+"price": 3373.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-26",
+"price": 3388.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-27",
+"price": 3404.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-28",
+"price": 3431.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-08-29",
+"price": 3473.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-02",
+"price": 3549.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-03",
+"price": 3593.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-04",
+"price": 3565.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-05",
+"price": 3613.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-08",
+"price": 3638.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-09",
+"price": 3643.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-10",
+"price": 3643.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-11",
+"price": 3636.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-12",
+"price": 3649.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-15",
+"price": 3682.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-16",
+"price": 3688.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-17",
+"price": 3681.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-18",
+"price": 3643.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-19",
+"price": 3671.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-22",
+"price": 3740.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-23",
+"price": 3780.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-24",
+"price": 3732.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-25",
+"price": 3736.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-26",
+"price": 3775.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-29",
+"price": 3820.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-09-30",
+"price": 3840.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-01",
+"price": 3867.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-02",
+"price": 3839.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-03",
+"price": 3880.800048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-06",
+"price": 3948.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-07",
+"price": 3976.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-08",
+"price": 4043.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-09",
+"price": 3946.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-10",
+"price": 3975.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-13",
+"price": 4108.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-14",
+"price": 4138.7001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-15",
+"price": 4176.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-16",
+"price": 4280.2001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-17",
+"price": 4189.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-20",
+"price": 4336.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-21",
+"price": 4087.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-22",
+"price": 4044.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-23",
+"price": 4125.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-24",
+"price": 4118.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-27",
+"price": 4001.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-28",
+"price": 3966.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-29",
+"price": 3983.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-30",
+"price": 4001.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-10-31",
+"price": 3982.199951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-03",
+"price": 4000.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-04",
+"price": 3947.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-05",
+"price": 3980.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-06",
+"price": 3979.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-07",
+"price": 3999.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-10",
+"price": 4111.7998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-11",
+"price": 4106.7998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-12",
+"price": 4204.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-13",
+"price": 4186.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-14",
+"price": 4087.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-17",
+"price": 4068.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-18",
+"price": 4061.300048828125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-19",
+"price": 4077.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-20",
+"price": 4056.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-21",
+"price": 4076.699951171875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-24",
+"price": 4091.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-25",
+"price": 4139.2001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-26",
+"price": 4165.2001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-11-28",
+"price": 4218.2998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-01",
+"price": 4239.2998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-02",
+"price": 4186.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-03",
+"price": 4199.2998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-04",
+"price": 4211.7998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-05",
+"price": 4212.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-08",
+"price": 4187.2001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-09",
+"price": 4206.7001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-10",
+"price": 4196.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-11",
+"price": 4285.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-12",
+"price": 4300.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-15",
+"price": 4306.7001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-16",
+"price": 4304.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-17",
+"price": 4347.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-18",
+"price": 4339.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-19",
+"price": 4361.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-22",
+"price": 4444.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-23",
+"price": 4482.7998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-24",
+"price": 4480.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-26",
+"price": 4529.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-29",
+"price": 4325.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-30",
+"price": 4370.10009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2025-12-31",
+"price": 4325.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-02",
+"price": 4314.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-05",
+"price": 4436.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-06",
+"price": 4482.2001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-07",
+"price": 4449.2998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-08",
+"price": 4449.7001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-09",
+"price": 4490.2998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-12",
+"price": 4604.2998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-13",
+"price": 4589.2001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-14",
+"price": 4626.2998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-15",
+"price": 4616.2998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-16",
+"price": 4588.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-20",
+"price": 4759.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-21",
+"price": 4831.7998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-22",
+"price": 4908.7998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-23",
+"price": 4976.2001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-26",
+"price": 5079.7001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-27",
+"price": 5079.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-28",
+"price": 5301.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-29",
+"price": 5318.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-01-30",
+"price": 4713.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-02",
+"price": 4622.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-03",
+"price": 4903.7001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-04",
+"price": 4920.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-05",
+"price": 4861.39990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-06",
+"price": 4951.2001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-09",
+"price": 5050.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-10",
+"price": 5003.7998046875,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-11",
+"price": 5071.60009765625,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-12",
+"price": 4923.7001953125,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-13",
+"price": 5022.0,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-17",
+"price": 4882.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-18",
+"price": 4986.5,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-19",
+"price": 4975.89990234375,
+"source": "yahoo_finance"
+},
+{
+"date": "2026-02-20",
+"price": 5059.2998046875,
+"source": "yahoo_finance"
+}
+]
