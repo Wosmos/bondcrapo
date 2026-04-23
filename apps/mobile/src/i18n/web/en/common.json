@@ -1,0 +1,16 @@
+{
+  "appName": "BondCheck",
+  "tagline": "Prize bond results, your bonds and market rates for Pakistan",
+  "language": {
+    "en": "English",
+    "ur": "اردو"
+  },
+  "actions": {
+    "retry": "Try again",
+    "close": "Close"
+  },
+  "status": {
+    "loading": "Loading",
+    "notImplemented": "This section is coming soon"
+  }
+}
