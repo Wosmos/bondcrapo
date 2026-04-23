@@ -5,18 +5,21 @@ export interface BadgeProps {
   children: ReactNode;
 }
 
+// Tinted fill plus a hairline in the tone colour; the text itself carries the meaning.
 const TONE: Record<NonNullable<BadgeProps["tone"]>, string> = {
-  neutral: "bg-slate-100 text-slate-800",
-  success: "bg-emerald-100 text-emerald-900",
-  warning: "bg-amber-100 text-amber-900",
-  danger: "bg-red-100 text-red-900",
-  info: "bg-sky-100 text-sky-900",
+  neutral: "bg-surface-2 text-ink-2 ring-line-strong/40",
+  success: "bg-success/14 text-success ring-success/35",
+  warning: "bg-warning/14 text-warning ring-warning/35",
+  danger: "bg-danger/14 text-danger ring-danger/35",
+  info: "bg-info/14 text-info ring-info/35",
 };
 
 /** Always carries text; never rely on the tone colour alone. */
 export function Badge({ tone = "neutral", children }: BadgeProps) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${TONE[tone]}`}>
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${TONE[tone]}`}
+    >
       {children}
     </span>
   );

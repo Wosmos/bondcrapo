@@ -7,7 +7,11 @@ export interface SkeletonProps {
 
 export function Skeleton({ label = "Loading", size = "h-4 w-full" }: SkeletonProps) {
   return (
-    <div role="status" aria-label={label} className={`animate-pulse rounded bg-slate-200 motion-reduce:animate-none ${size}`}>
+    <div
+      role="status"
+      aria-label={label}
+      className={`animate-pulse rounded-md bg-surface-2 motion-reduce:animate-none ${size}`}
+    >
       <span className="sr-only">{label}</span>
     </div>
   );

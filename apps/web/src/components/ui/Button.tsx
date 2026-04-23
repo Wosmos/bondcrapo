@@ -9,15 +9,16 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
 }
 
 const VARIANT: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  primary: "bg-slate-900 text-white hover:bg-slate-700",
-  secondary: "border border-slate-300 bg-white text-slate-900 hover:bg-slate-50",
-  ghost: "text-slate-700 hover:bg-slate-100",
-  danger: "bg-red-700 text-white hover:bg-red-800",
+  primary: "bg-brand text-on-brand shadow-sm hover:bg-brand-strong",
+  secondary: "border border-line-strong bg-surface text-ink hover:bg-surface-2",
+  ghost: "text-ink hover:bg-surface-2",
+  danger: "bg-danger text-surface hover:opacity-90",
 };
+// Minimum 44 px targets from md upward (WCAG 2.5.8 needs 24, 44 is the mobile recommendation).
 const SIZE: Record<NonNullable<ButtonProps["size"]>, string> = {
-  sm: "min-h-8 px-3 text-sm",
-  md: "min-h-10 px-4 text-sm",
-  lg: "min-h-12 px-6 text-base",
+  sm: "min-h-9 px-3 text-sm",
+  md: "min-h-11 px-4 text-sm",
+  lg: "min-h-13 px-6 text-base",
 };
 
 /** Props are frozen after M1; Lane D may restyle the internals. */
@@ -35,9 +36,15 @@ export function Button({
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={`inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:pointer-events-none disabled:opacity-50 ${VARIANT[variant]} ${SIZE[size]}`}
+      className={`inline-flex select-none items-center justify-center gap-2 rounded-xl font-semibold transition-[background-color,transform,opacity] duration-150 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-55 ${VARIANT[variant]} ${SIZE[size]}`}
       {...rest}
     >
+      {loading ? (
+        <span
+          aria-hidden="true"
+          className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-none"
+        />
+      ) : null}
       {children}
     </button>
   );
