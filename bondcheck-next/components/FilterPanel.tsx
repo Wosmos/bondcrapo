@@ -14,6 +14,7 @@ interface FilterPanelProps {
   scannerDisabled: boolean;
   exportDisabled: boolean;
   resetDisabled: boolean;
+  t?: (key: string) => string;
 }
 
 export function FilterPanel({
@@ -28,7 +29,17 @@ export function FilterPanel({
   scannerDisabled,
   exportDisabled,
   resetDisabled,
+  t,
 }: FilterPanelProps) {
+  const tr = t ?? ((k: string) => {
+    const fb: Record<string, string> = {
+      search_by: "Search by", one_bond: "One Bond Number", multiple_bonds: "Multiple Bonds",
+      number_range: "Number Range", advanced: "Advanced", scan_photo: "Scan Photo",
+      bond_number: "Bond Number", bond_numbers: "Bond Numbers", from: "From", to: "To", check: "Check",
+    };
+    return fb[k] ?? k;
+  });
+
   const update = (partial: Partial<FilterState>) =>
     onChange({ ...filters, ...partial });
 
@@ -42,17 +53,17 @@ export function FilterPanel({
         {/* How to search */}
         <div className="w-full sm:w-auto shrink-0">
           <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1 tracking-widest">
-            Search by
+            {tr("search_by")}
           </label>
           <select
             value={filters.searchMode}
             onChange={(e) => update({ searchMode: e.target.value as SearchMode })}
             className="w-full sm:w-40 h-9 pl-2.5 pr-7 bg-white border border-gray-200 text-xs font-medium rounded-md appearance-none cursor-pointer hover:border-gray-300 transition-all"
           >
-            <option value="single">One Bond Number</option>
-            <option value="multi">Multiple Bonds</option>
-            <option value="series">Number Range</option>
-            <option value="mixed">Advanced</option>
+            <option value="single">{tr("one_bond")}</option>
+            <option value="multi">{tr("multiple_bonds")}</option>
+            <option value="series">{tr("number_range")}</option>
+            <option value="mixed">{tr("advanced")}</option>
           </select>
         </div>
 
@@ -61,13 +72,13 @@ export function FilterPanel({
           onClick={onOpenScanner}
           disabled={scannerDisabled}
           className="h-9 px-3 bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-100 rounded-md flex items-center gap-1.5 transition-all font-bold text-[10px] uppercase tracking-widest shrink-0 disabled:opacity-40 disabled:pointer-events-none"
-          title="Scan bond numbers from photo or file"
+          title={tr("scan_photo")}
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <span className="hidden sm:inline">Scan Photo</span>
+          <span className="hidden sm:inline">{tr("scan_photo")}</span>
         </button>
 
         {/* Dynamic Inputs */}
@@ -75,7 +86,7 @@ export function FilterPanel({
           {filters.searchMode === "single" && (
             <div className="w-full relative">
               <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1 tracking-widest">
-                Bond Number
+                {tr("bond_number")}
               </label>
               <input
                 type="text"
@@ -94,7 +105,7 @@ export function FilterPanel({
           {(filters.searchMode === "multi" || filters.searchMode === "mixed") && (
             <div className="w-full">
               <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1 tracking-widest">
-                Bond Numbers
+                {tr("bond_numbers")}
               </label>
               <input
                 type="text"
@@ -110,7 +121,7 @@ export function FilterPanel({
           {(filters.searchMode === "series" || filters.searchMode === "mixed") && (
             <div className="flex gap-2 w-full">
               <div className="flex-1">
-                <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1 tracking-widest">From</label>
+                <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1 tracking-widest">{tr("from")}</label>
                 <input
                   type="number"
                   value={filters.startBond}
@@ -121,7 +132,7 @@ export function FilterPanel({
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1 tracking-widest">To</label>
+                <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1 tracking-widest">{tr("to")}</label>
                 <input
                   type="number"
                   value={filters.endBond}
@@ -142,13 +153,13 @@ export function FilterPanel({
             disabled={searchDisabled}
             className="h-9 px-5 bg-[#0f172a] text-white text-[10px] font-bold uppercase tracking-widest rounded-md hover:bg-[#1e293b] shadow-md shadow-[#0f172a]/15 transition-all shrink-0 disabled:opacity-40 disabled:pointer-events-none"
           >
-            Check
+            {tr("check")}
           </button>
           <button
             onClick={onExportPDF}
             disabled={exportDisabled}
             className="h-9 w-9 border border-gray-200 bg-white hover:bg-gray-50 text-gray-400 hover:text-gray-600 rounded-md flex items-center justify-center transition-all shrink-0 disabled:opacity-40 disabled:pointer-events-none"
-            title="Download as PDF"
+            title="PDF"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -159,7 +170,7 @@ export function FilterPanel({
               onClick={onReset}
               disabled={resetDisabled}
               className="h-9 w-9 border border-gray-200 bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-md flex items-center justify-center transition-all shrink-0 disabled:opacity-40 disabled:pointer-events-none"
-              title="Clear all"
+              title={tr("clear_filters")}
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

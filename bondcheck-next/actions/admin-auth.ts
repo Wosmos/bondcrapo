@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const ADMIN_USER = process.env.ADMIN_USER || "admin";
 const ADMIN_PASS = process.env.ADMIN_PASS || "bondcheck2026";
@@ -22,7 +23,7 @@ export async function adminLogin(
       maxAge: 60 * 60 * 24 * 7, // 7 days
       sameSite: "lax",
     });
-    return null;
+    redirect("/admin");
   }
 
   return { error: "Invalid credentials" };

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON MUSIC STATION</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cy:#00e5ff;--mg:#ff0090;--lm:#39ff14;--yl:#ffe600;--or:#ff6a00;--pr:#b44aff;
+--bg:#06060e;--s1:#0c0c1a;--s2:#111128;--bd:#1c1c3a;--tx:#d0d0e8;--dm:#4a4a70;}
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;}
+html,body{width:100%;min-height:100vh;background:var(--bg);overflow-x:hidden;}
+::-webkit-scrollbar{height:6px;width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px;}
+
+#splash{position:fixed;inset:0;z-index:1000;background:radial-gradient(ellipse at 50% 35%,#10102a,var(--bg));
+display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s;}
+#splash.hid{opacity:0;visibility:hidden;pointer-events:none;}
+#splash h1{font:900 clamp(44px,10vw,76px)/1 'Orbitron',sans-serif;color:var(--cy);letter-spacing:16px;
+text-shadow:0 0 12px var(--cy),0 0 40px rgba(0,229,255,.25);animation:gp 3s ease-in-out infinite;}
+#splash h2{font:400 clamp(11px,2.5vw,17px)/1 'Orbitron',sans-serif;color:var(--mg);letter-spacing:12px;margin-top:10px;text-shadow:0 0 8px var(--mg);}
+.spl{width:180px;height:1px;margin:30px 0;background:linear-gradient(90deg,transparent,var(--cy),transparent);}
+#startBtn{font:700 14px 'Orbitron',sans-serif;color:var(--lm);background:0;border:2px solid var(--lm);
+padding:14px 44px;letter-spacing:5px;cursor:pointer;box-shadow:0 0 8px var(--lm),0 0 20px rgba(57,255,20,.15);transition:all .2s;}
+#startBtn:hover{background:rgba(57,255,20,.08);transform:scale(1.04);}
+.sh{font:11px 'Share Tech Mono',monospace;color:var(--dm);margin-top:22px;}
+.scanl{position:fixed;inset:0;pointer-events:none;z-index:9999;
+background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.05) 2px,rgba(0,0,0,.05) 4px);}
+
+#app{display:none;width:100%;max-width:1100px;margin:0 auto;padding:0 12px 32px;}
+#app.on{display:block;animation:fu .5s ease-out;}
+@keyframes fu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes gp{0%,100%{text-shadow:0 0 12px var(--cy),0 0 40px rgba(0,229,255,.25)}50%{text-shadow:0 0 20px var(--cy),0 0 60px rgba(0,229,255,.35)}}
+@keyframes rb{0%,100%{opacity:1}50%{opacity:.3}}
+
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--bd);}
+.hdr-t{font:800 17px 'Orbitron',sans-serif;color:var(--cy);text-shadow:0 0 8px var(--cy);letter-spacing:5px;}
+
+/* ═══ PIANO ═══ */
+.piano-section{margin-top:16px;}
+.piano-body{background:linear-gradient(180deg,#1a1020,#0f0a16 40%,#0a0710);border-radius:10px 10px 14px 14px;
+padding:10px 10px 16px;box-shadow:0 8px 32px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.04);border:1px solid #221830;position:relative;overflow:hidden;}
+.piano-body::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--mg),var(--cy),var(--lm));opacity:.6;}
+.piano-hint{font:10px 'Share Tech Mono',monospace;color:var(--dm);margin:4px 6px 6px;line-height:1.6;}
+.piano-hint b{color:var(--tx);}
+.oct-bar{display:flex;padding:0 0 2px;overflow-x:auto;min-width:900px;}
+.oct-lbl{font:600 9px 'Share Tech Mono',monospace;color:var(--dm);flex:7;text-align:left;padding-left:4px;}
+.oct-lbl:last-child{flex:1;}
+.pw{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;}
+.kb{position:relative;display:flex;min-width:900px;height:180px;}
+
+.kw{flex:1;height:100%;position:relative;z-index:1;cursor:pointer;
+background:linear-gradient(180deg,#eae6e0 0%,#f5f2ed 6%,#ece8e2 85%,#d8d3cb 100%);
+border:1px solid #b8b4ac;border-top:none;border-radius:0 0 5px 5px;margin-right:1.5px;
+box-shadow:0 4px 6px rgba(0,0,0,.35),inset 0 -2px 4px rgba(0,0,0,.06);transition:all .05s;
+display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:8px;}
+.kw:last-child{margin-right:0;}
+.kw:active,.kw.act{background:linear-gradient(180deg,#d8d4cf,#e0dcd6 50%,#ccc8c0);
+box-shadow:0 2px 3px rgba(0,0,0,.3),inset 0 1px 3px rgba(0,0,0,.1);transform:translateY(2px);}
+.kw.hl{background:linear-gradient(180deg,rgba(57,255,20,.18),rgba(57,255,20,.05) 80%,rgba(57,255,20,.14));
+border-color:var(--lm);box-shadow:0 4px 6px rgba(0,0,0,.35),0 0 14px rgba(57,255,20,.35);}
+.kw.ahl{background:linear-gradient(180deg,rgba(0,229,255,.2),rgba(0,229,255,.06) 80%,rgba(0,229,255,.15));
+border-color:var(--cy);box-shadow:0 4px 6px rgba(0,0,0,.35),0 0 14px rgba(0,229,255,.4);}
+.kw .kl{font:600 9px 'Rajdhani',sans-serif;color:#999;background:rgba(0,0,0,.05);padding:1px 5px;border-radius:2px;}
+.kw .kn{font:8px 'Share Tech Mono',monospace;color:#aaa;margin-top:2px;}
+
+.bk{position:absolute;z-index:2;cursor:pointer;width:28px;height:112px;top:0;
+background:linear-gradient(180deg,#252525 0%,#1c1c1c 40%,#131313 85%,#2a2a2a 100%);
+border:1px solid #000;border-top:none;border-radius:0 0 4px 4px;
+box-shadow:0 5px 8px rgba(0,0,0,.6),inset 0 -1px 2px rgba(255,255,255,.06),inset 0 0 6px rgba(0,0,0,.4);
+transition:all .05s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;}
+.bk:active,.bk.act{background:linear-gradient(180deg,#1a1a1a,#151515 60%,#222);
+box-shadow:0 2px 4px rgba(0,0,0,.5),inset 0 1px 3px rgba(0,0,0,.5);height:109px;}
+.bk.hl{background:linear-gradient(180deg,rgba(57,255,20,.25),#1a1a1a 55%,rgba(57,255,20,.12));box-shadow:0 5px 8px rgba(0,0,0,.6),0 0 10px rgba(57,255,20,.3);}
+.bk.ahl{background:linear-gradient(180deg,rgba(0,229,255,.3),#1a1a1a 55%,rgba(0,229,255,.15));box-shadow:0 5px 8px rgba(0,0,0,.6),0 0 12px rgba(0,229,255,.4);}
+.bk .kl{font:600 8px 'Rajdhani',sans-serif;color:#666;}
+
+/* ═══ TABS ═══ */
+.tabs{display:flex;gap:0;margin-top:20px;}
+.tb{font:600 10px 'Orbitron',sans-serif;letter-spacing:2px;padding:11px 20px;cursor:pointer;
+background:var(--s1);color:var(--dm);border:1px solid var(--bd);border-bottom:none;transition:all .2s;position:relative;top:1px;}
+.tb:first-child{border-radius:8px 0 0 0;}.tb:last-child{border-radius:0 8px 0 0;}
+.tb.on{background:var(--s2);}
+.tb[data-t="songs"].on{color:var(--lm);border-color:var(--lm);box-shadow:0 0 8px rgba(57,255,20,.12);}
+.tb[data-t="synth"].on{color:var(--mg);border-color:var(--mg);box-shadow:0 0 8px rgba(255,0,144,.12);}
+.tb[data-t="looper"].on{color:var(--yl);border-color:var(--yl);box-shadow:0 0 8px rgba(255,230,0,.12);}
+.tc{display:none;border:1px solid var(--bd);border-radius:0 8px 8px 8px;background:var(--s2);padding:20px;min-height:200px;}
+.tc.on{display:block;}
+
+/* ═══ SONGS ═══ */
+.scats{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+.cb{font:600 9px 'Orbitron',sans-serif;letter-spacing:2px;padding:7px 16px;cursor:pointer;
+background:var(--s1);color:var(--dm);border:1px solid var(--bd);border-radius:20px;transition:all .15s;}
+.cb.on{color:var(--lm);border-color:var(--lm);box-shadow:0 0 6px rgba(57,255,20,.2);}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.sc{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:16px;transition:all .2s;overflow:hidden;}
+.sc:hover{border-color:rgba(0,229,255,.3);}
+.sc.np{border-color:var(--cy);box-shadow:0 0 16px rgba(0,229,255,.15);}
+.sc.lrn{border-color:var(--lm);box-shadow:0 0 16px rgba(57,255,20,.15);}
+.stag{font:800 8px 'Orbitron',sans-serif;letter-spacing:2px;padding:3px 8px;border-radius:3px;display:inline-block;margin-bottom:8px;}
+.sn{font:700 15px 'Rajdhani',sans-serif;color:var(--tx);margin-bottom:2px;}
+.sa{font:12px 'Share Tech Mono',monospace;color:var(--dm);margin-bottom:12px;}
+.sbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.sb{font:600 10px 'Orbitron',sans-serif;letter-spacing:1px;padding:7px 16px;cursor:pointer;
+background:0;border:1px solid;border-radius:5px;transition:all .15s;}
+.sb:hover{filter:brightness(1.2);}
+.sb.pb{border-color:var(--cy);color:var(--cy);}
+.sb.lb{border-color:var(--lm);color:var(--lm);}
+.sb.xb{border-color:var(--or);color:var(--or);}
+.spc{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.spc label{font:9px 'Share Tech Mono',monospace;color:var(--dm);}
+.spc select{font:10px 'Share Tech Mono',monospace;background:var(--s1);color:var(--tx);border:1px solid var(--bd);padding:4px 6px;border-radius:4px;outline:0;}
+.prg{width:100%;height:3px;background:var(--bd);border-radius:2px;margin-top:10px;overflow:hidden;display:none;}
+.prg.vis{display:block;}
+.prf{height:100%;background:var(--cy);border-radius:2px;transition:width .2s linear;width:0%;}
+.lprog{font:10px 'Share Tech Mono',monospace;color:var(--lm);margin-top:8px;}
+
+/* ═══ SYNTH ═══ */
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:520px;}
+.pad{aspect-ratio:1;border:2px solid;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;
+align-items:center;justify-content:center;gap:8px;background:var(--s1);transition:all .1s;position:relative;overflow:hidden;}
+.pad::before{content:'';position:absolute;inset:0;border-radius:8px;background:radial-gradient(circle at 50% 40%,currentColor,transparent 70%);opacity:0;transition:opacity .15s;}
+.pad:active::before,.pad.act::before{opacity:.12;}
+.pad:active,.pad.act{transform:scale(.93);}
+
+/* ═══ LOOPER ═══ */
+.lph{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.lpt{font:700 12px 'Orbitron',sans-serif;color:var(--tx);letter-spacing:4px;}
+.lpbs{display:flex;gap:8px;align-items:center;}
+.lpb{font:600 10px 'Orbitron',sans-serif;letter-spacing:2px;padding:8px 18px;border:1px solid;background:0;cursor:pointer;border-radius:5px;transition:all .15s;}
+.lpb:hover{filter:brightness(1.2);}
+.tr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(28,28,58,.35);}
+.tr:last-child{border-bottom:none;}
+.td{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.tl{font:700 11px 'Share Tech Mono',monospace;width:48px;flex-shrink:0;letter-spacing:1px;}
+.tt{flex:1;height:22px;background:var(--bg);border:1px solid rgba(28,28,58,.5);border-radius:4px;position:relative;overflow:hidden;}
+.tt .ev{position:absolute;top:50%;width:5px;height:5px;border-radius:50%;transform:translate(-50%,-50%);}
+.tt .el{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:9px 'Share Tech Mono',monospace;color:rgba(74,74,112,.4);}
+.ta{display:flex;gap:4px;flex-shrink:0;}
+.tb2{font:10px 'Share Tech Mono',monospace;padding:4px 10px;background:0;border:1px solid var(--bd);
+color:var(--dm);cursor:pointer;border-radius:3px;transition:all .12s;}
+.tb2:hover{border-color:var(--tx);color:var(--tx);}
+.tb2.ra{border-color:#ff3333;color:#ff3333;animation:rb 1s infinite;}
+
+.sbar{text-align:center;padding:14px 0 0;font:11px 'Share Tech Mono',monospace;color:var(--dm);letter-spacing:3px;}
+
+@media(max-width:700px){.pgrid{grid-template-columns:repeat(3,1fr);}.tb{padding:9px 12px;font-size:8px;letter-spacing:1px;}.sgrid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="scanl"></div>
+
+<div id="splash">
+  <h1>NEON</h1><h2>MUSIC STATION</h2>
+  <div class="spl"></div>
+  <button id="startBtn" onclick="boot()">▶ INSERT COIN</button>
+  <p class="sh">click to initialize audio engine</p>
+</div>
+
+<div id="app">
+  <div class="hdr">
+    <span class="hdr-t">NEON STATION</span>
+  </div>
+
+  <div class="piano-section">
+    <div class="piano-body">
+      <div class="piano-hint">Keys <b>A–;</b> white &nbsp; <b>W E T Y U O P</b> black &nbsp;│&nbsp; scroll → for full 3-octave range</div>
+      <div class="pw">
+        <div class="oct-bar" id="obar"></div>
+        <div class="kb" id="kb"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tb on" data-t="songs" onclick="stab('songs')">♫ SONGS</button>
+    <button class="tb" data-t="synth" onclick="stab('synth')">◧ SYNTH</button>
+    <button class="tb" data-t="looper" onclick="stab('looper')">◉ LOOPER</button>
+  </div>
+
+  <div class="tc on" id="tc-songs"><div class="scats" id="scats"></div><div class="sgrid" id="sgrid"></div></div>
+  <div class="tc" id="tc-synth"><div class="pgrid" id="pgrid"></div></div>
+  <div class="tc" id="tc-looper">
+    <div class="lph">
+      <span class="lpt">◉ LOOP MIXER</span>
+      <div class="lpbs">
+        <label style="font:11px 'Share Tech Mono',monospace;color:var(--dm)">LOOP <span id="lv">4</span>s</label>
+        <input type="range" min="2" max="8" step="0.5" value="4" style="-webkit-appearance:none;width:80px;height:4px;background:#1c1c3a;border-radius:2px;outline:0;vertical-align:middle;cursor:pointer;" oninput="loopLen=this.value*1000;document.getElementById('lv').textContent=this.value">
+        <button class="lpb" id="paBtn" style="border-color:var(--lm);color:var(--lm)" onclick="toggleLP()">▶ PLAY</button>
+      </div>
+    </div>
+    <div id="trC"></div>
+  </div>
+
+  <div class="sbar" id="sbar">READY</div>
+</div>
+
+<script>
+const ALL=['C3','C#3','D3','D#3','E3','F3','F#3','G3','G#3','A3','A#3','B3',
+'C4','C#4','D4','D#4','E4','F4','F#4','G4','G#4','A4','A#4','B4',
+'C5','C#5','D5','D#5','E5','F5','F#5','G5','G#5','A5','A#5','B5','C6'];
+const isBk=n=>/^[A-G]#/.test(n);
+const whites=ALL.filter(n=>!isBk(n));
+const blacks=ALL.filter(n=>isBk(n));
+const KM={'a':'C4','w':'C#4','s':'D4','e':'D#4','d':'E4','f':'F4','t':'F#4',
+'g':'G4','y':'G#4','h':'A4','u':'A#4','j':'B4','k':'C5','o':'C#5','l':'D5','p':'D#5',';':'E5'};
+const TC=['#00e5ff','#ff0090','#39ff14','#ffe600'];
+
+const SONGS=[
+// HIP-HOP
+{name:"Still D.R.E.",artist:"Dr. Dre ft. Snoop Dogg",cat:"hip-hop",color:"#ff0090",
+notes:[['C5',150],['C5',150],['A#4',150],['A#4',150],['G#4',150],['G#4',150],['G4',300],
+['C5',150],['C5',150],['A#4',150],['A#4',150],['G#4',150],['G#4',150],['G4',300],
+['D#5',150],['D#5',150],['D5',150],['D5',150],['C5',150],['C5',150],['A#4',300],
+['D#5',150],['D#5',150],['D5',150],['D5',150],['C5',150],['C5',150],['A#4',300]]},
+{name:"Lose Yourself",artist:"Eminem",cat:"hip-hop",color:"#ff6a00",
+notes:[['D4',180],['D4',180],['D4',180],['D4',180],['D4',180],['D4',180],['D4',180],['F4',180],
+['D4',180],['D4',180],['D4',180],['C4',180],['C4',180],['A#3',360],
+['D4',180],['D4',180],['D4',180],['D4',180],['D4',180],['F4',180],
+['D4',180],['D4',180],['C4',180],['A3',360]]},
+{name:"In Da Club",artist:"50 Cent",cat:"hip-hop",color:"#b44aff",
+notes:[['E4',170],['G4',170],['E4',170],['B4',340],['A4',170],['G4',170],['E4',340],
+['E4',170],['G4',170],['E4',170],['A4',340],['G4',170],['E4',170],['D4',340],
+['E4',170],['G4',170],['E4',170],['B4',340],['A4',170],['G4',170],['E4',340]]},
+{name:"Nuthin' but a 'G' Thang",artist:"Dr. Dre ft. Snoop Dogg",cat:"hip-hop",color:"#ffe600",
+notes:[['G3',250],['A#3',250],['C4',250],['D4',500],['C4',250],['A#3',250],['G3',500],
+['G3',250],['A#3',250],['C4',250],['D#4',500],['D4',250],['C4',250],['A#3',500]]},
+// POP
+{name:"Flowers",artist:"Miley Cyrus",cat:"pop",color:"#ff0090",
+notes:[['A4',280],['A4',280],['G4',280],['E4',280],['E4',560],
+['A4',280],['A4',280],['G4',280],['E4',280],['D4',560],
+['E4',280],['E4',280],['G4',280],['A4',280],['G4',560],['E4',280],['D4',280],['C4',560]]},
+{name:"Cruel Summer",artist:"Taylor Swift",cat:"pop",color:"#ffe600",
+notes:[['E4',190],['E4',190],['F#4',190],['G4',190],['A4',380],['G4',190],['F#4',190],['E4',380],
+['E4',190],['E4',190],['F#4',190],['G4',190],['B4',380],['A4',190],['G4',190],['F#4',380],
+['D4',190],['E4',190],['F#4',190],['G4',190],['A4',380],['G4',380],['E4',380]]},
+{name:"Espresso",artist:"Sabrina Carpenter",cat:"pop",color:"#00e5ff",
+notes:[['G4',230],['A4',230],['B4',230],['D5',460],['B4',230],['A4',230],['G4',460],
+['G4',230],['A4',230],['B4',230],['A4',230],['G4',230],['E4',460],
+['G4',230],['A4',230],['B4',230],['D5',460],['B4',230],['A4',230],['G4',460]]},
+{name:"Vampire",artist:"Olivia Rodrigo",cat:"pop",color:"#b44aff",
+notes:[['E4',280],['G4',280],['B4',280],['A4',280],['G4',280],['E4',560],
+['D4',280],['E4',280],['G4',280],['F#4',560],['E4',280],['D4',560],
+['E4',280],['G4',280],['B4',280],['C5',280],['B4',280],['A4',280],['G4',560]]},
+{name:"Someone Like You",artist:"Adele",cat:"pop",color:"#ff0090",
+notes:[['E4',320],['E4',320],['E4',320],['G4',320],['F#4',640],['E4',320],['D4',640],
+['E4',320],['E4',320],['E4',320],['G4',320],['A4',640],['G4',320],['E4',640]]},
+{name:"All of Me",artist:"John Legend",cat:"pop",color:"#ff6a00",
+notes:[['E4',350],['G4',350],['A4',350],['G4',700],['E4',350],['D4',350],['C4',700],
+['E4',350],['G4',350],['A4',350],['C5',700],['B4',350],['A4',350],['G4',700]]},
+// CLASSICAL
+{name:"Für Elise",artist:"Beethoven",cat:"classical",color:"#00e5ff",
+notes:[['E5',180],['D#5',180],['E5',180],['D#5',180],['E5',180],['B4',180],['D5',180],['C5',180],['A4',360],
+['C4',180],['E4',180],['A4',180],['B4',360],['E4',180],['G#4',180],['B4',180],['C5',360],
+['E4',180],['E5',180],['D#5',180],['E5',180],['D#5',180],['E5',180],['B4',180],['D5',180],['C5',180],['A4',360]]},
+{name:"Moonlight Sonata",artist:"Beethoven",cat:"classical",color:"#b44aff",
+notes:[['G#3',380],['C#4',380],['E4',380],['G#3',380],['C#4',380],['E4',380],
+['G#3',380],['C#4',380],['E4',380],['G#3',380],['C#4',380],['E4',380],
+['A3',380],['C#4',380],['E4',380],['A3',380],['C#4',380],['E4',380]]},
+{name:"Canon in D",artist:"Pachelbel",cat:"classical",color:"#39ff14",
+notes:[['F#5',450],['E5',450],['D5',450],['C#5',450],['B4',450],['A4',450],['B4',450],['C#5',450],
+['D5',450],['C#5',450],['B4',450],['A4',450],['G4',450],['F#4',450],['G4',450],['A4',450]]},
+{name:"River Flows in You",artist:"Yiruma",cat:"classical",color:"#ffe600",
+notes:[['A4',190],['B4',190],['C5',280],['B4',190],['A4',190],['E4',380],['A4',190],['B4',190],
+['C5',280],['D5',190],['C5',190],['B4',280],['A4',190],['G4',380],
+['A4',190],['B4',190],['C5',280],['B4',190],['A4',190],['E5',380],['D5',190],['C5',190],['B4',380]]},
+// BEGINNER
+{name:"Twinkle Twinkle",artist:"Traditional",cat:"beginner",color:"#39ff14",
+notes:[['C4',380],['C4',380],['G4',380],['G4',380],['A4',380],['A4',380],['G4',760],
+['F4',380],['F4',380],['E4',380],['E4',380],['D4',380],['D4',380],['C4',760]]},
+{name:"Happy Birthday",artist:"Traditional",cat:"beginner",color:"#ffe600",
+notes:[['C4',220],['C4',220],['D4',440],['C4',440],['F4',440],['E4',880],
+['C4',220],['C4',220],['D4',440],['C4',440],['G4',440],['F4',880]]},
+{name:"Ode to Joy",artist:"Beethoven",cat:"beginner",color:"#00e5ff",
+notes:[['E4',320],['E4',320],['F4',320],['G4',320],['G4',320],['F4',320],['E4',320],['D4',320],
+['C4',320],['C4',320],['D4',320],['E4',320],['E4',480],['D4',180],['D4',640]]},
+{name:"Mary Had a Little Lamb",artist:"Traditional",cat:"beginner",color:"#ff0090",
+notes:[['E4',350],['D4',350],['C4',350],['D4',350],['E4',350],['E4',350],['E4',700],
+['D4',350],['D4',350],['D4',700],['E4',350],['G4',350],['G4',700],
+['E4',350],['D4',350],['C4',350],['D4',350],['E4',350],['E4',350],['E4',350],['E4',350],
+['D4',350],['D4',350],['E4',350],['D4',350],['C4',700]]},
+];
+
+const PADS=[
+{n:'C3',l:'BASS',c:'#ff0090',o:'sawtooth'},{n:'E3',l:'LEAD',c:'#00e5ff',o:'square'},
+{n:'G3',l:'PAD',c:'#39ff14',o:'sine'},{n:'B3',l:'BUZZ',c:'#ffe600',o:'triangle'},
+{n:'C4',l:'STAB',c:'#ff6a00',o:'sawtooth'},{n:'D4',l:'PLUK',c:'#b44aff',o:'square'},
+{n:'F4',l:'WARP',c:'#00e5ff',o:'fmsine'},{n:'A4',l:'BELL',c:'#ff0090',o:'amsine'},
+{n:'C5',l:'ZAP',c:'#39ff14',o:'fmsawtooth'},{n:'E5',l:'BLIP',c:'#ffe600',o:'amsquare'},
+{n:'G5',l:'CHIRP',c:'#ff6a00',o:'fmtriangle'},{n:'C6',l:'TING',c:'#b44aff',o:'sine'},
+];
+
+let pSyn,sPads={},loopLen=4000;
+let tracks=[{ev:[],m:0},{ev:[],m:0},{ev:[],m:0},{ev:[],m:0}];
+let rec=-1,lping=false,recS=0,lpI=null,lpTOs=[];
+let autoP=false,autoTOs=[],curSong=-1,spd=1;
+let learnOn=false,learnIdx=-1,learnSt=0;
+
+async function boot(){
+  await Tone.start();
+  const vol=new Tone.Volume(-6).toDestination();
+  const rev=new Tone.Reverb({decay:1.6,wet:0.16}).connect(vol);
+  pSyn=new Tone.PolySynth(Tone.Synth,{oscillator:{type:'triangle8'},
+    envelope:{attack:0.005,decay:0.3,sustain:0.15,release:0.9},volume:-4}).connect(rev);
+  PADS.forEach(p=>{
+    const t=p.o.startsWith('fm')?'fmsine':p.o.startsWith('am')?'amsine':p.o;
+    sPads[p.n]=new Tone.Synth({oscillator:{type:t},envelope:{attack:0.02,decay:0.4,sustain:0.25,release:1},volume:-8}).connect(rev);
+  });
+  document.getElementById('splash').classList.add('hid');
+  document.getElementById('app').classList.add('on');
+  buildPiano();buildPads();buildSongs();buildTrks();bindKeys();
+}
+
+function buildPiano(){
+  const kb=document.getElementById('kb');kb.innerHTML='';
+  const ob=document.getElementById('obar');ob.innerHTML='';
+  const wW=100/whites.length;
+  ['C3','C4','C5','C6'].forEach(o=>{
+    const s=document.createElement('span');s.className='oct-lbl';s.textContent=o;
+    if(o==='C6')s.style.flex='1';ob.appendChild(s);
+  });
+  whites.forEach(n=>{
+    const el=document.createElement('div');el.className='kw';el.dataset.note=n;
+    const mp=Object.entries(KM).find(([k,v])=>v===n);
+    el.innerHTML=`${mp?`<span class="kl">${mp[0].toUpperCase()}</span>`:''}
+      <span class="kn">${n}</span>`;
+    el.onpointerdown=()=>{el.classList.add('act');pn(n,'piano');chkL(n);};
+    el.onpointerup=()=>el.classList.remove('act');
+    el.onpointerleave=()=>el.classList.remove('act');
+    kb.appendChild(el);
+  });
+  blacks.forEach(n=>{
+    const idx=ALL.indexOf(n);
+    const wb=ALL.slice(0,idx).filter(x=>!isBk(x)).length;
+    const el=document.createElement('div');el.className='bk';el.dataset.note=n;
+    const mp=Object.entries(KM).find(([k,v])=>v===n);
+    el.innerHTML=mp?`<span class="kl">${mp[0].toUpperCase()}</span>`:'';
+    el.style.left=`calc(${wb*wW}% - 14px)`;
+    el.onpointerdown=e=>{e.stopPropagation();el.classList.add('act');pn(n,'piano');chkL(n);};
+    el.onpointerup=()=>el.classList.remove('act');
+    el.onpointerleave=()=>el.classList.remove('act');
+    kb.appendChild(el);
+  });
+}
+
+function fk(note,cls,dur){const el=document.querySelector(`[data-note="${note}"]`);
+if(!el)return;el.classList.add(cls);setTimeout(()=>el.classList.remove(cls),dur||120);}
+
+function buildPads(){
+  const g=document.getElementById('pgrid');g.innerHTML='';
+  PADS.forEach(p=>{
+    const el=document.createElement('div');el.className='pad';
+    el.style.borderColor=p.c+'55';el.style.color=p.c;
+    el.innerHTML=`<div style="width:8px;height:8px;border-radius:50%;background:${p.c};box-shadow:0 0 6px ${p.c};position:relative;z-index:1"></div>
+      <span style="font:700 11px 'Orbitron',sans-serif;letter-spacing:2px;color:${p.c};position:relative;z-index:1">${p.l}</span>
+      <span style="font:9px 'Share Tech Mono',monospace;color:var(--dm);position:relative;z-index:1">${p.n}</span>`;
+    el.onpointerdown=()=>{el.classList.add('act');el.style.borderColor=p.c;el.style.boxShadow=`0 0 14px ${p.c}44`;
+      pn(p.n,'synth');setTimeout(()=>{el.classList.remove('act');el.style.borderColor=p.c+'55';el.style.boxShadow='none';},280);};
+    g.appendChild(el);
+  });
+}
+
+function buildSongs(){
+  const cats=['all','hip-hop','pop','classical','beginner'];
+  const cc=document.getElementById('scats');cc.innerHTML='';
+  cats.forEach((c,i)=>{
+    const b=document.createElement('button');b.className='cb'+(i===0?' on':'');b.textContent=c.toUpperCase();
+    b.onclick=()=>{document.querySelectorAll('.cb').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderS(c);};
+    cc.appendChild(b);
+  });
+  renderS('all');
+}
+
+function renderS(cat){
+  const g=document.getElementById('sgrid');g.innerHTML='';
+  SONGS.forEach((s,i)=>{
+    if(cat!=='all'&&s.cat!==cat)return;
+    const c=document.createElement('div');c.className='sc';c.id='sc-'+i;
+    c.innerHTML=`<span class="stag" style="background:${s.color}22;color:${s.color};border:1px solid ${s.color}44">${s.cat.toUpperCase()}</span>
+      <div class="sn">${s.name}</div><div class="sa">${s.artist}</div>
+      <div class="sbtns">
+        <button class="sb pb" id="pb-${i}" onclick="togAP(${i})">▶ AUTO PLAY</button>
+        <button class="sb lb" id="lb-${i}" onclick="togLrn(${i})">♫ LEARN</button>
+        <div class="spc"><label>SPEED</label>
+          <select onchange="spd=parseFloat(this.value)"><option value="0.5">0.5×</option><option value="0.75">0.75×</option>
+          <option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select>
+        </div>
+      </div>
+      <div class="prg" id="pr-${i}"><div class="prf" id="pf-${i}"></div></div>
+      <div class="lprog" id="lp-${i}"></div>`;
+    g.appendChild(c);
+  });
+}
+
+// ═══ AUTO PLAY ═══
+function togAP(i){
+  if(autoP&&curSong===i){stopAP();return;}
+  stopAP();stopLrn();
+  autoP=true;curSong=i;
+  const card=document.getElementById('sc-'+i);if(card)card.classList.add('np');
+  const btn=document.getElementById('pb-'+i);if(btn){btn.textContent='⏹ STOP';btn.className='sb xb';}
+  const pr=document.getElementById('pr-'+i);if(pr)pr.classList.add('vis');
+  stab('songs');
+  const s=SONGS[i];let t=0;
+  const tot=s.notes.reduce((a,n)=>a+n[1],0);
+  s.notes.forEach(n=>{
+    autoTOs.push(setTimeout(()=>{
+      if(!autoP)return;
+      pn(n[0],'piano');fk(n[0],'ahl',Math.min(n[1]/spd-20,300));
+      const pf=document.getElementById('pf-'+i);if(pf)pf.style.width=((t+n[1])/tot*100)+'%';
+    },t/spd));t+=n[1];
+  });
+  autoTOs.push(setTimeout(()=>stopAP(),(t+200)/spd));
+  uSt();
+}
+function stopAP(){
+  autoTOs.forEach(t=>clearTimeout(t));autoTOs=[];
+  if(curSong>=0){
+    const c=document.getElementById('sc-'+curSong);if(c)c.classList.remove('np');
+    const b=document.getElementById('pb-'+curSong);if(b){b.textContent='▶ AUTO PLAY';b.className='sb pb';}
+    const p=document.getElementById('pr-'+curSong);if(p)p.classList.remove('vis');
+    const f=document.getElementById('pf-'+curSong);if(f)f.style.width='0%';
+  }
+  autoP=false;curSong=-1;
+  document.querySelectorAll('.ahl').forEach(e=>e.classList.remove('ahl'));uSt();
+}
+
+// ═══ LEARN ═══
+function togLrn(i){
+  if(learnOn&&learnIdx===i){stopLrn();return;}
+  stopLrn();stopAP();
+  learnOn=true;learnIdx=i;learnSt=0;
+  const b=document.getElementById('lb-'+i);if(b){b.textContent='✕ EXIT';b.className='sb xb';}
+  const c=document.getElementById('sc-'+i);if(c)c.classList.add('lrn');
+  hlN();uSt();
+  // Scroll piano to show the first note
+  const note=SONGS[i].notes[0][0];
+  const el=document.querySelector(`[data-note="${note}"]`);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+function stopLrn(){
+  if(learnIdx>=0){
+    const b=document.getElementById('lb-'+learnIdx);if(b){b.textContent='♫ LEARN';b.className='sb lb';}
+    const c=document.getElementById('sc-'+learnIdx);if(c)c.classList.remove('lrn');
+    const l=document.getElementById('lp-'+learnIdx);if(l)l.textContent='';
+  }
+  learnOn=false;learnIdx=-1;learnSt=0;clHL();uSt();
+}
+function hlN(){
+  clHL();if(!learnOn||learnIdx<0)return;
+  const s=SONGS[learnIdx];
+  if(learnSt>=s.notes.length){
+    const l=document.getElementById('lp-'+learnIdx);if(l)l.textContent='✓ COMPLETE! Great job!';
+    setTimeout(()=>stopLrn(),2500);return;
+  }
+  const note=s.notes[learnSt][0];
+  const el=document.querySelector(`[data-note="${note}"]`);if(el)el.classList.add('hl');
+  const l=document.getElementById('lp-'+learnIdx);
+  if(l)l.textContent=`Step ${learnSt+1}/${s.notes.length} — Play ${note}`;
+}
+function clHL(){document.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl'));}
+function chkL(note){
+  if(!learnOn||learnIdx<0)return;
+  const s=SONGS[learnIdx];if(learnSt>=s.notes.length)return;
+  if(s.notes[learnSt][0]===note){learnSt++;hlN();uSt();}
+}
+
+// ═══ LOOPER ═══
+function buildTrks(){
+  const c=document.getElementById('trC');c.innerHTML='';
+  tracks.forEach((_,i)=>{
+    const r=document.createElement('div');r.className='tr';r.id='tr-'+i;
+    r.innerHTML=`<div class="td" style="background:${TC[i]};box-shadow:0 0 6px ${TC[i]}"></div>
+      <span class="tl" style="color:${TC[i]}">TRK${i+1}</span>
+      <div class="tt" id="tt-${i}"><span class="el">empty</span></div>
+      <div class="ta">
+        <button class="tb2" id="rb-${i}" onclick="togRec(${i})">⏺</button>
+        <button class="tb2" id="mb-${i}" onclick="togMut(${i})">🔊</button>
+        <button class="tb2" onclick="clrT(${i})">✕</button>
+      </div>`;c.appendChild(r);
+  });
+}
+function rTL(i){
+  const t=document.getElementById('tt-'+i);if(!t)return;t.innerHTML='';
+  if(!tracks[i].ev.length){t.innerHTML='<span class="el">empty</span>';return;}
+  tracks[i].ev.forEach(ev=>{
+    const d=document.createElement('div');d.className='ev';
+    d.style.left=(ev.t/loopLen*100)+'%';d.style.background=TC[i];d.style.boxShadow=`0 0 4px ${TC[i]}`;
+    t.appendChild(d);
+  });
+}
+function togRec(i){
+  if(rec===i){rec=-1;document.getElementById('rb-'+i).classList.remove('ra');document.getElementById('rb-'+i).textContent='⏺';uSt();return;}
+  if(rec>=0){document.getElementById('rb-'+rec).classList.remove('ra');document.getElementById('rb-'+rec).textContent='⏺';}
+  tracks[i].ev=[];rTL(i);rec=i;recS=Date.now();
+  document.getElementById('rb-'+i).classList.add('ra');document.getElementById('rb-'+i).textContent='⏺REC';uSt();
+}
+function togMut(i){
+  tracks[i].m=!tracks[i].m;document.getElementById('mb-'+i).textContent=tracks[i].m?'🔇':'🔊';
+  const d=document.querySelector(`#tr-${i} .td`),l=document.querySelector(`#tr-${i} .tl`);
+  if(d)d.style.opacity=tracks[i].m?.3:1;if(l)l.style.opacity=tracks[i].m?.4:1;
+}
+function clrT(i){tracks[i]={ev:[],m:0};rTL(i);document.getElementById('mb-'+i).textContent='🔊';
+const d=document.querySelector(`#tr-${i} .td`),l=document.querySelector(`#tr-${i} .tl`);
+if(d)d.style.opacity=1;if(l)l.style.opacity=1;}
+function toggleLP(){
+  if(lping){stopLP();return;}if(rec>=0)togRec(rec);lping=true;
+  document.getElementById('paBtn').textContent='⏹ STOP';
+  document.getElementById('paBtn').style.borderColor='#ff6a00';document.getElementById('paBtn').style.color='#ff6a00';
+  uSt();schLP();lpI=setInterval(schLP,loopLen);
+}
+function stopLP(){
+  lping=false;clearInterval(lpI);lpTOs.forEach(t=>clearTimeout(t));lpTOs=[];
+  document.getElementById('paBtn').textContent='▶ PLAY';
+  document.getElementById('paBtn').style.borderColor='#39ff14';document.getElementById('paBtn').style.color='#39ff14';uSt();
+}
+function schLP(){
+  tracks.forEach((trk,i)=>{if(trk.m||!trk.ev.length)return;
+    trk.ev.forEach(ev=>{lpTOs.push(setTimeout(()=>{pn(ev.n,ev.i);fk(ev.n,'act',120);},ev.t));});
+  });
+}
+
+function pn(note,inst){
+  if(inst==='piano'&&pSyn)pSyn.triggerAttackRelease(note,'8n');
+  else if(inst==='synth'&&sPads[note])sPads[note].triggerAttackRelease(note,'4n');
+  if(rec>=0){const t=(Date.now()-recS)%loopLen;tracks[rec].ev.push({n:note,i:inst,t});rTL(rec);}
+}
+
+function bindKeys(){
+  const held=new Set();
+  document.addEventListener('keydown',e=>{
+    if(e.repeat||e.target.tagName==='SELECT')return;
+    const k=e.key.toLowerCase();const n=KM[k]||KM[e.key];
+    if(n&&!held.has(k)){held.add(k);const el=document.querySelector(`[data-note="${n}"]`);
+    if(el)el.classList.add('act');pn(n,'piano');chkL(n);}
+  });
+  document.addEventListener('keyup',e=>{
+    const k=e.key.toLowerCase();held.delete(k);const n=KM[k]||KM[e.key];
+    if(n){const el=document.querySelector(`[data-note="${n}"]`);if(el)el.classList.remove('act');}
+  });
+}
+
+function stab(t){
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tc').forEach(c=>c.classList.remove('on'));
+  document.querySelector(`[data-t="${t}"]`).classList.add('on');
+  document.getElementById('tc-'+t).classList.add('on');
+}
+
+function uSt(msg){
+  const b=document.getElementById('sbar');
+  if(msg){b.textContent=msg;return;}
+  if(learnOn&&learnIdx>=0)b.textContent=`LEARN: ${SONGS[learnIdx].name.toUpperCase()} — ${learnSt}/${SONGS[learnIdx].notes.length}`;
+  else if(autoP&&curSong>=0)b.textContent=`▶ NOW PLAYING: ${SONGS[curSong].name.toUpperCase()}`;
+  else if(rec>=0)b.textContent=`⏺ RECORDING TRK ${rec+1}...`;
+  else if(lping)b.textContent='▶ LOOPER PLAYING...';
+  else b.textContent='READY';
+}
+</script>
+</body>
+</html>

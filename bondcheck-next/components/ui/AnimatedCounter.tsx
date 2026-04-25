@@ -2,12 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const LOCALE_MAP: Record<string, string> = {
+  en: "en-PK", ur: "ur-PK", pa: "pa-Arab-PK", sd: "sd-Arab-PK",
+};
+
 export function AnimatedCounter({
   value,
   format = "number",
+  locale = "en",
 }: {
   value: number;
   format?: "number" | "compact";
+  locale?: string;
 }) {
   const [display, setDisplay] = useState("...");
   const prev = useRef(0);
@@ -19,6 +25,7 @@ export function AnimatedCounter({
     const end = value;
     const duration = 1000;
     const startTime = performance.now();
+    const loc = LOCALE_MAP[locale] ?? "en-PK";
 
     const animate = (now: number) => {
       const elapsed = now - startTime;
@@ -27,13 +34,13 @@ export function AnimatedCounter({
 
       if (format === "compact") {
         setDisplay(
-          Intl.NumberFormat("en-US", {
+          new Intl.NumberFormat(loc, {
             notation: "compact",
             maximumFractionDigits: 1,
           }).format(current)
         );
       } else {
-        setDisplay(current.toLocaleString());
+        setDisplay(new Intl.NumberFormat(loc).format(current));
       }
 
       if (progress < 1) {
@@ -43,7 +50,7 @@ export function AnimatedCounter({
 
     requestAnimationFrame(animate);
     prev.current = value;
-  }, [value, format]);
+  }, [value, format, locale]);
 
   return <>{display}</>;
 }

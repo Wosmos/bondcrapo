@@ -274,8 +274,8 @@ export function BondCheckApp() {
   return (
     <>
       <Header onRefresh={handleRefresh} refreshDisabled={refreshDisabled || isLoading} locale={locale} onLocaleChange={setLocale} t={t} />
-      <StatsDashboard refreshKey={refreshKey} />
-      <MarketPulse />
+      <StatsDashboard refreshKey={refreshKey} locale={locale} t={t} />
+      <MarketPulse locale={locale} t={t} />
       <DrawCountdown />
       <PriceAlerts />
       <WinProbability />
@@ -292,6 +292,7 @@ export function BondCheckApp() {
         scannerDisabled={scannerBtnDisabled}
         exportDisabled={exportDisabled}
         resetDisabled={resetDisabled}
+        t={t}
       />
       <ResultsTable
         draws={data?.draws ?? []}
