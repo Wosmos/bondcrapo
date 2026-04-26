@@ -87,7 +87,7 @@ export function findNearMisses(
   for (const w of winners) {
     if (!tiers.has(w.tier)) continue;
     const mine = byDenomination.get(w.denominationCode);
-    if (!mine || mine.has(w.bondNumber)) continue;
+    if (!mine) continue;
     for (const candidate of oneDigitNeighbours(w.bondNumber)) {
       if (!mine.has(candidate)) continue;
       const reason = classifyNearMiss(candidate, w.bondNumber);

@@ -1,3 +1,3 @@
-import { notImplemented } from "@/server/http";
+import { walletApi } from "@/features/wallet/server/api";
 
-export const POST = () => notImplemented("wallets.rotate-sync-code");
+export const POST = walletApi.rotateSyncCode;

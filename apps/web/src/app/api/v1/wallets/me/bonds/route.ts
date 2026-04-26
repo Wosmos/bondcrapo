@@ -1,4 +1,4 @@
-import { notImplemented } from "@/server/http";
+import { walletApi } from "@/features/wallet/server/api";
 
-export const GET = () => notImplemented("wallets.bonds-list");
-export const PUT = () => notImplemented("wallets.bonds-put");
+export const GET = walletApi.listBonds;
+export const PUT = walletApi.putBonds;
