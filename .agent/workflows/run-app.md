@@ -1,84 +1,59 @@
 ---
-description: Run the BondCheck PRO application
+description: Run the BondCheck Next.js app locally
 ---
 
-# BondCheck PRO - FastAPI + HTMX Application
+# Run BondCheck locally
 
-## Initial Setup (First Time Only)
+The active project is [bondcheck-next/](../../bondcheck-next/) — a Next.js 16 app on Neon Postgres.
 
-1. Install Python dependencies
+## First-time setup
 
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
-## Data Collection & Processing
-
-2. Run the smart scraper (checks DB, only downloads new data)
-   // turbo
+1. Install dependencies
 
 ```bash
-cd backend
-python main.py
+cd bondcheck-next
+bun install
 ```
 
-3. Run the smart parser (checks DB, only parses new files)
-   // turbo
+2. Set env vars in `bondcheck-next/.env.local`
+
+```
+DATABASE_URL=postgres://...
+CRON_SECRET=...
+```
+
+3. Push schema to Neon
 
 ```bash
-cd backend
-python parser.py
+cd bondcheck-next
+bunx drizzle-kit push
 ```
 
-## Start the Application
+## Start the dev server
 
-4. Run the FastAPI server
-   // turbo
+// turbo
 
 ```bash
-cd backend
-python app.py
+cd bondcheck-next
+bun dev
 ```
 
-Alternative: Use uvicorn directly with auto-reload
+## Access points
+
+- App: http://localhost:3000
+- Admin (dev only): http://localhost:3000/admin
+- Health: http://localhost:3000/api/health
+
+## Production build
 
 ```bash
-cd backend
-uvicorn app:app --reload --host 0.0.0.0 --port 8000
+cd bondcheck-next
+bun run build
+bun start
 ```
-
-## Access Points
-
-- Frontend: http://localhost:8000
-- API Docs (Swagger): http://localhost:8000/docs
-- API Docs (ReDoc): http://localhost:8000/redoc
-- Health Check: http://localhost:8000/health
-
-## Update Data (Incremental)
-
-To fetch and parse new prize bond data:
-
-5. Run scraper again (it will skip existing data)
-
-```bash
-cd backend
-python main.py
-```
-
-6. Run parser again (it will skip already-parsed files)
-
-```bash
-cd backend
-python parser.py
-```
-
-The scraper and parser are now smart - they check the database before processing and only handle new data!
 
 ## Notes
 
-- The scraper uses 25 parallel workers for fast downloads
-- The parser uses 10 parallel workers for fast processing
-- Both tools maintain parallelism while avoiding duplicate work
-- FastAPI provides async request handling for better performance
-- The UI remains the same with the Onyx theme and all features intact
+- Cron jobs run on Vercel only — see [bondcheck-next/vercel.json](../../bondcheck-next/vercel.json)
+- Drizzle Studio for browsing data: `bunx drizzle-kit studio`
+- See [bondcheck-next/ROADMAP.md](../../bondcheck-next/ROADMAP.md) for product context
