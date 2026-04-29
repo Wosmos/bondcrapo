@@ -1,5 +1,6 @@
 import { defineRouting } from "next-intl/routing";
-import { DEFAULT_LOCALE, LOCALES } from "@bondcheck/shared";
+// Constants entry only: the package index pulls zod and every contract into client bundles.
+import { DEFAULT_LOCALE, LOCALES } from "@bondcheck/shared/constants";
 
 export const routing = defineRouting({
   locales: [...LOCALES],
