@@ -11,5 +11,13 @@ export default defineConfig({
       "server-only": src("./src/test/server-only.ts"),
     },
   },
-  test: { environment: "node", testTimeout: 120_000, hookTimeout: 120_000 },
+  test: {
+    environment: "node",
+    testTimeout: 120_000,
+    hookTimeout: 120_000,
+    // next-intl imports "next/server" without an extension, which plain Node ESM cannot resolve.
+    server: { deps: { inline: ["next-intl"] } },
+    // Playwright specs run with `pnpm e2e`, not Vitest.
+    exclude: ["**/node_modules/**", "e2e/**"],
+  },
 });
