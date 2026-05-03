@@ -1,1 +1,8 @@
-{ "nav": { "title": "My bonds" } }
+{
+  "nav": { "title": "My bonds" },
+  "push": {
+    "title": "Prize bond win",
+    "singleBody": "Your bond {number} (Rs {denomination}) won Rs {amount} in the draw of {date}.",
+    "manyBody": "{count} of your bonds won in recent draws, Rs {amount} in total."
+  }
+}
