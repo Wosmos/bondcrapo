@@ -1,7 +1,391 @@
 {
   "appName": "BondCheck",
   "tagline": "Prize bond results, your bonds and market rates for Pakistan",
-  "language": { "en": "English", "ur": "اردو" },
-  "actions": { "retry": "Try again", "close": "Close" },
-  "status": { "loading": "Loading", "notImplemented": "This section is coming soon" }
+  "language": {
+    "en": "English",
+    "ur": "اردو"
+  },
+  "actions": {
+    "retry": "Try again",
+    "close": "Close"
+  },
+  "status": {
+    "loading": "Loading",
+    "notImplemented": "This section is coming soon"
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "mainNav": "Main",
+    "tabNav": "Sections",
+    "footerNav": "Footer",
+    "homeLink": "BondCheck home"
+  },
+  "nav": {
+    "home": "Home"
+  },
+  "theme": {
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark",
+    "button": "Theme: {mode}. Activate to change."
+  },
+  "languageSwitch": {
+    "label": "Change language",
+    "to": "اردو",
+    "toLabel": ", read this page in Urdu"
+  },
+  "money": {
+    "rs": "Rs {value}"
+  },
+  "footer": {
+    "blurb": "Prize bond results checked against official files, your bonds kept without an account, and gold and rupee rates with their sources shown.",
+    "explore": "Explore",
+    "company": "About",
+    "about": "About BondCheck",
+    "data": "Data sources and attribution",
+    "privacy": "Privacy",
+    "terms": "Terms of use",
+    "disclaimer": "BondCheck is an independent service. It is not affiliated with National Savings Pakistan, the State Bank of Pakistan or the Government of Pakistan. Always confirm a win with National Savings before you act on it.",
+    "copyright": "© {year} BondCheck. All rights reserved.",
+    "installHint": "Works offline once visited. Add it to your home screen from your browser menu."
+  },
+  "home": {
+    "metaTitle": "BondCheck: prize bond results, gold and rupee rates in Pakistan",
+    "metaDescription": "Check prize bond numbers against every draw back to 2000, keep a private list of your bonds without signing up, and follow gold rates and the dollar in Pakistan.",
+    "hero": {
+      "eyebrow": "Prize bonds · Gold · Rupee",
+      "titleA": "Every draw.",
+      "titleB": "Every bond.",
+      "titleC": "One check.",
+      "lead": "Type a bond number and we check it against every published draw we hold, back to the year 2000, with each result traced to its official source.",
+      "coverage": "See what we cover"
+    },
+    "check": {
+      "legend": "Quick check",
+      "number": "Bond number",
+      "numberHint": "Six digits, exactly as printed on the bond.",
+      "denomination": "Denomination",
+      "any": "All denominations",
+      "submit": "Check now",
+      "many": "Have many bonds? Check ranges and lists",
+      "wallet": "Track my bonds",
+      "walletHint": "No sign-up. We check them on every draw day."
+    },
+    "certificate": {
+      "label": "Illustration of a prize bond",
+      "title": "Prize bond",
+      "issuer": "Checked against the official list",
+      "serial": "Serial",
+      "stamp": "All draws"
+    },
+    "board": {
+      "title": "Today at a glance",
+      "subtitle": "Live from our database. Each figure shows where it came from and when.",
+      "latest": "Latest draws",
+      "allDraws": "All draws",
+      "gold": "Gold, 24 karat",
+      "perTola": "per tola",
+      "goldLink": "Gold rates",
+      "usd": "US dollar to rupee",
+      "openMarket": "Open market",
+      "interbank": "Interbank",
+      "buy": "Buy",
+      "sell": "Sell",
+      "currencyLink": "Currency rates",
+      "reported": "Reported",
+      "estimated": "Estimated",
+      "draw": "Draw {number}",
+      "asOf": "As of {date}",
+      "source": "Source: {source}",
+      "loading": "Loading live figures",
+      "unavailable": "Live figures are not available right now.",
+      "unavailableHint": "Check your connection, or try again in a minute.",
+      "empty": "No figures yet. They appear here after the first update.",
+      "status": {
+        "verified": "Verified",
+        "published": "Published",
+        "disputed": "Under review",
+        "scheduled": "Scheduled"
+      },
+      "rs": "Rs {value}",
+      "premium": "Rs {value} Premium",
+      "retry": "Try again"
+    },
+    "steps": {
+      "title": "How it works",
+      "one": {
+        "title": "Add your bonds",
+        "body": "Type numbers, paste a list, enter a range or scan the bond with your camera. No account, no phone number."
+      },
+      "two": {
+        "title": "We check every draw",
+        "body": "Each number is matched against every draw in our records, for its denomination, from 2000 to today."
+      },
+      "three": {
+        "title": "Hear about wins first",
+        "body": "On draw day your list is checked again automatically, and you can get a notification if a number wins."
+      }
+    },
+    "features": {
+      "title": "Built for the way Pakistan checks bonds",
+      "wallet": {
+        "title": "Private by design",
+        "body": "Your bond list lives behind a random key, not your name. Move it to a new phone with a 12 character sync code, or delete everything in one tap."
+      },
+      "provenance": {
+        "title": "Every result has a receipt",
+        "body": "Draw pages link to the National Savings file they came from, with its fingerprint, so you can verify a result yourself.",
+        "sample": "What every draw page records",
+        "chips": {
+          "file": "Official file",
+          "hash": "SHA-256 fingerprint",
+          "time": "Time fetched"
+        }
+      },
+      "offline": {
+        "title": "Fast on any phone, even offline",
+        "body": "Pages you have opened keep working without internet. Install it from your browser for one tap access."
+      },
+      "urdu": {
+        "title": "اردو میں بھی",
+        "body": "Every page reads naturally in Urdu, right to left, with bond numbers kept exactly as printed."
+      },
+      "app": {
+        "title": "Android app",
+        "body": "Prefer an app? Download it straight from this site, with reminders before every draw.",
+        "cta": "Get the app"
+      }
+    },
+    "trust": {
+      "title": "No sign-up. No tracking. No guesswork.",
+      "body": "We do not ask for your name, phone or CNIC. Market figures that we calculate are labelled Estimated, and figures from a published source are labelled Reported.",
+      "sources": "Read about our data sources"
+    },
+    "cta": {
+      "title": "Your bonds could already have won.",
+      "body": "Old draws are easy to miss. Check them all at once.",
+      "button": "Check my bonds"
+    }
+  },
+  "about": {
+    "metaTitle": "About BondCheck",
+    "metaDescription": "Why BondCheck exists, where its data comes from and how it keeps your bond list private.",
+    "title": "About BondCheck",
+    "lead": "BondCheck helps people in Pakistan find out whether their prize bonds have won, and keeps an eye on gold and rupee rates for them.",
+    "sections": [
+      {
+        "heading": "Why we built it",
+        "paragraphs": [
+          "Millions of prize bonds are held in drawers and envelopes, and prizes go unclaimed because nobody checked an old draw. Checking by hand means reading long lists published every few weeks for each denomination.",
+          "BondCheck checks a number against every draw we hold in one step, and keeps checking on every new draw if you add the bond to your list."
+        ]
+      },
+      {
+        "heading": "What makes it different",
+        "paragraphs": [
+          "Results come from the official National Savings files wherever they exist, and every draw page shows where its list came from. When two sources disagree we say so on the page instead of picking one quietly.",
+          "There is no account and no tracking. The site works in English and Urdu, on slow connections, and offline for pages you have already opened."
+        ]
+      },
+      {
+        "heading": "What it is not",
+        "paragraphs": [
+          "BondCheck is not a bank, a broker or a government service, and it does not buy or sell bonds. Prizes are claimed only through National Savings and authorised bank branches. Always confirm a win with an official source."
+        ]
+      }
+    ],
+    "dataLink": "Data sources and attribution"
+  },
+  "data": {
+    "metaTitle": "Data sources and attribution",
+    "metaDescription": "Where BondCheck gets prize bond results, gold, silver and currency rates, how often they update and how they are checked.",
+    "title": "Data sources and attribution",
+    "lead": "Every figure on BondCheck comes from a named source. This page lists them, explains how we check them and gives the credit their licences ask for.",
+    "bondsHeading": "Prize bond results",
+    "marketsHeading": "Gold, metals and currencies",
+    "role": "Used for",
+    "visit": "Visit {name}",
+    "sources": {
+      "nss": {
+        "name": "National Savings Pakistan (Central Directorate of National Savings)",
+        "role": "Official draw result files, draw schedules and the official list of past draw dates. This is our primary source."
+      },
+      "pkprizebond": {
+        "name": "pkprizebond.com",
+        "role": "Historical full result lists from 2000 to 2023, from an archived copy. Used only where no official file exists."
+      },
+      "prizeinfo": {
+        "name": "prizeinfo.net",
+        "role": "First and second prize records, draw numbers and cities, used to cross-check other sources."
+      },
+      "goldapi": {
+        "name": "gold-api.com",
+        "role": "Spot prices for gold, silver, platinum and palladium in US dollars per troy ounce."
+      },
+      "erapi": {
+        "name": "ExchangeRate-API",
+        "role": "Daily reference exchange rates for over 160 currencies.",
+        "credit": "Rates By Exchange Rate API"
+      },
+      "fawaz": {
+        "name": "Free Currency Exchange Rates API by Fawaz Ahmed",
+        "role": "Historical daily exchange rates (public domain, CC0)."
+      },
+      "sbp": {
+        "name": "State Bank of Pakistan",
+        "role": "Published interbank rates for the Pakistani rupee."
+      },
+      "fap": {
+        "name": "Forex Association of Pakistan",
+        "role": "Open market buying and selling rates for foreign currency in Pakistan."
+      },
+      "app": {
+        "name": "Associated Press of Pakistan, reporting the All Pakistan Sarafa Gems and Jewellers Association",
+        "role": "Daily reported gold rates per tola and per 10 grams in Pakistan."
+      }
+    },
+    "checksHeading": "How results are checked",
+    "checks": [
+      "Every bond number must have six digits, appear once per draw and belong to exactly one prize tier.",
+      "The number of winners in each tier must match the prize table printed in the official file.",
+      "First and second prize numbers must match across every source that has them.",
+      "Every file we read is stored with its SHA-256 fingerprint and the time we fetched it, and linked from the draw page."
+    ],
+    "statusHeading": "What the labels mean",
+    "status": [
+      {
+        "term": "Verified",
+        "text": "At least two independent sources agree on the first and second prizes, or the result comes from an official file published after 2019."
+      },
+      {
+        "term": "Published",
+        "text": "The result comes from a single source and passed every check."
+      },
+      {
+        "term": "Under review",
+        "text": "Sources disagree. The page shows the conflict and both versions until it is resolved."
+      },
+      {
+        "term": "Reported",
+        "text": "A market rate published by a named association or authority."
+      },
+      {
+        "term": "Estimated",
+        "text": "A market rate we calculate from the international spot price, the exchange rate and the metal purity. It can differ from what your jeweller quotes."
+      }
+    ],
+    "crawlerHeading": "Our crawler",
+    "crawler": "BondCheck fetches public pages slowly, at most one request every two seconds per site, identifies itself as BondCheckBot and respects robots.txt. Files that have not changed are never downloaded again.",
+    "coverageLink": "See the coverage report for every denomination and year"
+  },
+  "privacy": {
+    "metaTitle": "Privacy",
+    "metaDescription": "Exactly what BondCheck stores, why, and how to delete it.",
+    "title": "Privacy",
+    "updated": "Last updated {date}",
+    "lead": "BondCheck works without an account. We store as little as we can, and you can delete all of it yourself at any time.",
+    "sections": [
+      {
+        "heading": "What we store when you keep a bond list",
+        "items": [
+          "A random wallet identifier.",
+          "A hashed copy of the secret key held by your browser or phone. We cannot read the key itself.",
+          "A hashed copy of your current sync code, used to move your list to another device.",
+          "The bonds you add: denomination, number and an optional label you type.",
+          "Wins and near misses we find for those bonds, and whether you have seen them.",
+          "Your language and time zone, so reminders arrive at a sensible hour.",
+          "If you turn on notifications: the push address your browser or phone gives us."
+        ]
+      },
+      {
+        "heading": "What we never store",
+        "items": [
+          "Your name, phone number, email address or CNIC.",
+          "Your IP address, location or device details. Rate limits use a one-way hash that cannot be turned back into an address.",
+          "The numbers you check without adding them to a list. Quick checks are not logged."
+        ]
+      },
+      {
+        "heading": "Cookies and analytics",
+        "items": [
+          "One strictly necessary cookie keeps your bond list connected to your browser. It is not used for anything else.",
+          "Your language choice and light or dark theme are remembered in your browser.",
+          "We count page views with a cookieless analytics service. It does not identify you or follow you across sites."
+        ]
+      },
+      {
+        "heading": "Deleting your data",
+        "items": [
+          "Open My bonds, then Settings, then Delete wallet. Your bonds, wins, sync codes and push addresses are removed from our database at once.",
+          "Clearing your browser data removes the copy kept on your device."
+        ]
+      },
+      {
+        "heading": "Where data is kept",
+        "items": [
+          "Data is stored with our hosting and database providers on servers that may be outside Pakistan, encrypted in transit."
+        ]
+      }
+    ],
+    "manageLink": "Export or delete your wallet in My bonds settings"
+  },
+  "terms": {
+    "metaTitle": "Terms of use",
+    "metaDescription": "The terms for using BondCheck.",
+    "title": "Terms of use",
+    "updated": "Last updated {date}",
+    "lead": "By using BondCheck you agree to these terms. They are short, so please read them.",
+    "sections": [
+      {
+        "heading": "Information only",
+        "paragraphs": [
+          "BondCheck shows prize bond results and market rates for information. We check results carefully, but sources can contain mistakes and pages can be out of date. Only National Savings Pakistan can confirm a prize, and only it and authorised bank branches pay prizes."
+        ]
+      },
+      {
+        "heading": "Market rates",
+        "paragraphs": [
+          "Gold, metal and currency figures may be delayed. Figures labelled Estimated are calculated by us and are not a quote from any dealer. Do not rely on them for trading or for any decision with financial consequences."
+        ]
+      },
+      {
+        "heading": "Your bond list",
+        "paragraphs": [
+          "Keep your sync code private: anyone who has it can open your list. If you lose every device and the sync code, we cannot recover the list for you, because we do not know who you are."
+        ]
+      },
+      {
+        "heading": "Fair use",
+        "paragraphs": [
+          "Do not overload the service, scrape it in bulk or try to access other people's lists. We may limit or block traffic that does."
+        ]
+      },
+      {
+        "heading": "No warranty",
+        "paragraphs": [
+          "The service is provided as it is, without any warranty. To the extent the law allows, we are not liable for losses that come from using it or from a result that turns out to be wrong."
+        ]
+      },
+      {
+        "heading": "Changes",
+        "paragraphs": [
+          "We may update these terms. The date at the top of this page shows when they last changed."
+        ]
+      }
+    ]
+  },
+  "offline": {
+    "metaTitle": "You are offline",
+    "title": "You are offline",
+    "body": "This page has not been saved on this device yet. Pages you opened before still work without internet.",
+    "retry": "Try again",
+    "home": "Go to the home page"
+  },
+  "notFound": {
+    "metaTitle": "Page not found",
+    "title": "We could not find that page",
+    "body": "The link may be old or mistyped. Try the home page or check your bonds directly.",
+    "home": "Home page",
+    "check": "Check a bond"
+  }
 }
