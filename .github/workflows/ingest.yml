@@ -1,0 +1,75 @@
+name: Ingest (prize bonds)
+
+# Frequent triggers for the prize bond jobs (PLAN section 5.3). Each run is a short curl to the
+# authenticated cron endpoint; the jobs are idempotent, so a duplicate or late trigger is harmless.
+# Vercel Cron calls the same endpoints once a day as a safety net (apps/web/vercel.json).
+# Market schedules live in their own workflow.
+
+on:
+  schedule:
+    - cron: "0 7-15/2 * * *" # bonds-sync: 07:00 to 15:00 UTC every 2 h (no-op on non-draw days)
+    - cron: "30 2 * * 1" # bonds-verify: Monday 02:30 UTC, re-checks the last 120 days
+    - cron: "0 3 * * 1" # bonds-schedule: Monday 03:00 UTC, refreshes the draw calendar
+  workflow_dispatch:
+    inputs:
+      job:
+        description: Job to run
+        required: true
+        type: choice
+        options: [bonds-sync, bonds-verify, bonds-schedule]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ingest-bonds-${{ github.event.schedule || inputs.job }}
+  cancel-in-progress: false
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Pick the job
+        id: pick
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          INPUT_JOB: ${{ inputs.job }}
+        run: |
+          case "$SCHEDULE" in
+            "0 7-15/2 * * *") job=bonds-sync ;;
+            "30 2 * * 1") job=bonds-verify ;;
+            "0 3 * * 1") job=bonds-schedule ;;
+            *) job="$INPUT_JOB" ;;
+          esac
+          case "$job" in
+            bonds-sync|bonds-verify|bonds-schedule) echo "job=$job" >> "$GITHUB_OUTPUT" ;;
+            *) echo "unknown job: $job" >&2; exit 1 ;;
+          esac
+
+      - name: Call the cron endpoint until the job reports done
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          JOB: ${{ steps.pick.outputs.job }}
+        run: |
+          if [ -z "$APP_BASE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "APP_BASE_URL and CRON_SECRET secrets are required" >&2
+            exit 1
+          fi
+          # Chunked jobs answer done=false; call again (resuming from the saved cursor), at most 20 times.
+          for attempt in $(seq 1 20); do
+            body=$(curl -sS --fail-with-body --max-time 70 -X POST \
+              -H "Authorization: Bearer $CRON_SECRET" \
+              -H "x-trigger: gha" \
+              "$APP_BASE_URL/api/v1/cron/$JOB")
+            echo "$body" | head -c 2000
+            echo
+            done=$(echo "$body" | jq -r '.data.done')
+            status=$(echo "$body" | jq -r '.data.status')
+            if [ "$status" = "failed" ]; then exit 1; fi
+            if [ "$done" = "true" ]; then exit 0; fi
+            sleep 5
+          done
+          echo "job did not finish within 20 calls" >&2
+          exit 1
