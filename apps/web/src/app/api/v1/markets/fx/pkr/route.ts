@@ -1,3 +1,6 @@
-import { notImplemented } from "@/server/http";
+import { fxPkr } from "@bondcheck/shared";
+import { marketsGet } from "@/features/markets/server/route";
+import { getPkrRates } from "@/features/markets/server/service";
 
-export const GET = () => notImplemented("markets.fx-pkr");
+/** GET /api/v1/markets/fx/pkr?kind=open_market|interbank */
+export const GET = marketsGet(fxPkr, (q, store) => getPkrRates(store, q.kind));
