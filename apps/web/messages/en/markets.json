@@ -1,1 +1,279 @@
-{ "nav": { "title": "Gold and currency" } }
+{
+  "nav": {
+    "title": "Gold and currency"
+  },
+  "subnav": {
+    "label": "Markets sections",
+    "gold": "Gold",
+    "silver": "Silver",
+    "metals": "Platinum and palladium",
+    "currency": "Currency"
+  },
+  "common": {
+    "home": "Home",
+    "breadcrumb": "Breadcrumb",
+    "updated": "Updated {time} (Pakistan time)",
+    "stale": "These rates are more than two days old: the source has not published since.",
+    "unavailableTitle": "Rates are not available right now",
+    "unavailableBody": "We could not load the latest numbers. Please check again in a few minutes.",
+    "sample": "Sample data recorded on 15 October 2026 for testing. These are not live prices.",
+    "sources": "Sources and method",
+    "reported": "Reported",
+    "estimated": "Estimated",
+    "up": "Up",
+    "down": "Down",
+    "unchanged": "Unchanged",
+    "sinceClose": "{change} since the last close",
+    "faq": "Frequently asked questions",
+    "perUnit": "per {unit}",
+    "karat": "{karat}K",
+    "purity": "Purity",
+    "unit": "Unit",
+    "price": "Price",
+    "kind": "Type",
+    "spot": "International price",
+    "perOunce": "per troy ounce",
+    "currency": "Currency",
+    "estimateNote": "Estimated prices are calculated from the international spot price, the exchange rate and purity. Shops add making charges and taxes, which vary."
+  },
+  "units": {
+    "tola": "tola",
+    "10g": "10 grams",
+    "g": "gram",
+    "oz": "ounce",
+    "kg": "kilogram"
+  },
+  "metals": {
+    "XAU": "Gold",
+    "XAG": "Silver",
+    "XPT": "Platinum",
+    "XPD": "Palladium"
+  },
+  "countries": {
+    "PK": "Pakistan",
+    "AE": "UAE",
+    "SA": "Saudi Arabia",
+    "QA": "Qatar",
+    "KW": "Kuwait",
+    "OM": "Oman",
+    "BH": "Bahrain",
+    "GB": "the UK",
+    "US": "the USA",
+    "IN": "India"
+  },
+  "countryNames": {
+    "PK": "Pakistan",
+    "AE": "UAE",
+    "SA": "Saudi Arabia",
+    "QA": "Qatar",
+    "KW": "Kuwait",
+    "OM": "Oman",
+    "BH": "Bahrain",
+    "GB": "United Kingdom",
+    "US": "United States",
+    "IN": "India"
+  },
+  "cities": {
+    "karachi": "Karachi",
+    "lahore": "Lahore",
+    "islamabad": "Islamabad",
+    "rawalpindi": "Rawalpindi",
+    "peshawar": "Peshawar",
+    "quetta": "Quetta",
+    "multan": "Multan",
+    "faisalabad": "Faisalabad",
+    "hyderabad": "Hyderabad",
+    "sialkot": "Sialkot"
+  },
+  "chart": {
+    "rangeGroup": "Chart period",
+    "ranges": {
+      "1m": "1M",
+      "6m": "6M",
+      "1y": "1Y",
+      "5y": "5Y",
+      "max": "Max"
+    },
+    "slider": "{subject}, price by date",
+    "keyboardHint": "Use the left and right arrow keys to move through the dates, Home and End to jump to the first and last.",
+    "loading": "Loading chart data",
+    "error": "The chart could not be loaded.",
+    "retry": "Try again",
+    "empty": "Not enough history yet for this period.",
+    "showTable": "Show the chart as a table",
+    "tableCaption": "Daily closing prices, newest first.",
+    "tableSampled": "Showing every {step}th day.",
+    "date": "Date",
+    "value": "Price",
+    "summary": "{subject} {trend} {change} over this period, from {start} on {startDate} to {end} on {endDate}. Highest {high} on {highDate}, lowest {low} on {lowDate}.",
+    "trendUp": "rose",
+    "trendDown": "fell",
+    "trendFlat": "moved"
+  },
+  "gold": {
+    "title": "Gold rate in {country} today",
+    "titleCity": "Gold rate in {city} today",
+    "description": "24K, 22K, 21K and 18K gold prices per {units}, updated through the day.",
+    "metaTitle": "Gold rate in {country} today: 24K, 22K per {unit}",
+    "metaTitleCity": "Gold rate in {city} today: 24K, 22K per tola",
+    "metaDescription": "Today's gold price in {country} for 24K, 22K, 21K and 18K per {units}, with the international price, trend chart and sources.",
+    "heroLabel": "24K gold, per {unit}",
+    "tableCaption": "Gold prices in {country} by purity and weight, {date}",
+    "parity": "International parity",
+    "parityHint": "International price converted at the open market dollar rate, before any local premium.",
+    "premium": "Local market premium: {pct}",
+    "cityLabel": "Choose a city",
+    "cityNote": "Sarafa associations publish one gold rate for the whole of Pakistan, so the rate in {city} is the same. Jewellers add making charges, which vary from shop to shop.",
+    "otherCountries": "Gold rate in other countries",
+    "chartTitle": "Gold price trend",
+    "chartSubject": "Gold, 24K per {unit}",
+    "chartNote": "The trend is the international price converted to {currency} at the reference rate, so it can differ slightly from the local rate above.",
+    "silverTitle": "Silver rate in {country} today",
+    "pkMethod": "Reported prices are the rates issued by the All Pakistan Sarafa Gems and Jewellers Association (APSGJA), as carried by the Associated Press of Pakistan. We check each one against the international price and reject any that differ by more than 5%. 21K and 18K prices are calculated from the 24K rate by purity (karat ÷ 24), the way Sarafa markets quote them.",
+    "otherMethod": "No trade body in {country} publishes a free daily feed we may reuse, so these prices are estimates: international spot price × exchange rate × purity{premium}. Jewellery shops add making charges and taxes.",
+    "premiumNote": ", plus {pct} ({note})",
+    "faq": {
+      "PK": [
+        {
+          "q": "What is the gold rate in Pakistan today?",
+          "a": "The table at the top shows today's 24K, 22K, 21K and 18K prices per tola, per 10 grams and per gram, with the time of the last update."
+        },
+        {
+          "q": "How many grams are in one tola?",
+          "a": "One tola is 11.6638 grams. Ten grams are about 0.857 tola."
+        },
+        {
+          "q": "Why is the price in my city the same?",
+          "a": "The All Pakistan Sarafa Gems and Jewellers Association sets one rate for the whole country. Jewellers then add making charges, which differ between shops and designs."
+        },
+        {
+          "q": "Why do 22K and 21K cost less than 24K?",
+          "a": "Purity. 24K is close to pure gold; 22K is 22 parts gold out of 24 (91.7%), 21K is 87.5% and 18K is 75%. Prices are scaled by that share."
+        },
+        {
+          "q": "What does 'estimated' mean?",
+          "a": "An estimated price is calculated from the international gold price, the dollar rate and purity, used when the association has not published a figure yet that day."
+        }
+      ],
+      "other": [
+        {
+          "q": "How is the gold price in {country} calculated?",
+          "a": "We take the international spot price per troy ounce, convert it to {currency} at the day's reference exchange rate and scale it by weight and purity. It is labelled 'estimated'."
+        },
+        {
+          "q": "Why is the price in a shop higher?",
+          "a": "Shops add making charges and, where it applies, VAT or sales tax. These vary by shop and design and are not included."
+        },
+        {
+          "q": "What is the difference between 24K, 22K and 18K?",
+          "a": "24K is close to pure gold. 22K is 91.7% gold, 21K is 87.5% and 18K is 75%; the price scales with the gold content."
+        }
+      ]
+    },
+    "premiumNotes": {
+      "IN": "the import levy on gold: 5% basic customs duty plus 1% AIDC, Union Budget 2024-25; 3% GST is charged on top at purchase"
+    }
+  },
+  "silver": {
+    "title": "Silver rate in Pakistan today",
+    "description": "Silver prices per tola and 10 grams in Pakistan, with rates in other countries and the international trend.",
+    "metaTitle": "Silver rate in Pakistan today per tola and 10 grams",
+    "metaDescription": "Today's silver price in Pakistan per tola and 10 grams, silver rates in the Gulf, UK, US and India, and the international silver trend.",
+    "heroLabel": "Silver, per tola",
+    "tableCaption": "Silver prices in Pakistan, {date}",
+    "worldTitle": "Silver in other countries",
+    "worldCaption": "Estimated silver price per gram and per kilogram",
+    "country": "Country",
+    "chartTitle": "Silver price trend",
+    "chartSubject": "Silver per tola",
+    "faq": [
+      {
+        "q": "What is the silver rate in Pakistan today?",
+        "a": "The table shows today's silver price per tola and per 10 grams, as reported by the Sarafa association or estimated from the international price when no report is available yet."
+      },
+      {
+        "q": "Is the silver rate the same in every city?",
+        "a": "Yes. The association publishes one rate for Pakistan; shops add making charges for jewellery."
+      }
+    ]
+  },
+  "metal": {
+    "title": "{metal} price today",
+    "description": "International {metal} price per ounce and per gram in US dollars and Pakistani rupees, with the trend chart.",
+    "metaTitle": "{metal} price today in USD and PKR",
+    "metaDescription": "Live international {metal} price per troy ounce and per gram, in US dollars and Pakistani rupees, with history and sources.",
+    "perOunce": "per troy ounce",
+    "perGram": "per gram",
+    "inCurrencies": "{metal} in other currencies",
+    "tableCaption": "{metal} price per troy ounce and per gram, {date}",
+    "chartTitle": "{metal} price trend",
+    "chartSubject": "{metal} per ounce",
+    "currencyToggle": "Chart currency",
+    "otherMetals": "Other metals",
+    "note": "Spot prices are international wholesale prices for one troy ounce (31.1035 grams) of fine metal. Retail prices include premiums.",
+    "faq": [
+      {
+        "q": "What is a troy ounce?",
+        "a": "A troy ounce is 31.1035 grams, the standard unit for precious metal prices worldwide."
+      },
+      {
+        "q": "Why do I see a different price at a dealer?",
+        "a": "Dealers sell above the international spot price to cover fabrication, delivery and margin, and buy back below it."
+      }
+    ]
+  },
+  "currency": {
+    "title": "Currency rates in Pakistan today",
+    "description": "Open market and interbank exchange rates against the Pakistani rupee, with a converter.",
+    "metaTitle": "Dollar rate in Pakistan today: open market and interbank",
+    "metaDescription": "Today's US dollar, euro, pound, riyal and dirham rates in Pakistan: open market buying and selling and State Bank interbank rates, with a converter.",
+    "tableCaption": "Exchange rates against the Pakistani rupee",
+    "openMarket": "Open market",
+    "interbank": "Interbank",
+    "buying": "Buying",
+    "selling": "Selling",
+    "currencyCol": "Currency",
+    "pairTitle": "{from} to {to} today",
+    "pairDescription": "{fromName} to {toName} exchange rate today, open market and interbank, with the trend and a converter.",
+    "pairMetaTitle": "{from} to {to} rate today",
+    "pairMetaDescription": "Convert {fromName} to {toName}: today's rate, open market and interbank rates in Pakistan, trend chart and conversion table.",
+    "reference": "Reference rate",
+    "referenceHint": "Mid market reference rate, for comparison.",
+    "chartTitle": "{from} to {to} trend",
+    "chartSubject": "{from} to {to}",
+    "quickTable": "Quick conversions",
+    "quickCaption": "{from} to {to} at the reference rate of {date}",
+    "reverse": "Convert {to} to {from}",
+    "popular": "Popular currencies",
+    "openNote": "Open market rates are what exchange companies buy and sell cash at. Interbank rates are what banks trade at, published by the State Bank of Pakistan.",
+    "noPkr": "Open market and interbank rates are published for the rupee only. The reference rate below applies.",
+    "faq": [
+      {
+        "q": "What is the difference between the open market and interbank rate?",
+        "a": "The interbank rate is the rate banks trade at with each other, published daily by the State Bank of Pakistan. The open market rate is what exchange companies charge for cash, usually a little higher."
+      },
+      {
+        "q": "What do buying and selling mean?",
+        "a": "Buying is the rate the exchange company pays you for foreign currency. Selling is what you pay to buy foreign currency from them."
+      },
+      {
+        "q": "How often are rates updated?",
+        "a": "Open market rates several times each business day, interbank rates once a day after the State Bank publishes them, reference rates daily."
+      }
+    ],
+    "rupeesFor": "Pakistani rupees for 1 {code}"
+  },
+  "converter": {
+    "title": "Currency converter",
+    "amount": "Amount",
+    "from": "From",
+    "to": "To",
+    "swap": "Swap currencies",
+    "result": "{amount} {from} = {result} {to}",
+    "rate": "1 {from} = {rate} {to}",
+    "asOf": "Reference rate of {date}. Banks and exchange companies apply their own buying and selling rates.",
+    "invalid": "Enter an amount greater than zero.",
+    "popular": "Popular",
+    "all": "All currencies"
+  }
+}
