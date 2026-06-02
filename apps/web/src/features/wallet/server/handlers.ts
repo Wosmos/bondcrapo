@@ -44,7 +44,8 @@ import {
 
 /** Rate limits (PLAN section 11). Restore is the strict one: 60 bit codes and 5 tries an hour. */
 export const WALLET_LIMITS = {
-  create: { name: "wallet-create", limit: 10, windowSeconds: 3600 },
+  // Generous: many mobile users in Pakistan share one carrier address (CGNAT).
+  create: { name: "wallet-create", limit: 60, windowSeconds: 3600 },
   restore: { name: "wallet-restore", limit: 5, windowSeconds: 3600 },
   rotate: { name: "wallet-rotate", limit: 10, windowSeconds: 3600 },
   write: { name: "wallet-write", limit: 120, windowSeconds: 3600 },
