@@ -1,0 +1,217 @@
+name: Mobile release
+
+# Builds the Android APK with `expo prebuild` and Gradle on the runner (no EAS) and publishes
+# it as a GitHub Release with SHA256SUMS.txt and latest.json (ADR 0006, docs/MOBILE_RELEASE.md).
+on:
+  push:
+    tags:
+      - "v*"
+  # Pull requests touching the app get an unsigned dry-run build (PLAN section 12: Gradle build in CI).
+  pull_request:
+    paths:
+      - "apps/mobile/**"
+      - "packages/shared/**"
+      - "scripts/version.mjs"
+      - ".github/workflows/mobile-release.yml"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build an unsigned APK as a workflow artifact only (no release, no signing)"
+        type: boolean
+        default: true
+
+# Each tag is its own group: re-pushing a tag cancels the stale build for it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CI: "1"
+  EXPO_NO_TELEMETRY: "1"
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      # Dry runs never touch the signing key and never publish.
+      DRY_RUN: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      apk: ${{ steps.collect.outputs.apk }}
+      signed: ${{ steps.signing.outputs.signed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.event_name != 'push' }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check versions (the tag must equal the version in every package and app.json)
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            node scripts/version.mjs --check --tag "${GITHUB_REF_NAME}"
+          else
+            node scripts/version.mjs --check
+          fi
+
+      - name: Read version
+        id: version
+        run: |
+          json="$(node scripts/version.mjs --json)"
+          echo "version=$(jq -r .version <<< "$json")" >> "$GITHUB_OUTPUT"
+          echo "code=$(jq -r .versionCode <<< "$json")" >> "$GITHUB_OUTPUT"
+
+      - name: Test the app
+        run: |
+          pnpm --filter mobile typecheck
+          pnpm --filter mobile test
+
+      - name: Website address baked into the app
+        env:
+          SITE_URL: ${{ vars.BONDCHECK_SITE_URL }}
+        run: |
+          if [ -z "$SITE_URL" ]; then
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "::warning title=No site URL::BONDCHECK_SITE_URL is not set; the dry-run APK cannot reach the API."
+            else
+              echo "::error title=No site URL::Set the repository variable BONDCHECK_SITE_URL (for example https://bondcheck.pk) before releasing."
+              exit 1
+            fi
+          fi
+          echo "EXPO_PUBLIC_API_BASE_URL=$SITE_URL" >> "$GITHUB_ENV"
+
+      - name: Generate the Android project
+        working-directory: apps/mobile
+        run: pnpm exec expo prebuild --platform android --no-install --clean
+
+      # The release key comes from secrets and only ever exists in the runner's temp dir.
+      # Without it (or on a dry run) the APK is built unsigned and labelled as such.
+      - name: Prepare signing
+        id: signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ] && [ "$DRY_RUN" != "true" ]; then
+            ks="$RUNNER_TEMP/bondcheck-release.keystore"
+            base64 -d <<< "$KEYSTORE_BASE64" > "$ks"
+            {
+              echo "BONDCHECK_KEYSTORE_PATH=$ks"
+              echo "BONDCHECK_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+              echo "BONDCHECK_KEY_ALIAS=$KEY_ALIAS"
+              echo "BONDCHECK_KEY_PASSWORD=${KEY_PASSWORD:-$KEYSTORE_PASSWORD}"
+            } >> "$GITHUB_ENV"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Unsigned APK::No release keystore (or dry run). The APK is unsigned, cannot be installed as is, and is published only as a prerelease."
+          fi
+
+      - name: Build release APK
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Collect APK, checksums and manifest
+        id: collect
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          VERSION_CODE: ${{ steps.version.outputs.code }}
+          SIGNED: ${{ steps.signing.outputs.signed }}
+          MIN_SUPPORTED: ${{ vars.BONDCHECK_MIN_SUPPORTED_VERSION_CODE }}
+        run: |
+          set -euo pipefail
+          outputs="apps/mobile/android/app/build/outputs/apk/release"
+          mkdir -p out
+          if [ "$SIGNED" = "true" ]; then
+            src="$outputs/app-release.apk"
+            name="bondcheck-${VERSION}.apk"
+            bt="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+            "$bt/apksigner" verify --print-certs "$src"
+          else
+            src="$(find "$outputs" -name '*.apk' | head -1)"
+            name="bondcheck-${VERSION}-unsigned.apk"
+          fi
+          test -f "$src" || { echo "::error::no APK under $outputs"; ls -R "$outputs" || true; exit 1; }
+          cp "$src" "out/$name"
+
+          {
+            echo "BondCheck ${VERSION} for Android."
+            echo
+            if [ "$SIGNED" != "true" ]; then
+              echo "This build is UNSIGNED. Android will not install it until it is signed with the release key."
+              echo "It is published as a prerelease, so the website and the in-app updater ignore it."
+            else
+              echo "Install from the BondCheck website download page. Verify the file with SHA256SUMS.txt."
+            fi
+          } > notes.md
+
+          node apps/mobile/scripts/release-manifest.mjs --apk "out/$name" --out out \
+            --version "$VERSION" --version-code "$VERSION_CODE" \
+            --min-supported "${MIN_SUPPORTED:-1}" --notes-file notes.md
+          cp notes.md out/RELEASE_NOTES.md
+          echo "apk=$name" >> "$GITHUB_OUTPUT"
+          ls -l out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: out/*
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-release
+          path: out
+
+      - name: Create or update the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ needs.build.outputs.version }}
+          APK: ${{ needs.build.outputs.apk }}
+          SIGNED: ${{ needs.build.outputs.signed }}
+        run: |
+          set -euo pipefail
+          prerelease=""
+          if [ "$SIGNED" != "true" ]; then prerelease="--prerelease"; fi
+          files=("out/$APK" out/SHA256SUMS.txt out/latest.json)
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload "$TAG" "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "${files[@]}" --repo "$GITHUB_REPOSITORY" --verify-tag \
+              --title "BondCheck $VERSION" --notes-file out/RELEASE_NOTES.md $prerelease
+          fi
