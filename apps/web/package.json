@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e:wallet": "playwright test -c src/features/wallet/e2e/playwright.config.ts"
   },
   "dependencies": {
     "@bondcheck/db": "workspace:*",
