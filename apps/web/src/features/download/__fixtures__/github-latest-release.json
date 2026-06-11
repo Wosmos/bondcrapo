@@ -1,0 +1,42 @@
+{
+  "url": "https://api.github.com/repos/Wosmos/bondcrapo/releases/170000001",
+  "html_url": "https://github.com/Wosmos/bondcrapo/releases/tag/v1.2.0",
+  "id": 170000001,
+  "tag_name": "v1.2.0",
+  "target_commitish": "master",
+  "name": "BondCheck 1.2.0",
+  "draft": false,
+  "prerelease": false,
+  "created_at": "2026-06-10T08:55:12Z",
+  "published_at": "2026-06-10T09:01:40Z",
+  "body": "BondCheck 1.2.0 for Android.\n\nInstall from the BondCheck website download page. Verify the file with SHA256SUMS.txt.",
+  "assets": [
+    {
+      "url": "https://api.github.com/repos/Wosmos/bondcrapo/releases/assets/260000001",
+      "id": 260000001,
+      "name": "bondcheck-1.2.0.apk",
+      "content_type": "application/vnd.android.package-archive",
+      "state": "uploaded",
+      "size": 31457280,
+      "browser_download_url": "https://github.com/Wosmos/bondcrapo/releases/download/v1.2.0/bondcheck-1.2.0.apk"
+    },
+    {
+      "url": "https://api.github.com/repos/Wosmos/bondcrapo/releases/assets/260000002",
+      "id": 260000002,
+      "name": "SHA256SUMS.txt",
+      "content_type": "text/plain",
+      "state": "uploaded",
+      "size": 86,
+      "browser_download_url": "https://github.com/Wosmos/bondcrapo/releases/download/v1.2.0/SHA256SUMS.txt"
+    },
+    {
+      "url": "https://api.github.com/repos/Wosmos/bondcrapo/releases/assets/260000003",
+      "id": 260000003,
+      "name": "latest.json",
+      "content_type": "application/json",
+      "state": "uploaded",
+      "size": 412,
+      "browser_download_url": "https://github.com/Wosmos/bondcrapo/releases/download/v1.2.0/latest.json"
+    }
+  ]
+}
