@@ -10,21 +10,22 @@ export interface StatProps {
 }
 
 const ARROW = { up: "▲", down: "▼", flat: "◆" } as const;
+const TONE = { up: "text-success", down: "text-danger", flat: "text-ink-2" } as const;
 
 export function Stat({ label, value, change, hint }: StatProps) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
+    <div className="rounded-2xl border border-line bg-surface p-4 shadow-card">
       <dl>
-        <dt className="text-sm text-slate-600">{label}</dt>
-        <dd className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{value}</dd>
+        <dt className="text-sm text-ink-2">{label}</dt>
+        <dd className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-ink">{value}</dd>
       </dl>
       {change ? (
-        <p className="mt-1 text-sm text-slate-700">
+        <p className={`mt-1 text-sm font-medium ${TONE[change.direction]}`}>
           <span aria-hidden="true">{ARROW[change.direction]} </span>
           {change.text}
         </p>
       ) : null}
-      {hint ? <p className="mt-1 text-xs text-slate-500">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-ink-2">{hint}</p> : null}
     </div>
   );
 }

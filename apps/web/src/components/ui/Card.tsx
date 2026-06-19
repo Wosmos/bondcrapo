@@ -12,10 +12,10 @@ export interface CardProps {
 export function Card({ title, headingLevel = 2, actions, children }: CardProps) {
   const Heading = `h${headingLevel}` as "h2" | "h3" | "h4";
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="rounded-2xl border border-line bg-surface p-5 shadow-card">
       {(title || actions) && (
-        <header className="mb-3 flex items-center justify-between gap-3">
-          {title ? <Heading className="text-base font-semibold text-slate-900">{title}</Heading> : <span />}
+        <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          {title ? <Heading className="text-base font-semibold text-ink">{title}</Heading> : <span />}
           {actions}
         </header>
       )}
