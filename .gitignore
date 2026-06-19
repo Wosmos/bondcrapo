@@ -6,7 +6,10 @@ node_modules/
 out/
 dist/
 build/
-coverage/
+# Test coverage output only (app routes named coverage must stay tracked)
+/coverage/
+/packages/*/coverage/
+/apps/*/coverage/
 *.tsbuildinfo
 next-env.d.ts
 
