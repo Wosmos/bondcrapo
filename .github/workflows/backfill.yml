@@ -1,0 +1,80 @@
+name: Backfill (prize bonds)
+
+# One-off, resumable import of every prize bond draw (PLAN section 5.2). Runs the CLI against the
+# database in the DATABASE_URL secret. A dry run writes into a throwaway in-memory database and
+# only reads from DATABASE_URL, so it is the default.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Dry run (write nothing to the database)
+        type: boolean
+        default: true
+      from:
+        description: Only draws on or after this date (YYYY-MM-DD, empty for all)
+        type: string
+        default: ""
+      denomination:
+        description: One denomination code (empty for all), e.g. 750 or 40000P
+        type: string
+        default: ""
+      coverage:
+        description: Regenerate docs/COVERAGE.md and upload it as an artifact
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backfill-bonds
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build the arguments
+        id: args
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          FROM: ${{ inputs.from }}
+          DENOMINATION: ${{ inputs.denomination }}
+          COVERAGE: ${{ inputs.coverage }}
+        run: |
+          args=""
+          if [ "$DRY_RUN" = "true" ]; then args="$args --dry-run"; fi
+          if [ -n "$FROM" ]; then
+            [[ "$FROM" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "from must be YYYY-MM-DD" >&2; exit 1; }
+            args="$args --from $FROM"
+          fi
+          if [ -n "$DENOMINATION" ]; then
+            [[ "$DENOMINATION" =~ ^(100|200|750|1500|7500|15000|25000|40000|25000P|40000P)$ ]] || { echo "unknown denomination" >&2; exit 1; }
+            args="$args --denomination $DENOMINATION"
+          fi
+          if [ "$COVERAGE" = "true" ]; then args="$args --coverage"; fi
+          echo "args=$args" >> "$GITHUB_OUTPUT"
+
+      - name: Run the backfill
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          INGEST_USER_AGENT: BondCheckBot/1.0 (+${{ vars.APP_BASE_URL || 'https://bondcheck.invalid' }}/about/data)
+        run: pnpm --filter @bondcheck/ingest backfill:bonds ${{ steps.args.outputs.args }}
+
+      - name: Upload the coverage report
+        if: ${{ inputs.coverage }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: docs/COVERAGE.md
+          if-no-files-found: ignore
