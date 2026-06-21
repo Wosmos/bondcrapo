@@ -1,0 +1,84 @@
+name: Ingest markets
+
+# Frequent triggers for the market jobs (PLAN section 5.3). Each run is a short authenticated
+# call to the web app's fail-closed cron endpoint; Vercel Cron only adds a daily safety net.
+on:
+  schedule:
+    - cron: "*/30 3-17 * * 1-5" # metals-spot, weekdays every 30 minutes
+    - cron: "0 */4 * * 0,6" # metals-spot, weekends every 4 hours
+    - cron: "15 0,12 * * *" # fx-daily: reference rates and SBP interbank
+    - cron: "0 7,10,13 * * 1-6" # pk-market: open market and APSGJA gold
+    - cron: "0 1 * * *" # housekeeping
+  workflow_dispatch:
+    inputs:
+      job:
+        description: Job to run now
+        type: choice
+        options: [metals-spot, fx-daily, pk-market, local-rates-derive, housekeeping, history-backfill]
+        default: metals-spot
+      from:
+        description: "history-backfill only: first day (YYYY-MM-DD)"
+        required: false
+        default: "2024-03-02"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ingest-markets-${{ github.event.schedule || inputs.job }}
+  cancel-in-progress: false
+
+jobs:
+  trigger:
+    if: github.event_name == 'schedule' || inputs.job != 'history-backfill'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Pick the job
+        id: pick
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          INPUT_JOB: ${{ inputs.job }}
+        run: |
+          case "$SCHEDULE" in
+            "*/30 3-17 * * 1-5"|"0 */4 * * 0,6") job=metals-spot ;;
+            "15 0,12 * * *") job=fx-daily ;;
+            "0 7,10,13 * * 1-6") job=pk-market ;;
+            "0 1 * * *") job=housekeeping ;;
+            *) job="$INPUT_JOB" ;;
+          esac
+          echo "job=$job" >> "$GITHUB_OUTPUT"
+      - name: Call the cron endpoint until the job reports done
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          JOB: ${{ steps.pick.outputs.job }}
+        run: |
+          test -n "$APP_BASE_URL" && test -n "$CRON_SECRET" || { echo "APP_BASE_URL and CRON_SECRET secrets are required"; exit 1; }
+          for i in 1 2 3 4 5 6; do
+            body=$(curl -fsS --retry 2 --max-time 70 -X POST \
+              -H "Authorization: Bearer $CRON_SECRET" -H "x-trigger: gha" \
+              "$APP_BASE_URL/api/v1/cron/$JOB")
+            echo "$body"
+            status=$(echo "$body" | jq -r '.data.status')
+            [ "$status" = "failed" ] && exit 1
+            [ "$(echo "$body" | jq -r '.data.done')" = "true" ] && exit 0
+          done
+
+  history-backfill:
+    if: github.event_name == 'workflow_dispatch' && inputs.job == 'history-backfill'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Backfill daily FX and metal history (resumable)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          FROM: ${{ inputs.from }}
+        run: pnpm --filter @bondcheck/ingest exec tsx src/markets/backfill-cli.ts --from "$FROM"

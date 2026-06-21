@@ -1,0 +1,8 @@
+{
+  "success": false,
+  "error": {
+    "statusCode": 401,
+    "code": 102,
+    "info": "User did not supply an access key or supplied an invalid access key"
+  }
+}

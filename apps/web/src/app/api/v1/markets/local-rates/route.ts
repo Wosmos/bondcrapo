@@ -1,3 +1,6 @@
-import { notImplemented } from "@/server/http";
+import { localRates } from "@bondcheck/shared";
+import { marketsGet } from "@/features/markets/server/route";
+import { getLocalRates } from "@/features/markets/server/service";
 
-export const GET = () => notImplemented("markets.local-rates");
+/** GET /api/v1/markets/local-rates?country=PK&date=YYYY-MM-DD */
+export const GET = marketsGet(localRates, (q, store) => getLocalRates(store, q.country, q.date));

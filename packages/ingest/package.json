@@ -14,7 +14,9 @@
     "test": "vitest run",
     "ingest": "tsx src/cli.ts",
     "backfill:bonds": "tsx src/bonds/backfill-cli.ts",
-    "coverage:bonds": "tsx src/bonds/coverage-cli.ts"
+    "coverage:bonds": "tsx src/bonds/coverage-cli.ts",
+    "backfill:markets": "tsx src/markets/backfill-cli.ts",
+    "markets:e2e-snapshot": "tsx src/markets/e2e-snapshot.ts ../../apps/web/src/features/markets/e2e/snapshot.json"
   },
   "dependencies": {
     "@bondcheck/db": "workspace:*",

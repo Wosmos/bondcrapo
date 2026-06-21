@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "e2e:markets": "playwright test -c src/features/markets/e2e/playwright.config.ts"
   },
   "dependencies": {
     "@bondcheck/db": "workspace:*",
