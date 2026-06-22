@@ -1,4 +1,4 @@
-import { notImplemented } from "@/server/http";
+import { walletApi } from "@/features/wallet/server/api";
 
-export const GET = () => notImplemented("wallets.me");
-export const DELETE = () => notImplemented("wallets.delete");
+export const GET = walletApi.me;
+export const DELETE = walletApi.remove;

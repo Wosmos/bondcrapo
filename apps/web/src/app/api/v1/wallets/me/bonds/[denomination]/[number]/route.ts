@@ -1,3 +1,3 @@
-import { notImplemented } from "@/server/http";
+import { walletApi } from "@/features/wallet/server/api";
 
-export const DELETE = () => notImplemented("wallets.bonds-delete");
+export const DELETE = walletApi.deleteBond;

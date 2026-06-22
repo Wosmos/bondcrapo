@@ -1,3 +1,3 @@
-import { notImplemented } from "@/server/http";
+import { walletApi } from "@/features/wallet/server/api";
 
-export const GET = () => notImplemented("wallets.matches");
+export const GET = walletApi.matches;

@@ -1,4 +1,4 @@
-import { notImplemented } from "@/server/http";
+import { walletApi } from "@/features/wallet/server/api";
 
-export const POST = () => notImplemented("wallets.push-subscribe");
-export const DELETE = () => notImplemented("wallets.push-unsubscribe");
+export const POST = walletApi.pushSubscribe;
+export const DELETE = walletApi.pushUnsubscribe;

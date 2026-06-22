@@ -1,0 +1,17 @@
+import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Overview } from "@/features/wallet/components/Overview";
+
+type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "wallet.meta" });
+  return { title: t("overviewTitle"), description: t("overviewDescription"), robots: { index: false, follow: false } };
+}
+
+export default async function Page({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  return <Overview />;
+}
