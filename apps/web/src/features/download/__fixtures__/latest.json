@@ -1,0 +1,10 @@
+{
+  "version": "1.2.0",
+  "versionCode": 10200,
+  "url": "/api/v1/releases/download/bondcheck-1.2.0.apk",
+  "sha256": "3f1a8c2e9b7d4f6a0c5e1b9d8a7f6e5d4c3b2a1908f7e6d5c4b3a2918f7e6d5c",
+  "size": 31457280,
+  "minSupportedVersionCode": 10000,
+  "notes": "BondCheck 1.2.0 for Android.",
+  "publishedAt": "2026-06-10T09:00:58.112Z"
+}

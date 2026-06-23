@@ -1,1 +1,73 @@
-{ "nav": { "title": "Get the app" } }
+{
+  "nav": {
+    "title": "Get the app"
+  },
+  "meta": {
+    "title": "Download the BondCheck Android app",
+    "description": "Check prize bonds, track your own bonds and get draw day reminders with the free BondCheck app for Android. No account needed."
+  },
+  "hero": {
+    "title": "BondCheck for Android",
+    "subtitle": "Check prize bond results in seconds, save your bonds without an account, scan bond numbers with the camera and get reminded on draw day. Works in English and Urdu."
+  },
+  "cta": {
+    "download": "Download for Android",
+    "downloadA11y": "Download BondCheck {version} for Android, {size}",
+    "direct": "Direct download from this website. The file is not served from any other site."
+  },
+  "facts": {
+    "label": "Release details",
+    "version": "Version",
+    "released": "Released",
+    "size": "File size",
+    "requires": "Requires",
+    "requiresValue": "Android 7.0 or newer",
+    "unknown": "Not stated"
+  },
+  "checksum": {
+    "title": "Verify the file",
+    "body": "After downloading, you can compare the file's SHA-256 checksum with this value.",
+    "copy": "Copy checksum",
+    "copied": "Copied",
+    "missing": "No checksum was published for this file."
+  },
+  "steps": {
+    "title": "How to install",
+    "one": "Tap Download for Android. Your browser saves the APK file.",
+    "two": "Open the downloaded file from the notification or your Downloads folder.",
+    "three": "If Android asks, allow installing apps from your browser. This is needed for apps that are not from the Play Store.",
+    "four": "Tap Install, then Open. Future updates are offered inside the app."
+  },
+  "qr": {
+    "title": "On a computer?",
+    "body": "Scan this code with your phone's camera to open this page on your phone.",
+    "alt": "QR code linking to {url}"
+  },
+  "notes": {
+    "title": "What's new in {version}"
+  },
+  "other": {
+    "title": "Other downloads"
+  },
+  "platform": {
+    "android": "Android",
+    "windows": "Windows",
+    "macos": "macOS",
+    "linux": "Linux",
+    "other": "Other"
+  },
+  "safety": {
+    "title": "Is it safe?",
+    "body": "The app is built by an automated release process and signed with the BondCheck release key. It uses the camera, or a photo you pick, only when you choose to scan bonds, and notifications only when you turn on reminders. It never reads your location or contacts."
+  },
+  "iphone": {
+    "title": "Using an iPhone?",
+    "body": "There is no iPhone app yet. The BondCheck website works on every phone and can be added to your home screen."
+  },
+  "state": {
+    "unconfigured": "Downloads are being set up. Please check back soon.",
+    "error": "We could not load the latest release right now. Please try again in a few minutes.",
+    "none": "The first version of the app has not been released yet. Please check back soon.",
+    "openWebsite": "Use the website instead"
+  }
+}
