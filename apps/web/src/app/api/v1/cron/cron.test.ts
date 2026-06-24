@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { GET, POST } from "./[job]/route";
+import { CRON_JOBS } from "@bondcheck/shared";
 import { isCronAuthorized } from "@/server/cron-auth";
+import { JobNotImplementedError, UnknownJobError, runCronJob } from "@/server/cron";
+import { jobs } from "@/server/jobs";
 
 const ctx = (job: string) => ({ params: Promise.resolve({ job }) });
 const req = (method: string, headers: Record<string, string> = {}) =>
@@ -37,14 +40,26 @@ describe("cron dispatcher auth", () => {
     expect(res.status).toBe(401);
   });
 
-  it("with the right secret an unbuilt job answers 501 and an unknown job 404", async () => {
+  it("with the right secret an unknown job answers 404 and a known job runs", async () => {
     const secret = "s".repeat(40);
     vi.stubEnv("CRON_SECRET", secret);
+    vi.stubEnv("DATABASE_URL", "");
     const auth = { authorization: `Bearer ${secret}` };
-    const notBuilt = await POST(req("POST", auth), ctx("bonds-sync"));
-    expect(notBuilt.status).toBe(501);
     const unknown = await POST(req("POST", auth), ctx("nope"));
     expect(unknown.status).toBe(404);
+    // A registered job gets past auth and dispatch; without a database it fails with a typed error.
+    const known = await POST(req("POST", auth), ctx("bonds-sync"));
+    expect(known.status).toBe(500);
+    expect(await known.json()).toMatchObject({ error: { code: "internal", message: "DATABASE_URL is not set" } });
+  });
+
+  it("registers every scheduled job name", () => {
+    expect(Object.keys(jobs).sort()).toEqual([...CRON_JOBS].sort());
+  });
+
+  it("reports a missing job as not implemented instead of crashing", async () => {
+    await expect(runCronJob("housekeeping", "manual", {})).rejects.toBeInstanceOf(JobNotImplementedError);
+    await expect(runCronJob("nope", "manual", {})).rejects.toBeInstanceOf(UnknownJobError);
   });
 
   it("rejects short secrets outright", async () => {
