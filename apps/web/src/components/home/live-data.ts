@@ -66,9 +66,7 @@ export async function loadBoard(fetchImpl?: typeof fetch): Promise<BoardData> {
     import("@bondcheck/shared/api/bonds"),
     import("@bondcheck/shared/api/markets"),
   ]);
-  // Bound wrapper: browsers throw "Illegal invocation" when `window.fetch` is called detached,
-  // which is what ApiClient does with its default (request filed for packages/shared).
-  const api = new ApiClient({ baseUrl: "", fetch: fetchImpl ?? ((input, init) => fetch(input, init)) });
+  const api = new ApiClient({ baseUrl: "", fetch: fetchImpl });
   const [latest, gold, usd] = await Promise.allSettled([
     api.call(bonds.latestDraws).then((r) => selectLatest(r.data)),
     api.call(markets.localRates, { query: { country: "PK" } }).then((r) => selectGold(r.data)),

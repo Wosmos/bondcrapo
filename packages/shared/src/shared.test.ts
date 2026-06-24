@@ -136,6 +136,23 @@ describe("ApiClient", () => {
     });
     await expect(client.call(listDenominations)).rejects.toBeInstanceOf(ApiError);
   });
+
+  it("never calls fetch detached or bound to another object (browser Illegal invocation)", async () => {
+    const original = globalThis.fetch;
+    // Mimics the browser's brand check on `window.fetch`.
+    function strictFetch(this: unknown): Promise<Response> {
+      if (this !== globalThis && this !== undefined) throw new TypeError("Illegal invocation");
+      return Promise.resolve(new Response(JSON.stringify({ data: [] }), { status: 200 }));
+    }
+    globalThis.fetch = strictFetch as unknown as typeof fetch;
+    try {
+      await expect(new ApiClient().call(listDenominations)).resolves.toMatchObject({ data: [] });
+      const custom = { fetch: strictFetch as unknown as typeof fetch };
+      await expect(new ApiClient(custom).call(listDenominations)).resolves.toMatchObject({ data: [] });
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
 });
 
 describe("bond numbers", () => {

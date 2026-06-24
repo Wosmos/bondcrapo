@@ -75,7 +75,12 @@ export class ApiClient {
 
   async call<E extends AnyEndpoint>(endpoint: E, input?: EndpointInput<E>): Promise<ApiResult<E>> {
     const i = (input ?? {}) as { params?: unknown; query?: unknown; body?: unknown };
-    const doFetch = this.opts.fetch ?? globalThis.fetch;
+    // Never call fetch as a method of another object: browsers throw "Illegal invocation" when
+    // `window.fetch` runs with a `this` other than the window, so it is always invoked on globalThis.
+    const custom = this.opts.fetch;
+    const doFetch: typeof fetch = custom
+      ? (url, init) => custom.call(globalThis, url, init)
+      : (url, init) => globalThis.fetch(url, init);
     const headers: Record<string, string> = { Accept: "application/json", ...this.opts.headers };
     if (endpoint.auth === "wallet" && this.opts.getAuthorization) {
       const auth = await this.opts.getAuthorization();
