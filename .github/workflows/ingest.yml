@@ -3,6 +3,7 @@ name: Ingest (prize bonds)
 # Frequent triggers for the prize bond jobs (PLAN section 5.3). Each run is a short curl to the
 # authenticated cron endpoint; the jobs are idempotent, so a duplicate or late trigger is harmless.
 # Vercel Cron calls the same endpoints once a day as a safety net (apps/web/vercel.json).
+# wallet-notify runs inside every bonds-sync call that commits results; it can also be run by hand.
 # Market schedules live in their own workflow.
 
 on:
@@ -16,7 +17,7 @@ on:
         description: Job to run
         required: true
         type: choice
-        options: [bonds-sync, bonds-verify, bonds-schedule]
+        options: [bonds-sync, bonds-verify, bonds-schedule, wallet-notify]
 
 permissions:
   contents: read
@@ -43,7 +44,7 @@ jobs:
             *) job="$INPUT_JOB" ;;
           esac
           case "$job" in
-            bonds-sync|bonds-verify|bonds-schedule) echo "job=$job" >> "$GITHUB_OUTPUT" ;;
+            bonds-sync|bonds-verify|bonds-schedule|wallet-notify) echo "job=$job" >> "$GITHUB_OUTPUT" ;;
             *) echo "unknown job: $job" >&2; exit 1 ;;
           esac
 

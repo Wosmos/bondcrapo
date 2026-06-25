@@ -2,6 +2,7 @@ import "server-only";
 import { hitRateLimit } from "@bondcheck/db/queries/markets";
 import type { RateLimitResult, RateLimitRule, RateLimiter } from "@bondcheck/shared";
 import type { Db } from "@bondcheck/db";
+import { rateLimitSecret } from "@/platform/env";
 
 /** Public market reads: generous, the CDN absorbs most traffic (s-maxage). */
 export const MARKETS_READ_RULE: RateLimitRule = { name: "markets-read", limit: 120, windowSeconds: 60 };
@@ -32,7 +33,7 @@ let keySecret: string | undefined;
  * The raw address is never stored (repository privacy rule). Returns null when no secret is
  * configured; the caller then skips limiting instead of storing a guessable hash.
  */
-export async function clientSubject(request: Request, secret = process.env.RATE_LIMIT_PEPPER ?? process.env.CRON_SECRET): Promise<string | null> {
+export async function clientSubject(request: Request, secret = rateLimitSecret() ?? undefined): Promise<string | null> {
   if (!secret) return null;
   const ip =
     request.headers.get("cf-connecting-ip") ??

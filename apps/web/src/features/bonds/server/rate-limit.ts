@@ -2,6 +2,7 @@ import "server-only";
 import { sql } from "drizzle-orm";
 import type { Db } from "@bondcheck/db";
 import type { RateLimiter, RateLimitResult, RateLimitRule } from "@bondcheck/shared";
+import { rateLimitSecret } from "@/platform/env";
 
 /**
  * Fixed window limiter on the `rate_limits` table (PLAN section 11): one upsert per request,
@@ -38,12 +39,19 @@ function clientAddress(headers: Headers): string {
   );
 }
 
+/** Used only when the server has no secret configured: random per instance, never guessable. */
+let ephemeralSecret: string | undefined;
+function fallbackSecret(): string {
+  ephemeralSecret ??= Array.from(crypto.getRandomValues(new Uint8Array(32)), (b) => b.toString(16).padStart(2, "0")).join("");
+  return ephemeralSecret;
+}
+
 /**
  * HMAC of the client address with a server secret and the current day, so the stored key cannot
  * be reversed to an address and does not link a visitor across days.
  */
 export async function clientSubject(headers: Headers, now = new Date()): Promise<string> {
-  const secret = process.env.RATE_LIMIT_SECRET ?? process.env.WALLET_PEPPER ?? process.env.CRON_SECRET ?? "bondcheck-rate-limit";
+  const secret = rateLimitSecret() ?? fallbackSecret();
   const day = now.toISOString().slice(0, 10);
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(`${secret}|${day}`), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(clientAddress(headers)));
