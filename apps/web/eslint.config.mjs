@@ -11,17 +11,9 @@ const eslintConfig = defineConfig([
   {
     // RTL safety: physical direction utilities (ml-, pr-, left-, text-right, ...) are errors.
     files: ["src/**/*.{ts,tsx,js,jsx,mjs}"],
-    ignores: ["src/legacy/**", "src/styles/lint/**", "**/*.test.*"],
+    ignores: ["src/styles/lint/**", "**/*.test.*"],
     plugins: { bondcheck: logicalProperties },
     rules: { "bondcheck/logical-properties": "error" },
-  },
-  {
-    // Temporary adapter, deleted by the integrator once the new checker ships.
-    files: ["src/legacy/**"],
-    rules: {
-      "react-hooks/incompatible-library": "off",
-      "react-hooks/exhaustive-deps": "off",
-    },
   },
 ]);
 

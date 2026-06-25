@@ -2,7 +2,7 @@ import { normalizeDenomination } from "@bondcheck/shared/wallet/parse";
 
 /**
  * One-time migration of the previous app's local history (`bondcheck_history` IndexedDB, written
- * by `lib/history-db.ts`). It only ever reads that database and never creates it.
+ * by the pre-1.0 checker). It only ever reads that database and never creates it.
  */
 
 const LEGACY_DB = "bondcheck_history";
