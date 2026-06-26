@@ -1,17 +1,18 @@
 import type { MetadataRoute } from "next";
 import { and, isNotNull, inArray, sql } from "drizzle-orm";
-import { DENOMINATION_CODES, METALS, RATE_COUNTRIES } from "@bondcheck/shared/constants";
+import { DENOMINATION_CODES } from "@bondcheck/shared/constants";
 import { draws, type Db } from "@bondcheck/db";
 import { routing } from "./routing";
-import { paths, PK_GOLD_CITIES } from "./paths";
+import { marketsSitemapPaths } from "@/features/markets/sitemap";
+import { paths } from "./paths";
 import { absoluteUrl, languageAlternates } from "./seo";
 
 /**
  * Sitemap builders (PLAN section 14, D2). Pure functions plus one read-only query, so the
  * route in `app/sitemap.ts` stays thin and everything here is unit tested on PGlite.
  *
- * URL shapes owned by other lanes are listed in `docs/lanes/lane-d-requests.md`; if a lane
- * changes a slug, the matching builder below is the one place to update.
+ * Bond slugs come from `features/bonds/labels.ts` and market paths from
+ * `features/markets/sitemap.ts`, so each feature owns its own URLs.
  */
 
 /** Google's limit per sitemap file. Each page yields one entry per locale. */
@@ -41,41 +42,11 @@ export interface SitemapSources {
 }
 
 
-const METAL_SLUG: Record<(typeof METALS)[number], string> = {
-  XAU: "gold",
-  XAG: "silver",
-  XPT: "platinum",
-  XPD: "palladium",
-};
-
-/** Currency pair pages, `/currency/usd-to-pkr` and so on: the currencies Pakistanis send and hold. */
-export const CURRENCY_PAIRS = [
-  "usd",
-  "eur",
-  "gbp",
-  "sar",
-  "aed",
-  "qar",
-  "kwd",
-  "omr",
-  "bhd",
-  "cad",
-  "aud",
-  "myr",
-  "cny",
-  "jpy",
-  "try",
-  "chf",
-].map((c) => `${c}-to-pkr`);
-
 const STATIC_PAGES: SitemapPage[] = [
   { path: "/", changeFrequency: "daily", priority: 1 },
   { path: "/prize-bonds", changeFrequency: "daily", priority: 0.9 },
   { path: "/prize-bonds/check", changeFrequency: "weekly", priority: 0.9 },
   { path: "/prize-bonds/coverage", changeFrequency: "weekly", priority: 0.5 },
-  { path: "/gold-rate", changeFrequency: "hourly", priority: 0.9 },
-  { path: "/silver-rate", changeFrequency: "hourly", priority: 0.7 },
-  { path: "/currency", changeFrequency: "hourly", priority: 0.8 },
   { path: "/download", changeFrequency: "monthly", priority: 0.5 },
   { path: "/about", changeFrequency: "yearly", priority: 0.3 },
   { path: "/about/data", changeFrequency: "monthly", priority: 0.4 },
@@ -93,18 +64,10 @@ export function publicPages(sources: SitemapSources): SitemapPage[] {
   for (const year of [...new Set(sources.years)].sort((a, b) => b - a)) {
     pages.push({ path: paths.schedule(year), changeFrequency: "monthly", priority: 0.5 });
   }
-  // Market paths mirror Lane B's `marketsSitemapPaths()`; the integrator may call it directly.
-  for (const country of RATE_COUNTRIES.filter((c) => c !== "PK")) {
-    pages.push({ path: paths.goldCountry(country), changeFrequency: "hourly", priority: 0.7 });
-  }
-  for (const city of PK_GOLD_CITIES) {
-    pages.push({ path: paths.goldCity(city), changeFrequency: "hourly", priority: 0.6 });
-  }
-  for (const metal of METALS) {
-    pages.push({ path: paths.metal(METAL_SLUG[metal]), changeFrequency: "hourly", priority: 0.6 });
-  }
-  for (const pair of CURRENCY_PAIRS) {
-    pages.push({ path: paths.pair(pair), changeFrequency: "hourly", priority: 0.6 });
+  // Market pages: the list is owned by the markets feature.
+  for (const path of marketsSitemapPaths()) {
+    const top = path === "/gold-rate" || path === "/currency" || path === "/silver-rate";
+    pages.push({ path, changeFrequency: "hourly", priority: path === "/gold-rate" ? 0.9 : top ? 0.8 : 0.6 });
   }
   // Newest draws first so the first sitemap file always carries the freshest results.
   const sorted = [...sources.draws].sort((a, b) => b.drawDate.localeCompare(a.drawDate));

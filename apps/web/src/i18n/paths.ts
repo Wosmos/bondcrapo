@@ -1,37 +1,11 @@
 /**
- * Locale-less public URL builders for pages owned by other lanes. Client safe (no server
- * imports). If a lane changes a slug, update it here and the sitemap follows.
+ * Locale-less public URL builders shared by the shell, the home page and the sitemap. Client safe
+ * (no server imports). Denomination slugs come from the bond feature; the market page list is
+ * owned by `features/markets/sitemap.ts`.
  */
-/** Matches Lane A: bearer codes as they are ("750"), premium spelled out ("premium-40000"). */
-export const denominationSlug = (code: string): string =>
-  code.toUpperCase().endsWith("P") ? `premium-${code.slice(0, -1)}` : code;
+import { denominationSlug } from "@/features/bonds/labels";
 
-/** Matches Lane B's country config (`packages/ingest/src/markets/countries.ts`). */
-export const COUNTRY_SLUGS: Record<string, string> = {
-  PK: "pakistan",
-  AE: "uae",
-  SA: "saudi-arabia",
-  QA: "qatar",
-  KW: "kuwait",
-  OM: "oman",
-  BH: "bahrain",
-  GB: "uk",
-  US: "usa",
-  IN: "india",
-};
-
-export const PK_GOLD_CITIES = [
-  "karachi",
-  "lahore",
-  "islamabad",
-  "rawalpindi",
-  "peshawar",
-  "quetta",
-  "multan",
-  "faisalabad",
-  "hyderabad",
-  "sialkot",
-] as const;
+export { denominationSlug };
 
 export const paths = {
   home: "/",
@@ -42,9 +16,6 @@ export const paths = {
   draw: (code: string, drawNumber: number) => `/prize-bonds/${denominationSlug(code)}/${drawNumber}`,
   schedule: (year: number) => `/prize-bonds/schedule/${year}`,
   gold: "/gold-rate",
-  goldCountry: (country: string) =>
-    country.toUpperCase() === "PK" ? "/gold-rate" : `/gold-rate/${COUNTRY_SLUGS[country.toUpperCase()] ?? country.toLowerCase()}`,
-  goldCity: (city: string) => `/gold-rate/pakistan/${city}`,
   silver: "/silver-rate",
   metal: (slug: string) => `/metals/${slug}`,
   currency: "/currency",
