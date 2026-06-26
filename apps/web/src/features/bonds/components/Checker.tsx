@@ -122,12 +122,12 @@ export function Checker() {
   }
 
   const inputClass =
-    "min-h-11 rounded-md border border-slate-400 bg-white px-3 font-mono focus:border-slate-900 focus:outline-2 focus:outline-slate-900";
+    "min-h-11 rounded-md border border-line-strong bg-surface px-3 font-mono focus:border-brand focus:outline-2 focus:outline-focus";
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <form
-        className="flex flex-col gap-5 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+        className="flex flex-col gap-5 rounded-lg border border-line bg-surface p-4 shadow-sm"
         noValidate
         onSubmit={(e) => {
           e.preventDefault();
@@ -135,10 +135,10 @@ export function Checker() {
         }}
       >
         <div className="flex flex-col gap-1">
-          <label htmlFor={ids.text} className="font-medium text-slate-900">
+          <label htmlFor={ids.text} className="font-medium text-ink">
             {t("check.numbersLabel")}
           </label>
-          <p id={ids.textHint} className="text-sm text-slate-600">
+          <p id={ids.textHint} className="text-sm text-ink-2">
             {t("check.numbersHint")}
           </p>
           <textarea
@@ -153,23 +153,23 @@ export function Checker() {
             aria-describedby={`${ids.textHint} ${ids.text}-count`}
             className={`${inputClass} py-2 text-base leading-relaxed`}
           />
-          <p id={`${ids.text}-count`} className="text-sm text-slate-700" aria-live="polite">
+          <p id={`${ids.text}-count`} className="text-sm text-ink-2" aria-live="polite">
             {t("check.found", { count: numbers.length })}
           </p>
         </div>
 
-        <fieldset className="flex flex-col gap-2 rounded-md border border-slate-200 p-3">
-          <legend className="px-1 font-medium text-slate-900">{t("check.rangeTitle")}</legend>
-          <p className="text-sm text-slate-600">{t("check.rangeHint")}</p>
+        <fieldset className="flex flex-col gap-2 rounded-md border border-line p-3">
+          <legend className="px-1 font-medium text-ink">{t("check.rangeTitle")}</legend>
+          <p className="text-sm text-ink-2">{t("check.rangeHint")}</p>
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex flex-col gap-1">
-              <label htmlFor={ids.from} className="text-sm text-slate-800">
+              <label htmlFor={ids.from} className="text-sm text-ink">
                 {t("check.rangeFrom")}
               </label>
               <input id={ids.from} value={from} onChange={(e) => setFrom(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" dir="ltr" autoComplete="off" aria-invalid={rangeError ? true : undefined} aria-describedby={rangeError ? ids.rangeErr : undefined} className={`${inputClass} w-32`} />
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor={ids.to} className="text-sm text-slate-800">
+              <label htmlFor={ids.to} className="text-sm text-ink">
                 {t("check.rangeTo")}
               </label>
               <input id={ids.to} value={to} onChange={(e) => setTo(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" dir="ltr" autoComplete="off" aria-invalid={rangeError ? true : undefined} aria-describedby={rangeError ? ids.rangeErr : undefined} className={`${inputClass} w-32`} />
@@ -178,13 +178,13 @@ export function Checker() {
               {t("check.rangeAdd")}
             </Button>
           </div>
-          <p id={ids.rangeErr} className="text-sm text-red-800" aria-live="polite">
+          <p id={ids.rangeErr} className="text-sm text-danger" aria-live="polite">
             {rangeError}
           </p>
           {ranges.length ? (
             <ul aria-label={t("check.rangeList")} className="flex flex-wrap gap-2">
               {ranges.map((r, i) => (
-                <li key={`${r.from}-${r.to}-${i}`} className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-50 ps-3 text-sm">
+                <li key={`${r.from}-${r.to}-${i}`} className="inline-flex items-center gap-2 rounded-full border border-line-strong bg-surface-2 ps-3 text-sm">
                   <bdi dir="ltr" className="font-mono">
                     {r.from}–{r.to}
                   </bdi>
@@ -192,7 +192,7 @@ export function Checker() {
                     type="button"
                     onClick={() => setRanges((all) => all.filter((_, j) => j !== i))}
                     aria-label={t("check.rangeRemove", { from: r.from, to: r.to })}
-                    className="inline-flex size-11 items-center justify-center rounded-full hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-slate-900"
+                    className="inline-flex size-11 items-center justify-center rounded-full hover:bg-line focus-visible:outline-2 focus-visible:outline-focus"
                   >
                     <span aria-hidden="true">×</span>
                   </button>
@@ -203,7 +203,7 @@ export function Checker() {
         </fieldset>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor={ids.denom} className="font-medium text-slate-900">
+          <label htmlFor={ids.denom} className="font-medium text-ink">
             {t("check.denominationLabel")}
           </label>
           <select id={ids.denom} value={denomination} onChange={(e) => setDenomination(e.target.value)} className={`${inputClass} font-sans`}>
@@ -216,17 +216,17 @@ export function Checker() {
           </select>
         </div>
 
-        <div className="flex flex-col gap-2 rounded-md border border-dashed border-slate-300 p-3">
-          <p className="font-medium text-slate-900">{t("check.scanTitle")}</p>
-          <label htmlFor={ids.file} className="inline-flex min-h-11 w-fit cursor-pointer items-center rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-900 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-slate-900 hover:bg-slate-50">
+        <div className="flex flex-col gap-2 rounded-md border border-dashed border-line-strong p-3">
+          <p className="font-medium text-ink">{t("check.scanTitle")}</p>
+          <label htmlFor={ids.file} className="inline-flex min-h-11 w-fit cursor-pointer items-center rounded-md border border-line-strong bg-surface px-4 text-sm font-medium text-ink focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-focus hover:bg-surface-2">
             {t("check.scanButton")}
             <input id={ids.file} type="file" accept="image/*,.pdf,.txt,.csv" className="sr-only" onChange={(e) => void onFile(e.target.files?.[0])} />
           </label>
-          <p className="text-sm text-slate-600">{t("check.scanHint")}</p>
-          <p className="text-sm text-slate-800" aria-live="polite">
+          <p className="text-sm text-ink-2">{t("check.scanHint")}</p>
+          <p className="text-sm text-ink" aria-live="polite">
             {scan.kind === "working" ? t("check.scanWorking", { progress: scan.progress }) : null}
             {scan.kind === "done" ? t("check.scanDone", { count: scan.count }) : null}
-            {scan.kind === "error" ? <span className="text-red-800">{t("check.scanError")}</span> : null}
+            {scan.kind === "error" ? <span className="text-danger">{t("check.scanError")}</span> : null}
           </p>
         </div>
 
@@ -248,21 +248,21 @@ export function Checker() {
             {t("check.clear")}
           </Button>
         </div>
-        <p className="text-sm text-red-800" aria-live="assertive">
+        <p className="text-sm text-danger" aria-live="assertive">
           {formError}
         </p>
-        <p className="text-xs text-slate-600">{t("check.privacy")}</p>
+        <p className="text-xs text-ink-2">{t("check.privacy")}</p>
       </form>
 
       <section aria-labelledby={ids.results} className="flex flex-col gap-3">
-        <h2 id={ids.results} ref={resultsRef} tabIndex={-1} className="text-lg font-semibold text-slate-900 focus:outline-none">
+        <h2 id={ids.results} ref={resultsRef} tabIndex={-1} className="text-lg font-semibold text-ink focus:outline-none">
           {t("check.resultsTitle")}
         </h2>
         <div aria-live="polite" aria-busy={state.kind === "checking"}>
-          {state.kind === "error" ? <p className="rounded-md border border-red-300 bg-red-50 p-3 text-red-900">{state.message}</p> : null}
+          {state.kind === "error" ? <p className="rounded-md border border-danger/40 bg-danger/10 p-3 text-danger">{state.message}</p> : null}
           {state.kind === "done" ? <Results result={state.result} /> : null}
         </div>
-        <p className="text-xs text-slate-600">
+        <p className="text-xs text-ink-2">
           {t("check.coverageNote")}{" "}
           <Link href="/prize-bonds/coverage" className="underline underline-offset-4">
             {t("hub.coverageLink")}
@@ -278,7 +278,7 @@ function Results({ result }: { result: CheckResponseExtra }) {
   const locale = useLocale();
   if (!result.wins.length) {
     return (
-      <p className="flex items-start gap-2 rounded-md border border-slate-300 bg-slate-50 p-3 text-slate-900">
+      <p className="flex items-start gap-2 rounded-md border border-line-strong bg-surface-2 p-3 text-ink">
         <span aria-hidden="true">✗</span>
         {t("check.summaryNone", { checked: result.checked })}
       </p>
@@ -286,17 +286,17 @@ function Results({ result }: { result: CheckResponseExtra }) {
   }
   return (
     <div className="flex flex-col gap-3">
-      <p className="flex items-start gap-2 rounded-md border border-emerald-700 bg-emerald-50 p-3 font-medium text-emerald-950">
+      <p className="flex items-start gap-2 rounded-md border border-brand bg-success/10 p-3 font-medium text-success">
         <span aria-hidden="true">✓</span>
         {t("check.summaryWins", { wins: result.wins.length, checked: result.checked })}
       </p>
-      <div tabIndex={0} role="region" aria-label={t("check.winsCaption")} className="overflow-x-auto rounded-lg border border-slate-200 bg-white focus-visible:outline-2 focus-visible:outline-slate-900">
+      <div tabIndex={0} role="region" aria-label={t("check.winsCaption")} className="overflow-x-auto rounded-lg border border-line bg-surface focus-visible:outline-2 focus-visible:outline-focus">
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">{t("check.winsCaption")}</caption>
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50">
+            <tr className="border-b border-line bg-surface-2">
               {(["number", "bond", "draw", "date", "prize", "amount"] as const).map((k) => (
-                <th key={k} scope="col" className={`px-3 py-2 font-semibold text-slate-700 ${k === "amount" ? "text-end" : "text-start"}`}>
+                <th key={k} scope="col" className={`px-3 py-2 font-semibold text-ink-2 ${k === "amount" ? "text-end" : "text-start"}`}>
                   {t(`check.columns.${k}`)}
                 </th>
               ))}
@@ -304,7 +304,7 @@ function Results({ result }: { result: CheckResponseExtra }) {
           </thead>
           <tbody>
             {result.wins.map((w) => (
-              <tr key={`${w.drawId}-${w.bondNumber}`} className="border-b border-slate-100">
+              <tr key={`${w.drawId}-${w.bondNumber}`} className="border-b border-line">
                 <th scope="row" className="px-3 py-2 text-start font-normal">
                   <BondNumber value={w.bondNumber} emphasis />
                 </th>
@@ -317,7 +317,7 @@ function Results({ result }: { result: CheckResponseExtra }) {
                   ) : (
                     t("common.drawNumberUnknown")
                   )}
-                  {w.status === "disputed" ? <span className="mt-1 block text-xs text-amber-900">! {t("check.disputedWin")}</span> : null}
+                  {w.status === "disputed" ? <span className="mt-1 block text-xs text-warning">! {t("check.disputedWin")}</span> : null}
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap">
                   <time dateTime={w.drawDate}>{formatDrawDate(w.drawDate, locale, "short")}</time>

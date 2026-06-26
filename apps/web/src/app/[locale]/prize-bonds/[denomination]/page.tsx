@@ -57,7 +57,7 @@ export default async function DenominationPage({ params }: Props) {
       <PageHeader
         title={t("denomination.title", { bond })}
         description={notes ?? undefined}
-        actions={denom ? <span className="text-sm text-slate-700">{t(`common.kind.${denom.kind}`)} · {denom.status === "active" ? t("common.active") : t("common.discontinued")}</span> : undefined}
+        actions={denom ? <span className="text-sm text-ink-2">{t(`common.kind.${denom.kind}`)} · {denom.status === "active" ? t("common.active") : t("common.discontinued")}</span> : undefined}
       />
 
       {!data.ok ? (
@@ -67,18 +67,18 @@ export default async function DenominationPage({ params }: Props) {
           <div className="grid gap-4 md:grid-cols-2">
             <Card title={t("denomination.nextDraw")}>
               {data.value.next ? (
-                <p className="text-slate-900">
+                <p className="text-ink">
                   <time dateTime={data.value.next.drawDate} className="font-semibold">
                     {formatDrawDate(data.value.next.drawDate, locale)}
                   </time>
                   {data.value.next.city ? ` · ${data.value.next.city}` : ""}
-                  <span className="block text-sm text-slate-600">
+                  <span className="block text-sm text-ink-2">
                     {data.value.next.drawNumber ? `${t("common.drawNumber", { number: data.value.next.drawNumber })} · ` : ""}
                     {t("common.inDays", { days: daysUntil(data.value.next.drawDate, today) })}
                   </span>
                 </p>
               ) : (
-                <p className="text-slate-600">{t("denomination.noNextDraw")}</p>
+                <p className="text-ink-2">{t("denomination.noNextDraw")}</p>
               )}
             </Card>
             {data.value.latestPrizes?.prizes.length ? (
@@ -92,11 +92,11 @@ export default async function DenominationPage({ params }: Props) {
           </div>
 
           <section aria-labelledby="all-draws">
-            <h2 id="all-draws" className="mb-2 text-xl font-semibold text-slate-900">
+            <h2 id="all-draws" className="mb-2 text-xl font-semibold text-ink">
               {t("denomination.drawsTitle")}
             </h2>
             {data.value.draws.length === 0 ? (
-              <p className="text-slate-600">{t("denomination.noDraws")}</p>
+              <p className="text-ink-2">{t("denomination.noDraws")}</p>
             ) : (
               <>
                 {years.length > 4 ? (
@@ -104,7 +104,7 @@ export default async function DenominationPage({ params }: Props) {
                     <ul className="flex flex-wrap gap-1">
                       {years.map((y) => (
                         <li key={y}>
-                          <a href={`#y${y}`} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-2 text-sm tabular-nums text-slate-800 underline-offset-4 hover:bg-slate-100 hover:underline focus-visible:outline-2 focus-visible:outline-slate-900">
+                          <a href={`#y${y}`} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-2 text-sm tabular-nums text-ink underline-offset-4 hover:bg-surface-2 hover:underline focus-visible:outline-2 focus-visible:outline-focus">
                             {y}
                           </a>
                         </li>
@@ -112,13 +112,13 @@ export default async function DenominationPage({ params }: Props) {
                     </ul>
                   </nav>
                 ) : null}
-                <div tabIndex={0} role="region" aria-label={t("denomination.drawsCaption", { bond })} className="overflow-x-auto rounded-lg border border-slate-200 bg-white focus-visible:outline-2 focus-visible:outline-slate-900">
+                <div tabIndex={0} role="region" aria-label={t("denomination.drawsCaption", { bond })} className="overflow-x-auto rounded-lg border border-line bg-surface focus-visible:outline-2 focus-visible:outline-focus">
                   <table className="w-full border-collapse text-sm">
-                    <caption className="p-3 text-start text-sm font-medium text-slate-700">{t("denomination.drawsCaption", { bond })}</caption>
+                    <caption className="p-3 text-start text-sm font-medium text-ink-2">{t("denomination.drawsCaption", { bond })}</caption>
                     <thead>
-                      <tr className="border-y border-slate-200 bg-slate-50">
+                      <tr className="border-y border-line bg-surface-2">
                         {(["draw", "date", "city", "firstPrize", "results", "status"] as const).map((k) => (
-                          <th key={k} scope="col" className="px-3 py-2 text-start font-semibold text-slate-700">
+                          <th key={k} scope="col" className="px-3 py-2 text-start font-semibold text-ink-2">
                             {t(`denomination.columns.${k}`)}
                           </th>
                         ))}
@@ -129,7 +129,7 @@ export default async function DenominationPage({ params }: Props) {
                         const firstOfYear = i === 0 || all[i - 1]!.drawDate.slice(0, 4) !== d.drawDate.slice(0, 4);
                         const link = d.drawNumber && d.completeness !== "none";
                         return (
-                          <tr key={d.id} id={firstOfYear ? `y${d.drawDate.slice(0, 4)}` : undefined} className="scroll-mt-24 border-b border-slate-100">
+                          <tr key={d.id} id={firstOfYear ? `y${d.drawDate.slice(0, 4)}` : undefined} className="scroll-mt-24 border-b border-line">
                             <th scope="row" className="px-3 py-2 text-start font-medium tabular-nums">
                               {link ? (
                                 <Link href={`/prize-bonds/${slug}/${d.drawNumber}`} className="underline underline-offset-4 hover:no-underline">
@@ -138,7 +138,7 @@ export default async function DenominationPage({ params }: Props) {
                               ) : d.drawNumber ? (
                                 t("common.drawNumber", { number: d.drawNumber })
                               ) : (
-                                <span className="font-normal text-slate-500">{t("common.drawNumberUnknown")}</span>
+                                <span className="font-normal text-ink-2">{t("common.drawNumberUnknown")}</span>
                               )}
                             </th>
                             <td className="px-3 py-2 whitespace-nowrap">
@@ -156,7 +156,7 @@ export default async function DenominationPage({ params }: Props) {
                                 "–"
                               )}
                             </td>
-                            <td className="px-3 py-2 whitespace-nowrap text-slate-700">{t(`common.completeness.${d.completeness}`)}</td>
+                            <td className="px-3 py-2 whitespace-nowrap text-ink-2">{t(`common.completeness.${d.completeness}`)}</td>
                             <td className="px-3 py-2">
                               <StatusBadge status={d.status} />
                             </td>

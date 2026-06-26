@@ -60,16 +60,16 @@ export function SyncCodeCard({
   return (
     <section
       aria-labelledby="sync-code-heading"
-      className="rounded-xl border-2 border-slate-900 bg-white p-5 shadow-sm"
+      className="rounded-xl border-2 border-brand bg-surface p-5 shadow-sm"
       data-testid="sync-code-card"
     >
-      <H id="sync-code-heading" className="text-lg font-semibold text-slate-900">
+      <H id="sync-code-heading" className="text-lg font-semibold text-ink">
         {t("title")}
       </H>
-      <p className="mt-1 max-w-prose text-sm text-slate-700">{t("why")}</p>
+      <p className="mt-1 max-w-prose text-sm text-ink-2">{t("why")}</p>
       <div className="mt-4 flex flex-wrap items-center gap-4">
         <p
-          className="rounded-lg bg-slate-100 px-4 py-3 font-mono text-2xl font-bold tracking-[0.2em] text-slate-900 sm:text-3xl"
+          className="rounded-lg bg-surface-2 px-4 py-3 font-mono text-2xl font-bold tracking-[0.2em] text-ink sm:text-3xl"
           data-testid="sync-code"
         >
           <bdi dir="ltr">{code}</bdi>
@@ -89,10 +89,10 @@ export function SyncCodeCard({
       {showQr && link ? (
         <div className="mt-4 flex flex-wrap items-center gap-4">
           <QrCode value={link} label={t("qrLabel")} />
-          <p className="max-w-xs text-sm text-slate-700">{t("qrHelp")}</p>
+          <p className="max-w-xs text-sm text-ink-2">{t("qrHelp")}</p>
         </div>
       ) : null}
-      <ul className="mt-4 list-disc space-y-1 ps-5 text-sm text-slate-700">
+      <ul className="mt-4 list-disc space-y-1 ps-5 text-sm text-ink-2">
         <li>{t("tipPrivate")}</li>
         <li>{t("tipNoRecovery")}</li>
         <li>{t("tipRotates")}</li>

@@ -36,7 +36,7 @@ export default async function PrizeBondsHub({ params }: Props) {
       <QuickCheck action={`/${locale}/prize-bonds/check`} />
 
       <section aria-labelledby="latest">
-        <h2 id="latest" className="mb-3 text-xl font-semibold text-slate-900">
+        <h2 id="latest" className="mb-3 text-xl font-semibold text-ink">
           {t("hub.latestTitle")}
         </h2>
         {data.ok ? (
@@ -48,22 +48,22 @@ export default async function PrizeBondsHub({ params }: Props) {
         ) : (
           <Unavailable retryHref={`/${locale}/prize-bonds`} />
         )}
-        <p className="mt-3 text-sm text-slate-600">{t("hub.sourceNote")}</p>
+        <p className="mt-3 text-sm text-ink-2">{t("hub.sourceNote")}</p>
       </section>
 
       {data.ok ? (
         <section aria-labelledby="upcoming">
-          <h2 id="upcoming" className="mb-3 text-xl font-semibold text-slate-900">
+          <h2 id="upcoming" className="mb-3 text-xl font-semibold text-ink">
             {t("hub.upcomingTitle")}
           </h2>
           {data.value.upcoming.length ? (
-            <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
+            <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
               {data.value.upcoming.map((d) => (
                 <li key={d.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-                  <Link href={`/prize-bonds/${denominationSlug(d.code)}`} className="font-medium text-slate-900 underline-offset-4 hover:underline">
+                  <Link href={`/prize-bonds/${denominationSlug(d.code)}`} className="font-medium text-ink underline-offset-4 hover:underline">
                     {t(`common.denomination.${d.code}`)}
                   </Link>
-                  <span className="text-sm text-slate-700">
+                  <span className="text-sm text-ink-2">
                     <time dateTime={d.drawDate}>{formatDrawDate(d.drawDate, locale)}</time>
                     {d.city ? ` · ${d.city}` : ""} · {t("common.inDays", { days: daysUntil(d.drawDate, today) })}
                   </span>
@@ -71,7 +71,7 @@ export default async function PrizeBondsHub({ params }: Props) {
               ))}
             </ul>
           ) : (
-            <p className="text-slate-600">{t("hub.upcomingEmpty")}</p>
+            <p className="text-ink-2">{t("hub.upcomingEmpty")}</p>
           )}
           <p className="mt-3">
             <Link href={`/prize-bonds/schedule/${today.slice(0, 4)}`} className="font-medium underline underline-offset-4 hover:no-underline">
@@ -82,24 +82,24 @@ export default async function PrizeBondsHub({ params }: Props) {
       ) : null}
 
       <section aria-labelledby="denominations">
-        <h2 id="denominations" className="mb-3 text-xl font-semibold text-slate-900">
+        <h2 id="denominations" className="mb-3 text-xl font-semibold text-ink">
           {t("hub.denominationsTitle")}
         </h2>
         <ul className="flex flex-wrap gap-2">
           {ACTIVE_CODES.map((c) => (
             <li key={c}>
-              <Link href={`/prize-bonds/${denominationSlug(c)}`} className="inline-flex min-h-11 items-center rounded-md border border-slate-300 bg-white px-4 font-medium text-slate-900 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900">
+              <Link href={`/prize-bonds/${denominationSlug(c)}`} className="inline-flex min-h-11 items-center rounded-md border border-line-strong bg-surface px-4 font-medium text-ink hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
                 {t(`common.denomination.${c}`)}
               </Link>
             </li>
           ))}
         </ul>
-        <h3 className="mt-5 text-base font-semibold text-slate-900">{t("hub.discontinuedTitle")}</h3>
-        <p className="mb-2 text-sm text-slate-600">{t("hub.discontinuedNote")}</p>
+        <h3 className="mt-5 text-base font-semibold text-ink">{t("hub.discontinuedTitle")}</h3>
+        <p className="mb-2 text-sm text-ink-2">{t("hub.discontinuedNote")}</p>
         <ul className="flex flex-wrap gap-2">
           {discontinued.map((c) => (
             <li key={c}>
-              <Link href={`/prize-bonds/${denominationSlug(c)}`} className="inline-flex min-h-11 items-center rounded-md border border-slate-200 bg-slate-50 px-4 text-slate-800 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900">
+              <Link href={`/prize-bonds/${denominationSlug(c)}`} className="inline-flex min-h-11 items-center rounded-md border border-line bg-surface-2 px-4 text-ink hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
                 {t(`common.denomination.${c}`)}
               </Link>
             </li>

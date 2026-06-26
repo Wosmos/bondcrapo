@@ -54,7 +54,7 @@ function groupPkr(rows: PkrRates): PkrRow[] {
 const rate = (locale: string, v: number | undefined) => (v === undefined ? "-" : formatNumber(locale, v, v < 10 ? 4 : 2));
 
 function PkrTable({ locale, t, rows, names }: { locale: string; t: MarketsT; rows: PkrRow[]; names: Record<string, string> }) {
-  const cell = (v: number | undefined) => <Price className="text-slate-900">{rate(locale, v)}</Price>;
+  const cell = (v: number | undefined) => <Price className="text-ink">{rate(locale, v)}</Price>;
   return (
     <DataTable
       caption={t("currency.tableCaption")}
@@ -66,8 +66,8 @@ function PkrTable({ locale, t, rows, names }: { locale: string; t: MarketsT; row
           header: t("currency.currencyCol"),
           cell: (r: PkrRow) => (
             <Link href={`/currency/${pairSlug(r.currency, "PKR")}`} className="inline-flex min-h-6 flex-col underline-offset-2 hover:underline">
-              <span className="font-semibold text-slate-900">{r.currency}</span>
-              <span className="text-xs text-slate-600">{names[r.currency]}</span>
+              <span className="font-semibold text-ink">{r.currency}</span>
+              <span className="text-xs text-ink-2">{names[r.currency]}</span>
             </Link>
           ),
         },
@@ -105,7 +105,7 @@ export async function CurrencyPage({ locale }: { locale: string }) {
           <PkrTable locale={locale} t={t} rows={rows} names={names} />
           <div className="mt-3 flex flex-col gap-1 px-2 sm:px-0">
             {newest ? <Updated iso={newest} locale={locale} label={t.raw("common.updated") as string} staleLabel={t("common.stale")} /> : null}
-            <p className="max-w-prose text-xs leading-relaxed text-slate-600">{t("currency.openNote")}</p>
+            <p className="max-w-prose text-xs leading-relaxed text-ink-2">{t("currency.openNote")}</p>
           </div>
         </div>
       )}
@@ -117,7 +117,7 @@ export async function CurrencyPage({ locale }: { locale: string }) {
       </div>
 
       <section aria-labelledby="usd-chart" className={`${surface} mt-6 p-4 sm:p-6`}>
-        <h2 id="usd-chart" className="mb-4 text-lg font-semibold text-slate-900">
+        <h2 id="usd-chart" className="mb-4 text-lg font-semibold text-ink">
           {t("currency.chartTitle", { from: "USD", to: "PKR" })}
         </h2>
         <PriceChart
@@ -147,7 +147,7 @@ export async function CurrencyPage({ locale }: { locale: string }) {
 function PopularPairs({ t, names, exclude }: { t: MarketsT; names: Record<string, string>; exclude?: string }) {
   return (
     <section aria-labelledby="popular-pairs" className="mt-8">
-      <h2 id="popular-pairs" className="text-base font-semibold text-slate-900">
+      <h2 id="popular-pairs" className="text-base font-semibold text-ink">
         {t("currency.popular")}
       </h2>
       <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -155,12 +155,12 @@ function PopularPairs({ t, names, exclude }: { t: MarketsT; names: Record<string
           <li key={c}>
             <Link
               href={`/currency/${pairSlug(c, "PKR")}`}
-              className="flex min-h-11 flex-col justify-center rounded-lg bg-white px-3 py-2 text-sm ring-1 ring-slate-200 transition-colors hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+              className="flex min-h-11 flex-col justify-center rounded-lg bg-surface px-3 py-2 text-sm ring-1 ring-line transition-colors hover:bg-info/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             >
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-ink">
                 <bdi dir="ltr">{c} → PKR</bdi>
               </span>
-              <span className="truncate text-xs text-slate-600">{names[c] ?? c}</span>
+              <span className="truncate text-xs text-ink-2">{names[c] ?? c}</span>
             </Link>
           </li>
         ))}
@@ -205,13 +205,13 @@ export async function PairPage({ locale, from, to }: { locale: string; from: str
       ) : (
         <section aria-label={title} className="grid gap-4 md:grid-cols-3">
           <div className={`${surface} p-5 md:col-span-1`}>
-            <h2 className="text-sm font-medium text-slate-700">{t("currency.reference")}</h2>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+            <h2 className="text-sm font-medium text-ink-2">{t("currency.reference")}</h2>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-ink">
               <Price>
                 1 {from} = {formatNumber(locale, ref, ref >= 100 ? 2 : 4)} {to}
               </Price>
             </p>
-            <p className="mt-2 text-xs text-slate-600">
+            <p className="mt-2 text-xs text-ink-2">
               {t("currency.referenceHint")} {fx.ok ? formatDate(locale, fx.data.date, "long") : ""}
             </p>
           </div>
@@ -219,7 +219,7 @@ export async function PairPage({ locale, from, to }: { locale: string; from: str
             <div className={`${surface} p-5 md:col-span-2`}>
               {local ? (
                 <>
-                <p className="mb-3 text-xs text-slate-600">{t("currency.rupeesFor", { code: foreign })}</p>
+                <p className="mb-3 text-xs text-ink-2">{t("currency.rupeesFor", { code: foreign })}</p>
                 <dl className="grid grid-cols-2 gap-4">
                   {(
                     [
@@ -228,15 +228,15 @@ export async function PairPage({ locale, from, to }: { locale: string; from: str
                     ] as const
                   ).map(([k, q]) => (
                     <div key={k}>
-                      <dt className="text-sm font-medium text-slate-700">{t(`currency.${k}`)}</dt>
+                      <dt className="text-sm font-medium text-ink-2">{t(`currency.${k}`)}</dt>
                       <dd className="mt-2 space-y-1 text-sm">
                         <span className="flex justify-between gap-2">
-                          <span className="text-slate-600">{t("currency.buying")}</span>
-                          <Price className="font-semibold text-slate-900">{rate(locale, q?.buy)}</Price>
+                          <span className="text-ink-2">{t("currency.buying")}</span>
+                          <Price className="font-semibold text-ink">{rate(locale, q?.buy)}</Price>
                         </span>
                         <span className="flex justify-between gap-2">
-                          <span className="text-slate-600">{t("currency.selling")}</span>
-                          <Price className="font-semibold text-slate-900">{rate(locale, q?.sell)}</Price>
+                          <span className="text-ink-2">{t("currency.selling")}</span>
+                          <Price className="font-semibold text-ink">{rate(locale, q?.sell)}</Price>
                         </span>
                       </dd>
                     </div>
@@ -244,12 +244,12 @@ export async function PairPage({ locale, from, to }: { locale: string; from: str
                 </dl>
                 </>
               ) : (
-                <p className="text-sm text-slate-600">{t("common.unavailableBody")}</p>
+                <p className="text-sm text-ink-2">{t("common.unavailableBody")}</p>
               )}
-              <p className="mt-3 text-xs leading-relaxed text-slate-600">{t("currency.openNote")}</p>
+              <p className="mt-3 text-xs leading-relaxed text-ink-2">{t("currency.openNote")}</p>
             </div>
           ) : (
-            <p className={`${surface} p-5 text-sm text-slate-700 md:col-span-2`}>{t("currency.noPkr")}</p>
+            <p className={`${surface} p-5 text-sm text-ink-2 md:col-span-2`}>{t("currency.noPkr")}</p>
           )}
         </section>
       )}
@@ -261,7 +261,7 @@ export async function PairPage({ locale, from, to }: { locale: string; from: str
       ) : null}
 
       <section aria-labelledby="pair-chart" className={`${surface} mt-6 p-4 sm:p-6`}>
-        <h2 id="pair-chart" className="mb-4 text-lg font-semibold text-slate-900">
+        <h2 id="pair-chart" className="mb-4 text-lg font-semibold text-ink">
           {t("currency.chartTitle", { from, to })}
         </h2>
         <PriceChart
@@ -290,7 +290,7 @@ export async function PairPage({ locale, from, to }: { locale: string; from: str
                 key: "to",
                 header: to,
                 numeric: true,
-                cell: (a: number) => <Price className="font-medium text-slate-900">{to === "PKR" ? formatMoney(locale, "PKR", a * ref, 2) : formatNumber(locale, a * ref, 2)}</Price>,
+                cell: (a: number) => <Price className="font-medium text-ink">{to === "PKR" ? formatMoney(locale, "PKR", a * ref, 2) : formatNumber(locale, a * ref, 2)}</Price>,
               },
             ]}
           />
@@ -298,7 +298,7 @@ export async function PairPage({ locale, from, to }: { locale: string; from: str
       ) : null}
 
       <p className="mt-6">
-        <Link href={`/currency/${pairSlug(to, from)}`} className="font-medium text-sky-900 underline underline-offset-2">
+        <Link href={`/currency/${pairSlug(to, from)}`} className="font-medium text-info underline underline-offset-2">
           {t("currency.reverse", { from, to })}
         </Link>
       </p>

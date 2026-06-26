@@ -29,7 +29,7 @@ export function QrCode({ value, label, size = 192 }: { value: string; label: str
 
   const quiet = 4;
   return (
-    <div className="inline-block rounded-lg border border-slate-200 bg-white p-2" style={{ width: size + 18, height: size + 18 }}>
+    <div className="inline-block rounded-lg border border-line bg-surface p-2" style={{ width: size + 18, height: size + 18 }}>
       {path ? (
         <svg
           role="img"
@@ -43,7 +43,7 @@ export function QrCode({ value, label, size = 192 }: { value: string; label: str
           <path d={path.d} fill="#0f172a" />
         </svg>
       ) : (
-        <div role="status" aria-label={label} className="size-full animate-pulse rounded bg-slate-100 motion-reduce:animate-none" />
+        <div role="status" aria-label={label} className="size-full animate-pulse rounded bg-surface-2 motion-reduce:animate-none" />
       )}
     </div>
   );

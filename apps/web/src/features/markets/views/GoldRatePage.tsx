@@ -70,7 +70,7 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
     {
       key: "karat",
       header: t("common.purity"),
-      cell: (k: number) => <span className="font-semibold text-slate-900">{t("common.karat", { karat: k })}</span>,
+      cell: (k: number) => <span className="font-semibold text-ink">{t("common.karat", { karat: k })}</span>,
     },
     ...config.gold.units.map((u) => ({
       key: u,
@@ -78,11 +78,11 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
       numeric: true,
       cell: (k: number) => {
         const r = pickRate(rows, "XAU", k, u);
-        if (!r) return <span className="text-slate-500">-</span>;
+        if (!r) return <span className="text-ink-2">-</span>;
         return (
           <span className="inline-flex flex-col items-end gap-0.5">
-            <Price className="font-medium text-slate-900">{formatMoney(locale, r.currency, r.price, 0)}</Price>
-            <span className="text-[11px] font-normal text-slate-600">{r.kind === "reported" ? kinds.reported : kinds.estimated}</span>
+            <Price className="font-medium text-ink">{formatMoney(locale, r.currency, r.price, 0)}</Price>
+            <span className="text-[11px] font-normal text-ink-2">{r.kind === "reported" ? kinds.reported : kinds.estimated}</span>
           </span>
         );
       },
@@ -119,21 +119,21 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
         <>
           <section aria-labelledby="gold-hero" className="grid gap-4 md:grid-cols-[1.4fr_1fr]">
             <div className={`${surface} relative overflow-hidden p-5 sm:p-6`}>
-              <div aria-hidden="true" className="absolute -end-10 -top-10 size-40 rounded-full bg-gradient-to-br from-amber-200/70 to-amber-400/30 blur-2xl" />
+              <div aria-hidden="true" className="absolute -end-10 -top-10 size-40 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 blur-2xl" />
               <div className="relative flex flex-wrap items-center gap-2">
-                <h2 id="gold-hero" className="text-sm font-medium text-slate-700">
+                <h2 id="gold-hero" className="text-sm font-medium text-ink-2">
                   {t("gold.heroLabel", { unit: unitName })}
                 </h2>
                 <KindBadge kind={hero.kind} labels={kinds} />
               </div>
-              <p className="relative mt-2 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+              <p className="relative mt-2 text-4xl font-bold tracking-tight text-ink sm:text-5xl">
                 <Price>{formatMoney(locale, hero.currency, hero.price, 0)}</Price>
               </p>
               <div className="relative mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
                 {premiumPct !== null && parity ? (
-                  <p className="text-sm text-slate-700">
+                  <p className="text-sm text-ink-2">
                     {t("gold.parity")}: <Price className="font-medium">{formatMoney(locale, parity.currency, parity.price, 0)}</Price>
-                    <span className="text-slate-500"> · </span>
+                    <span className="text-ink-2"> · </span>
                     {t("gold.premium", { pct: formatPercent(locale, premiumPct) })}
                   </p>
                 ) : null}
@@ -145,24 +145,24 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
 
             <div className={`${surface} flex flex-col justify-between gap-3 p-5`}>
               <div>
-                <p className="text-sm font-medium text-slate-700">
-                  {t("common.spot")} <span className="text-slate-500">({t("common.perOunce")})</span>
+                <p className="text-sm font-medium text-ink-2">
+                  {t("common.spot")} <span className="text-ink-2">({t("common.perOunce")})</span>
                 </p>
                 {gold ? (
                   <>
-                    <p className="mt-1 text-2xl font-semibold text-slate-900">
+                    <p className="mt-1 text-2xl font-semibold text-ink">
                       <Price>{formatMoney(locale, "USD", gold.pricePerOunce, 2)}</Price>
                     </p>
                     <Change pct={gold.change24hPct} text={t("common.sinceClose", { change: formatPercent(locale, gold.change24hPct ?? 0) })} labels={changeLabels(t)} />
                   </>
                 ) : (
-                  <p className="mt-1 text-sm text-slate-600">-</p>
+                  <p className="mt-1 text-sm text-ink-2">-</p>
                 )}
               </div>
               {isPk ? (
-                <p className="text-xs leading-relaxed text-slate-600">{t("gold.parityHint")}</p>
+                <p className="text-xs leading-relaxed text-ink-2">{t("gold.parityHint")}</p>
               ) : (
-                <p className="text-xs leading-relaxed text-slate-600">{t("common.estimateNote")}</p>
+                <p className="text-xs leading-relaxed text-ink-2">{t("common.estimateNote")}</p>
               )}
             </div>
           </section>
@@ -178,7 +178,7 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
 
           {silverUnits.length > 0 ? (
             <section aria-labelledby="silver-mini" className={`${surface} mt-4 p-4`}>
-              <h2 id="silver-mini" className="text-base font-semibold text-slate-900">
+              <h2 id="silver-mini" className="text-base font-semibold text-ink">
                 <Link href={isPk ? "/silver-rate" : "/metals/silver"} className="underline-offset-2 hover:underline">
                   {t("gold.silverTitle", { country: countryName })}
                 </Link>
@@ -187,11 +187,11 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
                 {silverUnits.map((u) => {
                   const r = pickRate(rows, "XAG", 0, u)!;
                   return (
-                    <div key={u} className="rounded-lg bg-slate-50 p-3">
-                      <dt className="text-xs text-slate-600">{t("common.perUnit", { unit: t(`units.${u}`) })}</dt>
-                      <dd className="mt-0.5 font-semibold text-slate-900">
+                    <div key={u} className="rounded-lg bg-surface-2 p-3">
+                      <dt className="text-xs text-ink-2">{t("common.perUnit", { unit: t(`units.${u}`) })}</dt>
+                      <dd className="mt-0.5 font-semibold text-ink">
                         <Price>{formatMoney(locale, r.currency, r.price, r.price < 100 ? 2 : 0)}</Price>
-                        <span className="ms-2 text-[11px] font-normal text-slate-600">{r.kind === "reported" ? kinds.reported : kinds.estimated}</span>
+                        <span className="ms-2 text-[11px] font-normal text-ink-2">{r.kind === "reported" ? kinds.reported : kinds.estimated}</span>
                       </dd>
                     </div>
                   );
@@ -204,7 +204,7 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
 
       {isPk && config.cities ? (
         <section aria-labelledby="gold-cities" className="mt-8">
-          <h2 id="gold-cities" className="text-base font-semibold text-slate-900">
+          <h2 id="gold-cities" className="text-base font-semibold text-ink">
             {t("gold.cityLabel")}
           </h2>
           <ul className="mt-3 flex flex-wrap gap-2">
@@ -213,8 +213,8 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
                 <Link
                   href={`/gold-rate/pakistan/${c}`}
                   aria-current={c === city ? "page" : undefined}
-                  className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 ${
-                    c === city ? "bg-amber-100 font-semibold text-amber-950 ring-1 ring-amber-300" : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
+                  className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${
+                    c === city ? "bg-gold/15 font-semibold text-warning ring-1 ring-gold/50" : "bg-surface text-ink-2 ring-1 ring-line hover:bg-surface-2"
                   }`}
                 >
                   {t(`cities.${c}`)}
@@ -222,15 +222,15 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
               </li>
             ))}
           </ul>
-          {cityName ? <p className="mt-3 max-w-prose text-sm leading-relaxed text-slate-700">{t("gold.cityNote", { city: cityName })}</p> : null}
+          {cityName ? <p className="mt-3 max-w-prose text-sm leading-relaxed text-ink-2">{t("gold.cityNote", { city: cityName })}</p> : null}
         </section>
       ) : null}
 
       <section aria-labelledby="gold-chart" className={`${surface} mt-8 p-4 sm:p-6`}>
-        <h2 id="gold-chart" className="mb-1 text-lg font-semibold text-slate-900">
+        <h2 id="gold-chart" className="mb-1 text-lg font-semibold text-ink">
           {t("gold.chartTitle")}
         </h2>
-        <p className="mb-4 max-w-prose text-sm text-slate-600">{t("gold.chartNote", { currency: config.currency })}</p>
+        <p className="mb-4 max-w-prose text-sm text-ink-2">{t("gold.chartNote", { currency: config.currency })}</p>
         <PriceChart
           locale={locale}
           subject={t("gold.chartSubject", { unit: unitName })}
@@ -246,7 +246,7 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
       </section>
 
       <section aria-labelledby="gold-world" className="mt-8">
-        <h2 id="gold-world" className="text-base font-semibold text-slate-900">
+        <h2 id="gold-world" className="text-base font-semibold text-ink">
           {t("gold.otherCountries")}
         </h2>
         <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
@@ -254,10 +254,10 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
             <li key={c.code}>
               <Link
                 href={c.code === "PK" ? "/gold-rate" : `/gold-rate/${c.slug}`}
-                className="flex min-h-11 items-center justify-between rounded-lg bg-white px-3 py-2 text-sm text-slate-800 ring-1 ring-slate-200 transition-colors hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+                className="flex min-h-11 items-center justify-between rounded-lg bg-surface px-3 py-2 text-sm text-ink ring-1 ring-line transition-colors hover:bg-warning/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
               >
                 <span>{t(`countryNames.${c.code}`)}</span>
-                <span className="text-xs text-slate-500">{c.currency}</span>
+                <span className="text-xs text-ink-2">{c.currency}</span>
               </Link>
             </li>
           ))}

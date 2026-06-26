@@ -6,11 +6,11 @@ export function TopPrizes({ tier1, tier2 }: { tier1: number[]; tier2: number[] }
   const t = useTranslations("bonds.draw");
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      <section aria-labelledby="first-prize" className="rounded-lg border-2 border-slate-900 bg-white p-4">
-        <h2 id="first-prize" className="text-sm font-semibold uppercase tracking-wide text-slate-600">
+      <section aria-labelledby="first-prize" className="rounded-lg border-2 border-brand bg-surface p-4">
+        <h2 id="first-prize" className="text-sm font-semibold uppercase tracking-wide text-ink-2">
           {t("firstPrizeTitle")}
         </h2>
-        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-slate-900">
+        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-ink">
           {tier1.map((n) => (
             <li key={n}>
               <BondNumber value={n} size="xl" emphasis />
@@ -18,11 +18,11 @@ export function TopPrizes({ tier1, tier2 }: { tier1: number[]; tier2: number[] }
           ))}
         </ul>
       </section>
-      <section aria-labelledby="second-prize" className="rounded-lg border border-slate-300 bg-white p-4">
-        <h2 id="second-prize" className="text-sm font-semibold uppercase tracking-wide text-slate-600">
+      <section aria-labelledby="second-prize" className="rounded-lg border border-line-strong bg-surface p-4">
+        <h2 id="second-prize" className="text-sm font-semibold uppercase tracking-wide text-ink-2">
           {t("secondPrizeTitle")}
         </h2>
-        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-slate-900">
+        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-ink">
           {tier2.map((n) => (
             <li key={n}>
               <BondNumber value={n} size="lg" emphasis />

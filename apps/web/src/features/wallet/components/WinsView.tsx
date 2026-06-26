@@ -54,10 +54,10 @@ export function WinsView() {
             <Stat label={t("count")} value={f.number(matches.length)} />
             <Stat label={t("total")} value={f.rupees(total)} hint={t("beforeTax")} />
           </div>
-          <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+          <div className="overflow-x-auto rounded-lg border border-line bg-surface">
             <table className="w-full text-sm">
-              <caption className="px-3 py-2 text-start text-sm font-medium text-slate-700">{t("caption")}</caption>
-              <thead className="bg-slate-50 text-slate-700">
+              <caption className="px-3 py-2 text-start text-sm font-medium text-ink-2">{t("caption")}</caption>
+              <thead className="bg-surface-2 text-ink-2">
                 <tr>
                   <th scope="col" className="px-3 py-2 text-start font-semibold">{t("drawDate")}</th>
                   <th scope="col" className="px-3 py-2 text-start font-semibold">{t("bond")}</th>
@@ -70,10 +70,10 @@ export function WinsView() {
                 {matches.map((m) => {
                   const done = isClaimed(claimed, m);
                   return (
-                    <tr key={`${m.drawId}:${m.bondNumber}`} className="border-t border-slate-100 align-top">
+                    <tr key={`${m.drawId}:${m.bondNumber}`} className="border-t border-line align-top">
                       <td className="px-3 py-3">
                         <span className="block">{f.date(m.drawDate)}</span>
-                        <span className="block text-xs text-slate-600">
+                        <span className="block text-xs text-ink-2">
                           {f.denomination(m.denominationCode)}
                           {m.drawNumber ? ` · ${t("drawNo", { number: m.drawNumber })}` : ""}
                         </span>
@@ -101,16 +101,16 @@ export function WinsView() {
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-slate-600">{t("claimedNote")}</p>
+          <p className="text-xs text-ink-2">{t("claimedNote")}</p>
         </>
       )}
       <Card title={t("howTitle")} headingLevel={2}>
-        <ol className="list-decimal space-y-1 ps-5 text-sm text-slate-700">
+        <ol className="list-decimal space-y-1 ps-5 text-sm text-ink-2">
           <li>{t("how1")}</li>
           <li>{t("how2")}</li>
           <li>{t("how3")}</li>
         </ol>
-        <p className="mt-3 text-xs text-slate-600">{t("howNote")}</p>
+        <p className="mt-3 text-xs text-ink-2">{t("howNote")}</p>
       </Card>
     </div>
   );

@@ -122,7 +122,7 @@ export default async function DrawPage({ params }: Props) {
       />
 
       {d.draw.status === "disputed" ? (
-        <div role="note" className="flex gap-3 rounded-lg border border-amber-600 bg-amber-50 p-4 text-amber-950">
+        <div role="note" className="flex gap-3 rounded-lg border border-warning bg-warning/10 p-4 text-warning">
           <span aria-hidden="true" className="font-bold">!</span>
           <div>
             <p className="font-semibold">{t("draw.disputedTitle")}</p>
@@ -130,7 +130,7 @@ export default async function DrawPage({ params }: Props) {
           </div>
         </div>
       ) : (
-        <p className="text-sm text-slate-600">{t(`common.statusHelp.${d.draw.status}`)}</p>
+        <p className="text-sm text-ink-2">{t(`common.statusHelp.${d.draw.status}`)}</p>
       )}
 
       {d.draw.completeness === "none" ? (
@@ -144,18 +144,18 @@ export default async function DrawPage({ params }: Props) {
               {d.prizes.length ? (
                 <PrizeTable prizes={d.prizes} caption={t("draw.prizeTableCaption")} />
               ) : (
-                <p className="text-sm text-slate-600">{t("draw.amountsUnknownNote")}</p>
+                <p className="text-sm text-ink-2">{t("draw.amountsUnknownNote")}</p>
               )}
             </Card>
             <Card title={t("draw.downloadTitle")}>
               <p>
-                <a href={listUrl} download className="inline-flex min-h-11 items-center rounded-md border border-slate-300 bg-white px-4 font-medium text-slate-900 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900">
+                <a href={listUrl} download className="inline-flex min-h-11 items-center rounded-md border border-line-strong bg-surface px-4 font-medium text-ink hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
                   {t("draw.downloadTxt")}
                 </a>
               </p>
-              <p className="mt-2 text-sm text-slate-600">{t("draw.downloadHint")}</p>
+              <p className="mt-2 text-sm text-ink-2">{t("draw.downloadHint")}</p>
               {d.draw.checksum ? (
-                <p className="mt-2 text-xs text-slate-600">
+                <p className="mt-2 text-xs text-ink-2">
                   {t("draw.checksum")}:{" "}
                   <code dir="ltr" className="break-all">
                     {d.draw.checksum}
@@ -164,14 +164,14 @@ export default async function DrawPage({ params }: Props) {
               ) : null}
             </Card>
           </div>
-          {d.tier3.length ? <ThirdPrizeList numbers={d.tier3} /> : <p className="text-slate-600">{t("draw.noThird")}</p>}
+          {d.tier3.length ? <ThirdPrizeList numbers={d.tier3} /> : <p className="text-ink-2">{t("draw.noThird")}</p>}
         </>
       )}
 
       <SourcesList sources={d.sources} />
-      <p className="text-sm text-slate-600">{t("draw.claimNote")}</p>
+      <p className="text-sm text-ink-2">{t("draw.claimNote")}</p>
 
-      <nav aria-label={t("common.allDenominations")} className="flex flex-wrap justify-between gap-3 border-t border-slate-200 pt-4">
+      <nav aria-label={t("common.allDenominations")} className="flex flex-wrap justify-between gap-3 border-t border-line pt-4">
         {d.previous?.drawNumber ? (
           <Link href={`/prize-bonds/${slug}/${d.previous.drawNumber}`} rel="prev" className="inline-flex min-h-11 items-center gap-1 underline underline-offset-4">
             <span aria-hidden="true" className="rtl:rotate-180">←</span> {t("draw.previous")} ({t("common.drawNumber", { number: d.previous.drawNumber })})

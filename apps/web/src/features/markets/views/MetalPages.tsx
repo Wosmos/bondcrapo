@@ -49,14 +49,14 @@ export async function SilverRatePage({ locale }: { locale: string }) {
       ) : (
         <section aria-labelledby="silver-hero" className="grid gap-4 md:grid-cols-[1.4fr_1fr]">
           <div className={`${surface} relative overflow-hidden p-5 sm:p-6`}>
-            <div aria-hidden="true" className="absolute -end-10 -top-10 size-40 rounded-full bg-gradient-to-br from-slate-200 to-slate-400/40 blur-2xl" />
+            <div aria-hidden="true" className="absolute -end-10 -top-10 size-40 rounded-full bg-gradient-to-br from-line to-line-strong/30 blur-2xl" />
             <div className="relative flex flex-wrap items-center gap-2">
-              <h2 id="silver-hero" className="text-sm font-medium text-slate-700">
+              <h2 id="silver-hero" className="text-sm font-medium text-ink-2">
                 {t("silver.heroLabel")}
               </h2>
               <KindBadge kind={hero.kind} labels={kinds} />
             </div>
-            <p className="relative mt-2 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            <p className="relative mt-2 text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               <Price>{formatMoney(locale, "PKR", hero.price, 0)}</Price>
             </p>
             <div className="relative mt-3">
@@ -78,8 +78,8 @@ export async function SilverRatePage({ locale }: { locale: string }) {
                     const r = pickRate(rows, "XAG", 0, u)!;
                     return (
                       <span className="inline-flex flex-col items-end gap-0.5">
-                        <Price className="font-medium text-slate-900">{formatMoney(locale, "PKR", r.price, 0)}</Price>
-                        <span className="text-[11px] text-slate-600">{r.kind === "reported" ? kinds.reported : kinds.estimated}</span>
+                        <Price className="font-medium text-ink">{formatMoney(locale, "PKR", r.price, 0)}</Price>
+                        <span className="text-[11px] text-ink-2">{r.kind === "reported" ? kinds.reported : kinds.estimated}</span>
                       </span>
                     );
                   },
@@ -92,7 +92,7 @@ export async function SilverRatePage({ locale }: { locale: string }) {
 
       {worldRows.length > 0 ? (
         <section aria-labelledby="silver-world" className={`${surface} mt-6 p-2 sm:p-4`}>
-          <h2 id="silver-world" className="px-2 pt-2 text-lg font-semibold text-slate-900 sm:px-0 sm:pt-0">
+          <h2 id="silver-world" className="px-2 pt-2 text-lg font-semibold text-ink sm:px-0 sm:pt-0">
             {t("silver.worldTitle")}
           </h2>
           <DataTable
@@ -121,12 +121,12 @@ export async function SilverRatePage({ locale }: { locale: string }) {
               },
             ]}
           />
-          <p className="px-2 pb-2 text-xs text-slate-600 sm:px-0">{t("common.estimateNote")}</p>
+          <p className="px-2 pb-2 text-xs text-ink-2 sm:px-0">{t("common.estimateNote")}</p>
         </section>
       ) : null}
 
       <section aria-labelledby="silver-chart" className={`${surface} mt-6 p-4 sm:p-6`}>
-        <h2 id="silver-chart" className="mb-4 text-lg font-semibold text-slate-900">
+        <h2 id="silver-chart" className="mb-4 text-lg font-semibold text-ink">
           {t("silver.chartTitle")}
         </h2>
         <PriceChart
@@ -191,10 +191,10 @@ export async function MetalPage({ locale, metal }: { locale: string; metal: Meta
       ) : (
         <section aria-label={t("metal.title", { metal: name })} className="grid gap-4 sm:grid-cols-2">
           <div className={`${surface} p-5 sm:p-6`}>
-            <p className="text-sm font-medium text-slate-700">
-              {name} <span className="text-slate-500">({t("metal.perOunce")})</span>
+            <p className="text-sm font-medium text-ink-2">
+              {name} <span className="text-ink-2">({t("metal.perOunce")})</span>
             </p>
-            <p className="mt-2 text-4xl font-bold tracking-tight text-slate-900">
+            <p className="mt-2 text-4xl font-bold tracking-tight text-ink">
               <Price>{formatMoney(locale, "USD", s.pricePerOunce, 2)}</Price>
             </p>
             <div className="mt-2">
@@ -205,25 +205,25 @@ export async function MetalPage({ locale, metal }: { locale: string; metal: Meta
             </div>
           </div>
           <div className={`${surface} p-5 sm:p-6`}>
-            <p className="text-sm font-medium text-slate-700">
-              {name} <span className="text-slate-500">({t("metal.perGram")})</span>
+            <p className="text-sm font-medium text-ink-2">
+              {name} <span className="text-ink-2">({t("metal.perGram")})</span>
             </p>
-            <p className="mt-2 text-3xl font-semibold text-slate-900">
+            <p className="mt-2 text-3xl font-semibold text-ink">
               <Price>{formatMoney(locale, "USD", s.pricePerOunce / GRAMS_PER_TROY_OUNCE, 2)}</Price>
             </p>
             {fx.ok && fx.data.rates.PKR ? (
-              <p className="mt-2 text-lg text-slate-800">
+              <p className="mt-2 text-lg text-ink">
                 <Price>{formatMoney(locale, "PKR", (s.pricePerOunce * fx.data.rates.PKR) / GRAMS_PER_TROY_OUNCE, 0)}</Price>
               </p>
             ) : null}
-            <p className="mt-3 text-xs leading-relaxed text-slate-600">{t("metal.note")}</p>
+            <p className="mt-3 text-xs leading-relaxed text-ink-2">{t("metal.note")}</p>
           </div>
         </section>
       )}
 
       {rows.length > 0 && fx.ok ? (
         <section aria-labelledby="metal-currencies" className={`${surface} mt-6 p-2 sm:p-4`}>
-          <h2 id="metal-currencies" className="px-2 pt-2 text-lg font-semibold text-slate-900 sm:px-0 sm:pt-0">
+          <h2 id="metal-currencies" className="px-2 pt-2 text-lg font-semibold text-ink sm:px-0 sm:pt-0">
             {t("metal.inCurrencies", { metal: name })}
           </h2>
           <DataTable
@@ -236,7 +236,7 @@ export async function MetalPage({ locale, metal }: { locale: string; metal: Meta
                 header: t("common.currency"),
                 cell: (r) => (
                   <span>
-                    <span className="font-semibold text-slate-900">{r.c}</span> <span className="text-xs text-slate-600">{names[r.c]}</span>
+                    <span className="font-semibold text-ink">{r.c}</span> <span className="text-xs text-ink-2">{names[r.c]}</span>
                   </span>
                 ),
               },
@@ -248,7 +248,7 @@ export async function MetalPage({ locale, metal }: { locale: string; metal: Meta
       ) : null}
 
       <section aria-labelledby="metal-chart" className={`${surface} mt-6 p-4 sm:p-6`}>
-        <h2 id="metal-chart" className="mb-4 text-lg font-semibold text-slate-900">
+        <h2 id="metal-chart" className="mb-4 text-lg font-semibold text-ink">
           {t("metal.chartTitle", { metal: name })}
         </h2>
         <PriceChart
@@ -266,7 +266,7 @@ export async function MetalPage({ locale, metal }: { locale: string; metal: Meta
       </section>
 
       <section aria-labelledby="other-metals" className="mt-8">
-        <h2 id="other-metals" className="text-base font-semibold text-slate-900">
+        <h2 id="other-metals" className="text-base font-semibold text-ink">
           {t("metal.otherMetals")}
         </h2>
         <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -274,7 +274,7 @@ export async function MetalPage({ locale, metal }: { locale: string; metal: Meta
             <li key={m}>
               <Link
                 href={`/metals/${SLUG_FOR_METAL[m]}`}
-                className="flex min-h-11 items-center rounded-lg bg-white px-3 text-sm font-medium text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+                className="flex min-h-11 items-center rounded-lg bg-surface px-3 text-sm font-medium text-ink ring-1 ring-line hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
               >
                 {t(`metals.${m}`)}
               </Link>

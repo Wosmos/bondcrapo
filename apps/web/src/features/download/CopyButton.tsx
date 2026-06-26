@@ -18,7 +18,7 @@ export function CopyButton({ value, label, copiedLabel }: { value: string; label
             setCopied(false);
           }
         }}
-        className="inline-flex min-h-11 items-center gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+        className="inline-flex min-h-11 items-center gap-2 rounded-md border border-line-strong bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2">
           {copied ? <path d="M5 13l4 4L19 7" /> : <path d="M8 8h11v11H8zM5 16H4V5h11v1" />}

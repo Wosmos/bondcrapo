@@ -54,11 +54,11 @@ export function RestoreForm({ initialCode = "", headingLevel = 2 }: { initialCod
   }
 
   return (
-    <section aria-labelledby={`${id}-title`} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-      <H id={`${id}-title`} className="text-lg font-semibold text-slate-900">
+    <section aria-labelledby={`${id}-title`} className="rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-6">
+      <H id={`${id}-title`} className="text-lg font-semibold text-ink">
         {t("title")}
       </H>
-      <p className="mt-1 max-w-prose text-sm text-slate-700">{t("lead")}</p>
+      <p className="mt-1 max-w-prose text-sm text-ink-2">{t("lead")}</p>
       <form className="mt-4 flex max-w-md flex-col gap-4" onSubmit={onSubmit} noValidate>
         <Field id={`${id}-code`} label={t("label")} hint={t("hint")} error={error}>
           <FieldInput
@@ -77,7 +77,7 @@ export function RestoreForm({ initialCode = "", headingLevel = 2 }: { initialCod
           />
         </Field>
         {hasCurrent ? (
-          <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">
+          <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm text-warning">
             <p>{t("switchWarning")}</p>
             <label className="mt-2 flex min-h-11 items-center gap-2 font-medium">
               <input

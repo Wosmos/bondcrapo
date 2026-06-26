@@ -80,7 +80,7 @@ function BondList() {
   return (
     <section aria-labelledby={`${ids}-title`} className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h2 id={`${ids}-title`} className="text-lg font-semibold text-slate-900">
+        <h2 id={`${ids}-title`} className="text-lg font-semibold text-ink">
           {t("title", { count: bonds.length })}
         </h2>
         <div className="flex flex-wrap gap-3">
@@ -144,12 +144,12 @@ function BondList() {
         </Notice>
       ) : null}
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <div className="overflow-x-auto rounded-lg border border-line bg-surface">
         <table className="w-full text-sm">
           <caption className="sr-only">
             {t("caption", { shown: visible.length, total: filtered.length })}
           </caption>
-          <thead className="bg-slate-50 text-slate-700">
+          <thead className="bg-surface-2 text-ink-2">
             <tr>
               <th scope="col" className="px-3 py-2 text-start font-semibold">{t("number")}</th>
               <th scope="col" className="px-3 py-2 text-start font-semibold">{t("denomination")}</th>
@@ -163,17 +163,17 @@ function BondList() {
               const k = `${b.denominationCode}:${b.bondNumber}`;
               const winCount = wins.get(k) ?? 0;
               return (
-                <tr key={k} className="border-t border-slate-100">
+                <tr key={k} className="border-t border-line">
                   <th scope="row" className="px-3 py-2 text-start font-normal">
                     <BondNumber value={b.bondNumber} className="text-base" />
                   </th>
                   <td className="px-3 py-2">{f.denomination(b.denominationCode)}</td>
-                  <td className="hidden px-3 py-2 text-slate-700 sm:table-cell">{b.label ?? ""}</td>
+                  <td className="hidden px-3 py-2 text-ink-2 sm:table-cell">{b.label ?? ""}</td>
                   <td className="px-3 py-2">
                     {winCount > 0 ? (
                       <Badge tone="success">{t("won", { count: winCount })}</Badge>
                     ) : (
-                      <span className="text-slate-600">{t("noWin")}</span>
+                      <span className="text-ink-2">{t("noWin")}</span>
                     )}
                   </td>
                   <td className="px-3 py-2 text-end">
@@ -193,7 +193,7 @@ function BondList() {
             })}
             {visible.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-3 py-6 text-center text-slate-600">
+                <td colSpan={5} className="px-3 py-6 text-center text-ink-2">
                   {t("noResults")}
                 </td>
               </tr>
@@ -207,7 +207,7 @@ function BondList() {
           <Button variant="secondary" disabled={current <= 1} onClick={() => setPage(current - 1)}>
             {t("previous")}
           </Button>
-          <p className="text-sm text-slate-700" aria-live="polite">
+          <p className="text-sm text-ink-2" aria-live="polite">
             {t("page", { page: f.number(current), pages: f.number(pages) })}
           </p>
           <Button variant="secondary" disabled={current >= pages} onClick={() => setPage(current + 1)}>

@@ -28,7 +28,7 @@ export function Change({ pct, text, labels }: { pct: number | null; text: string
   if (pct === null) return null;
   const dir = Math.abs(pct) < 0.005 ? "flat" : pct > 0 ? "up" : "down";
   const icon = dir === "up" ? "▲" : dir === "down" ? "▼" : "◆";
-  const tone = dir === "up" ? "text-emerald-800" : dir === "down" ? "text-red-800" : "text-slate-700";
+  const tone = dir === "up" ? "text-success" : dir === "down" ? "text-danger" : "text-ink-2";
   return (
     <span className={`inline-flex items-center gap-1 text-sm font-medium ${tone}`}>
       <span aria-hidden="true">{icon}</span>
@@ -41,9 +41,9 @@ export function Change({ pct, text, labels }: { pct: number | null; text: string
 export function Updated({ iso, locale, label, staleLabel }: { iso: string; locale: string; label: string; staleLabel: string }) {
   const stale = isOlderThanDays(iso, 2);
   return (
-    <p className="text-xs text-slate-600">
+    <p className="text-xs text-ink-2">
       <time dateTime={iso}>{label.replace("{time}", formatDateTime(locale, iso))}</time>
-      {stale ? <span className="mt-1 block font-medium text-amber-900">{staleLabel}</span> : null}
+      {stale ? <span className="mt-1 block font-medium text-warning">{staleLabel}</span> : null}
     </p>
   );
 }
@@ -71,8 +71,8 @@ export function MarketsSubnav({ current, labels }: { current: "gold" | "silver" 
             <Link
               href={i.href}
               aria-current={i.id === current ? "page" : undefined}
-              className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 ${
-                i.id === current ? "bg-slate-900 text-white" : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
+              className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${
+                i.id === current ? "bg-brand text-on-brand" : "bg-surface text-ink-2 ring-1 ring-line hover:bg-surface-2"
               }`}
             >
               {i.label}
@@ -86,7 +86,7 @@ export function MarketsSubnav({ current, labels }: { current: "gold" | "silver" 
 
 export function Breadcrumbs({ items, label }: { items: { name: string; href?: string }[]; label: string }) {
   return (
-    <nav aria-label={label} className="mb-3 text-sm text-slate-600">
+    <nav aria-label={label} className="mb-3 text-sm text-ink-2">
       <ol className="flex flex-wrap items-center gap-1.5">
         {items.map((c, i) => (
           <li key={`${c.name}-${i}`} className="flex items-center gap-1.5">
@@ -96,7 +96,7 @@ export function Breadcrumbs({ items, label }: { items: { name: string; href?: st
                 {c.name}
               </Link>
             ) : (
-              <span aria-current="page" className="text-slate-900">
+              <span aria-current="page" className="text-ink">
                 {c.name}
               </span>
             )}
@@ -109,7 +109,7 @@ export function Breadcrumbs({ items, label }: { items: { name: string; href?: st
 
 export function SampleNotice({ text }: { text: string }) {
   return (
-    <p role="note" className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-950">
+    <p role="note" className="mb-4 rounded-lg border border-warning/40 bg-warning/10 px-4 py-2 text-sm text-warning">
       {text}
     </p>
   );
@@ -117,9 +117,9 @@ export function SampleNotice({ text }: { text: string }) {
 
 export function Unavailable({ title, description }: { title: string; description: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center">
-      <p className="text-base font-semibold text-slate-900">{title}</p>
-      <p className="mx-auto mt-1 max-w-prose text-sm text-slate-600">{description}</p>
+    <div className="rounded-xl border border-dashed border-line-strong bg-surface px-6 py-10 text-center">
+      <p className="text-base font-semibold text-ink">{title}</p>
+      <p className="mx-auto mt-1 max-w-prose text-sm text-ink-2">{description}</p>
     </div>
   );
 }
@@ -128,8 +128,8 @@ export function Sources({ ids, title, note }: { ids: string[]; title: string; no
   const list = attributionFor(ids);
   if (list.length === 0 && !note) return null;
   return (
-    <section aria-labelledby="markets-sources" className="mt-10 border-t border-slate-200 pt-6 text-sm text-slate-700">
-      <h2 id="markets-sources" className="text-base font-semibold text-slate-900">
+    <section aria-labelledby="markets-sources" className="mt-10 border-t border-line pt-6 text-sm text-ink-2">
+      <h2 id="markets-sources" className="text-base font-semibold text-ink">
         {title}
       </h2>
       {note ? <div className="mt-2 max-w-prose leading-relaxed">{note}</div> : null}
@@ -137,11 +137,11 @@ export function Sources({ ids, title, note }: { ids: string[]; title: string; no
         {list.map((a) => (
           <li key={a.text}>
             {a.url ? (
-              <a href={a.url} rel="noopener noreferrer external" target="_blank" className="font-medium text-slate-900 underline underline-offset-2">
+              <a href={a.url} rel="noopener noreferrer external" target="_blank" className="font-medium text-ink underline underline-offset-2">
                 {a.name}
               </a>
             ) : (
-              <span className="font-medium text-slate-900">{a.name}</span>
+              <span className="font-medium text-ink">{a.name}</span>
             )}
             : {a.text}
           </li>
@@ -154,19 +154,19 @@ export function Sources({ ids, title, note }: { ids: string[]; title: string; no
 export function Faq({ title, items }: { title: string; items: { q: string; a: string }[] }) {
   return (
     <section aria-labelledby="markets-faq" className="mt-10">
-      <h2 id="markets-faq" className="mb-3 text-lg font-semibold text-slate-900">
+      <h2 id="markets-faq" className="mb-3 text-lg font-semibold text-ink">
         {title}
       </h2>
-      <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
+      <div className="divide-y divide-line rounded-xl border border-line bg-surface">
         {items.map((f) => (
           <details key={f.q} className="group px-4 py-1">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 py-2 font-medium text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 [&::-webkit-details-marker]:hidden">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 py-2 font-medium text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
               {f.q}
-              <span aria-hidden="true" className="text-slate-500 transition-transform group-open:rotate-45 motion-reduce:transition-none">
+              <span aria-hidden="true" className="text-ink-2 transition-transform group-open:rotate-45 motion-reduce:transition-none">
                 +
               </span>
             </summary>
-            <p className="pb-3 text-sm leading-relaxed text-slate-700">{f.a}</p>
+            <p className="pb-3 text-sm leading-relaxed text-ink-2">{f.a}</p>
           </details>
         ))}
       </div>
@@ -174,4 +174,4 @@ export function Faq({ title, items }: { title: string; items: { q: string; a: st
   );
 }
 
-export const surface = "rounded-xl border border-slate-200 bg-white shadow-sm";
+export const surface = "rounded-xl border border-line bg-surface shadow-sm";

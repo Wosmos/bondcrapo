@@ -115,11 +115,11 @@ export function DownloadView({
             )}
           </div>
           {pageUrl ? (
-            <div className="hidden flex-col items-center gap-3 rounded-2xl bg-white p-5 text-center text-slate-900 md:flex">
+            <div className="hidden flex-col items-center gap-3 rounded-2xl bg-surface p-5 text-center text-ink md:flex">
               <QrCode value={pageUrl} label={t("qr.alt", { url: pageUrl })} />
               <div className="max-w-48">
                 <p className="text-sm font-semibold">{t("qr.title")}</p>
-                <p className="text-xs text-slate-600">{t("qr.body")}</p>
+                <p className="text-xs text-ink-2">{t("qr.body")}</p>
               </div>
             </div>
           ) : null}
@@ -130,30 +130,30 @@ export function DownloadView({
         <div className="grid gap-6 lg:grid-cols-3">
           <Card title={t("facts.label")}>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-              <dt className="text-slate-600">{t("facts.version")}</dt>
-              <dd className="font-medium text-slate-900">
+              <dt className="text-ink-2">{t("facts.version")}</dt>
+              <dd className="font-medium text-ink">
                 <bdi dir="ltr">{state.version}</bdi>
               </dd>
-              <dt className="text-slate-600">{t("facts.released")}</dt>
-              <dd className="font-medium text-slate-900">{released ?? t("facts.unknown")}</dd>
-              <dt className="text-slate-600">{t("facts.size")}</dt>
-              <dd className="font-medium text-slate-900">{size ? <bdi dir="ltr">{size}</bdi> : t("facts.unknown")}</dd>
-              <dt className="text-slate-600">{t("facts.requires")}</dt>
-              <dd className="font-medium text-slate-900">{t("facts.requiresValue")}</dd>
+              <dt className="text-ink-2">{t("facts.released")}</dt>
+              <dd className="font-medium text-ink">{released ?? t("facts.unknown")}</dd>
+              <dt className="text-ink-2">{t("facts.size")}</dt>
+              <dd className="font-medium text-ink">{size ? <bdi dir="ltr">{size}</bdi> : t("facts.unknown")}</dd>
+              <dt className="text-ink-2">{t("facts.requires")}</dt>
+              <dd className="font-medium text-ink">{t("facts.requiresValue")}</dd>
             </dl>
           </Card>
           <div className="lg:col-span-2">
             <Card title={t("checksum.title")}>
-              <p className="mb-3 text-sm text-slate-600">{t("checksum.body")}</p>
+              <p className="mb-3 text-sm text-ink-2">{t("checksum.body")}</p>
               {apk.sha256 ? (
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <code dir="ltr" className="block flex-1 break-all rounded-md bg-slate-100 px-3 py-2 font-mono text-xs text-slate-900">
+                  <code dir="ltr" className="block flex-1 break-all rounded-md bg-surface-2 px-3 py-2 font-mono text-xs text-ink">
                     {apk.sha256}
                   </code>
                   <CopyButton value={apk.sha256} label={t("checksum.copy")} copiedLabel={t("checksum.copied")} />
                 </div>
               ) : (
-                <p className="text-sm text-slate-700">{t("checksum.missing")}</p>
+                <p className="text-sm text-ink-2">{t("checksum.missing")}</p>
               )}
             </Card>
           </div>
@@ -165,42 +165,42 @@ export function DownloadView({
           <ol className="flex flex-col gap-4">
             {(["one", "two", "three", "four"] as const).map((step, i) => (
               <li key={step} className="flex gap-3">
-                <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-900">
+                <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full bg-success/15 text-sm font-semibold text-success">
                   {i + 1}
                 </span>
-                <span className="pt-0.5 text-sm leading-relaxed text-slate-800">{t(`steps.${step}`)}</span>
+                <span className="pt-0.5 text-sm leading-relaxed text-ink">{t(`steps.${step}`)}</span>
               </li>
             ))}
           </ol>
         </Card>
         <div className="flex flex-col gap-6">
           <Card title={t("safety.title")}>
-            <p className="text-sm leading-relaxed text-slate-700">{t("safety.body")}</p>
+            <p className="text-sm leading-relaxed text-ink-2">{t("safety.body")}</p>
           </Card>
           <Card title={t("iphone.title")}>
-            <p className="text-sm leading-relaxed text-slate-700">{t("iphone.body")}</p>
+            <p className="text-sm leading-relaxed text-ink-2">{t("iphone.body")}</p>
           </Card>
         </div>
       </div>
 
       {state.status === "ok" && state.notes.trim() ? (
         <Card title={t("notes.title", { version: state.version })}>
-          <div className="whitespace-pre-line text-sm leading-relaxed text-slate-700">{state.notes.trim()}</div>
+          <div className="whitespace-pre-line text-sm leading-relaxed text-ink-2">{state.notes.trim()}</div>
         </Card>
       ) : null}
 
       {others.length > 0 ? (
         <Card title={t("other.title")}>
-          <ul className="flex flex-col divide-y divide-slate-100">
+          <ul className="flex flex-col divide-y divide-line">
             {others.map((d) => (
               <li key={d.name} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <span className="flex items-center gap-2">
                   <Badge tone="neutral">{t(`platform.${d.platform}`)}</Badge>
-                  <a href={d.url} className="font-medium text-emerald-900 underline-offset-4 hover:underline">
+                  <a href={d.url} className="font-medium text-success underline-offset-4 hover:underline">
                     <bdi dir="ltr">{d.name}</bdi>
                   </a>
                 </span>
-                <span className="text-sm text-slate-600">
+                <span className="text-sm text-ink-2">
                   <bdi dir="ltr">{formatSize(d.size)}</bdi>
                 </span>
               </li>
@@ -210,7 +210,7 @@ export function DownloadView({
       ) : null}
 
       {pageUrl ? (
-        <p className="text-center text-xs text-slate-500 md:hidden">
+        <p className="text-center text-xs text-ink-2 md:hidden">
           <bdi dir="ltr">{pageUrl}</bdi>
         </p>
       ) : null}

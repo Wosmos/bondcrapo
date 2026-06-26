@@ -95,7 +95,7 @@ export function LegacyHistoryBanner() {
         </div>
       ) : null}
       {state === "error" ? (
-        <p role="alert" className="mt-2 font-medium text-red-800">
+        <p role="alert" className="mt-2 font-medium text-danger">
           {t("error")}
         </p>
       ) : null}

@@ -40,7 +40,7 @@ function SyncCodeSection() {
 
   return (
     <Card title={t("syncTitle")}>
-      <p className="max-w-prose text-sm text-slate-700">{t("syncBody")}</p>
+      <p className="max-w-prose text-sm text-ink-2">{t("syncBody")}</p>
       <div className="mt-3">
         <Button variant="secondary" onClick={() => setConfirm(true)} disabled={offline}>
           {t("syncNew")}
@@ -120,7 +120,7 @@ function NotificationsSection() {
   const unavailable = state === "unsupported" || state === "unconfigured" || state === "checking";
   return (
     <Card title={t("pushTitle")}>
-      <p className="max-w-prose text-sm text-slate-700">{t("pushBody")}</p>
+      <p className="max-w-prose text-sm text-ink-2">{t("pushBody")}</p>
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <Button
           variant={on ? "secondary" : "primary"}
@@ -130,7 +130,7 @@ function NotificationsSection() {
         >
           {on ? t("pushTurnOff") : t("pushTurnOn")}
         </Button>
-        <p className="text-sm text-slate-700">{t(`pushState.${state}`)}</p>
+        <p className="text-sm text-ink-2">{t(`pushState.${state}`)}</p>
       </div>
       {message ? (
         <div className="mt-3">
@@ -184,7 +184,7 @@ function ExportSection() {
 
   return (
     <Card title={t("exportTitle")}>
-      <p className="max-w-prose text-sm text-slate-700">{t("exportBody")}</p>
+      <p className="max-w-prose text-sm text-ink-2">{t("exportBody")}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button variant="secondary" onClick={() => run("xlsx")} loading={busy === "xlsx"}>
           {t("exportXlsx")}
@@ -193,7 +193,7 @@ function ExportSection() {
           {t("exportPdf")}
         </Button>
       </div>
-      <p className="mt-2 text-xs text-slate-600">{t("exportPdfNote")}</p>
+      <p className="mt-2 text-xs text-ink-2">{t("exportPdfNote")}</p>
       {failed ? (
         <div className="mt-3">
           <Notice tone="danger" live="assertive">
@@ -232,11 +232,11 @@ function DeleteSection() {
   }
 
   return (
-    <section aria-labelledby={`${checkId}-title`} className="rounded-lg border border-red-300 bg-white p-4">
-      <h2 id={`${checkId}-title`} className="text-base font-semibold text-red-900">
+    <section aria-labelledby={`${checkId}-title`} className="rounded-lg border border-danger/40 bg-surface p-4">
+      <h2 id={`${checkId}-title`} className="text-base font-semibold text-danger">
         {t("deleteTitle")}
       </h2>
-      <p className="mt-1 max-w-prose text-sm text-slate-700">{t("deleteBody")}</p>
+      <p className="mt-1 max-w-prose text-sm text-ink-2">{t("deleteBody")}</p>
       <div className="mt-3">
         <Button variant="danger" onClick={() => setOpen(true)} disabled={offline}>
           {t("deleteButton")}
@@ -261,12 +261,12 @@ function DeleteSection() {
         }
       >
         <p>{t("deleteConfirmBody")}</p>
-        <label htmlFor={checkId} className="mt-3 flex min-h-11 items-center gap-2 font-medium text-slate-900">
+        <label htmlFor={checkId} className="mt-3 flex min-h-11 items-center gap-2 font-medium text-ink">
           <input id={checkId} type="checkbox" className="size-5" checked={sure} onChange={(e) => setSure(e.target.checked)} />
           {t("deleteCheckbox")}
         </label>
         {error ? (
-          <p role="alert" className="mt-2 font-medium text-red-800">
+          <p role="alert" className="mt-2 font-medium text-danger">
             {error}
           </p>
         ) : null}
@@ -285,13 +285,13 @@ export function SettingsView() {
       <NotificationsSection />
       <ExportSection />
       <Card title={t("privacyTitle")}>
-        <ul className="list-disc space-y-1 ps-5 text-sm text-slate-700">
+        <ul className="list-disc space-y-1 ps-5 text-sm text-ink-2">
           <li>{t("privacyStored")}</li>
           <li>{t("privacyNotStored")}</li>
           <li>{t("privacyDevice")}</li>
         </ul>
         <p className="mt-3 text-sm">
-          <Link href="/privacy" className="font-medium text-slate-900 underline underline-offset-4">
+          <Link href="/privacy" className="font-medium text-ink underline underline-offset-4">
             {t("privacyLink")}
           </Link>
         </p>

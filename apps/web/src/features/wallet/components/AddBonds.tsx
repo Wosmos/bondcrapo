@@ -189,21 +189,21 @@ export function AddBonds() {
   const modeHelpId = `${ids}-mode-help`;
 
   return (
-    <section aria-labelledby={`${ids}-title`} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-      <h2 id={`${ids}-title`} className="text-lg font-semibold text-slate-900">
+    <section aria-labelledby={`${ids}-title`} className="rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-6">
+      <h2 id={`${ids}-title`} className="text-lg font-semibold text-ink">
         {t("title")}
       </h2>
-      <p className="mt-1 text-sm text-slate-700">{t("lead")}</p>
+      <p className="mt-1 text-sm text-ink-2">{t("lead")}</p>
 
       <form className="mt-4 flex flex-col gap-5" onSubmit={onSubmit} noValidate>
         <fieldset className="flex flex-col gap-2" disabled={readOnly} aria-describedby={modeHelpId}>
-          <legend className="mb-2 text-sm font-medium text-slate-900">{t("howLabel")}</legend>
+          <legend className="mb-2 text-sm font-medium text-ink">{t("howLabel")}</legend>
           <div className="flex flex-wrap gap-2">
             {MODES.map((m) => (
               <label
                 key={m}
-                className={`inline-flex min-h-11 cursor-pointer items-center rounded-full border px-4 text-sm font-medium has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-slate-900 ${
-                  mode === m ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-800 hover:bg-slate-50"
+                className={`inline-flex min-h-11 cursor-pointer items-center rounded-full border px-4 text-sm font-medium has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus ${
+                  mode === m ? "border-brand bg-brand text-on-brand" : "border-line-strong bg-surface text-ink hover:bg-surface-2"
                 }`}
               >
                 <input
@@ -222,7 +222,7 @@ export function AddBonds() {
               </label>
             ))}
           </div>
-          <p id={modeHelpId} className="text-xs text-slate-600">
+          <p id={modeHelpId} className="text-xs text-ink-2">
             {t(`modeHelp.${mode}`)}
           </p>
         </fieldset>
@@ -323,12 +323,12 @@ export function AddBonds() {
                   aria-describedby={`${ids}-file-hint`}
                   type="file"
                   accept={SHEET_ACCEPT}
-                  className="block min-h-11 w-full text-sm file:me-3 file:min-h-11 file:rounded-md file:border-0 file:bg-slate-900 file:px-4 file:text-white"
+                  className="block min-h-11 w-full text-sm file:me-3 file:min-h-11 file:rounded-md file:border-0 file:bg-brand file:px-4 file:text-on-brand"
                   onChange={(e) => void onSheet(e.target.files?.[0])}
                 />
               </Field>
               {sheet ? (
-                <p className="mt-2 text-sm text-slate-700">{t("fileRead", { name: sheet.name, count: sheet.bonds.length })}</p>
+                <p className="mt-2 text-sm text-ink-2">{t("fileRead", { name: sheet.name, count: sheet.bonds.length })}</p>
               ) : null}
             </div>
           ) : null}
@@ -343,18 +343,18 @@ export function AddBonds() {
                   type="file"
                   accept={SCAN_ACCEPT}
                   capture="environment"
-                  className="block min-h-11 w-full text-sm file:me-3 file:min-h-11 file:rounded-md file:border-0 file:bg-slate-900 file:px-4 file:text-white"
+                  className="block min-h-11 w-full text-sm file:me-3 file:min-h-11 file:rounded-md file:border-0 file:bg-brand file:px-4 file:text-on-brand"
                   onChange={(e) => void onScan(e.target.files?.[0])}
                 />
               </Field>
               {scanState.phase === "working" ? (
-                <div role="status" className="flex items-center gap-3 text-sm text-slate-700">
+                <div role="status" className="flex items-center gap-3 text-sm text-ink-2">
                   <progress max={100} value={scanState.percent} className="h-2 w-40" aria-label={t("scanProgress")} />
                   {t("scanWorking", { percent: scanState.percent })}
                 </div>
               ) : null}
               {scanState.phase === "error" ? (
-                <p role="alert" className="text-sm font-medium text-red-800">
+                <p role="alert" className="text-sm font-medium text-danger">
                   {scanState.error}
                 </p>
               ) : null}
@@ -375,12 +375,12 @@ export function AddBonds() {
           ) : null}
         </fieldset>
 
-        <div className="flex flex-col gap-3 rounded-lg bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-sm text-slate-800" aria-live="polite">
+        <div className="flex flex-col gap-3 rounded-lg bg-surface-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm text-ink" aria-live="polite">
             {candidate.bonds.length > 0 ? (
               <>
                 <p className="font-medium">{t("summary", { count: candidate.bonds.length })}</p>
-                <p className="text-slate-600">
+                <p className="text-ink-2">
                   {[
                     alreadyOwned ? t("summaryOwned", { count: alreadyOwned }) : null,
                     candidate.duplicates ? t("summaryDuplicates", { count: candidate.duplicates }) : null,
@@ -392,7 +392,7 @@ export function AddBonds() {
                 </p>
               </>
             ) : (
-              <p className="text-slate-600">{t("summaryNone")}</p>
+              <p className="text-ink-2">{t("summaryNone")}</p>
             )}
           </div>
           <Button type="submit" size="lg" loading={submitting} disabled={readOnly || (touched && candidate.bonds.length === 0)}>

@@ -17,7 +17,7 @@ function DigitDiff({ mine, winning, label }: { mine: string; winning: string; la
             {ch}
           </span>
         ) : (
-          <mark key={i} aria-hidden="true" className="rounded bg-amber-200 px-0.5 font-bold text-slate-900 underline decoration-2">
+          <mark key={i} aria-hidden="true" className="rounded bg-gold/25 px-0.5 font-bold text-ink underline decoration-2">
             {ch}
           </mark>
         ),
@@ -45,7 +45,7 @@ export function NearMissesView() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title={t("title")} description={t("description")} />
-      <p className="flex flex-wrap items-center gap-2 text-sm text-slate-700">
+      <p className="flex flex-wrap items-center gap-2 text-sm text-ink-2">
         <Badge tone="info">{t("forInterest")}</Badge>
         {t("disclaimer")}
       </p>
@@ -58,21 +58,21 @@ export function NearMissesView() {
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
           {misses.map((m) => (
-            <li key={`${m.drawId}:${m.bondNumber}:${m.winningNumber}`} className="rounded-lg border border-slate-200 bg-white p-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-600">
+            <li key={`${m.drawId}:${m.bondNumber}:${m.winningNumber}`} className="rounded-lg border border-line bg-surface p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-ink-2">
                 {f.denomination(m.denominationCode)} · {f.date(m.drawDate)} · {f.tier(m.tier)}
               </p>
               <dl className="mt-3 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-1 text-sm">
-                <dt className="text-slate-600">{t("yours")}</dt>
+                <dt className="text-ink-2">{t("yours")}</dt>
                 <dd>
                   <DigitDiff mine={m.bondNumber} winning={m.winningNumber} label={m.bondNumber} />
                 </dd>
-                <dt className="text-slate-600">{t("winning")}</dt>
+                <dt className="text-ink-2">{t("winning")}</dt>
                 <dd>
                   <BondNumber value={m.winningNumber} className="text-base" />
                 </dd>
               </dl>
-              <p className="mt-3 text-sm text-slate-800">
+              <p className="mt-3 text-sm text-ink">
                 {m.reason === "last_five_digits" ? t("reasonLastFive") : t("reasonOneDigit")}
               </p>
             </li>

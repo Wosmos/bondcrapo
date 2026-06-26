@@ -17,12 +17,12 @@ export function Ltr({ children }: { children: ReactNode }) {
   return <bdi dir="ltr">{children}</bdi>;
 }
 
-const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900";
+const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export const linkButtonClass = {
-  primary: `inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-slate-900 px-4 text-sm font-medium text-white hover:bg-slate-700 ${FOCUS}`,
-  secondary: `inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-900 hover:bg-slate-50 ${FOCUS}`,
-  ghost: `inline-flex min-h-11 items-center gap-1 rounded-md px-2 text-sm font-medium text-slate-800 underline-offset-4 hover:underline ${FOCUS}`,
+  primary: `inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-brand px-4 text-sm font-medium text-on-brand hover:bg-brand-strong ${FOCUS}`,
+  secondary: `inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-line-strong bg-surface px-4 text-sm font-medium text-ink hover:bg-surface-2 ${FOCUS}`,
+  ghost: `inline-flex min-h-11 items-center gap-1 rounded-md px-2 text-sm font-medium text-ink underline-offset-4 hover:underline ${FOCUS}`,
 };
 
 export function LinkButton({
@@ -34,10 +34,10 @@ export function LinkButton({
 
 type Tone = "info" | "success" | "warning" | "danger";
 const TONE: Record<Tone, string> = {
-  info: "border-sky-300 bg-sky-50 text-sky-950",
-  success: "border-emerald-300 bg-emerald-50 text-emerald-950",
-  warning: "border-amber-300 bg-amber-50 text-amber-950",
-  danger: "border-red-300 bg-red-50 text-red-950",
+  info: "border-info/40 bg-info/10 text-info",
+  success: "border-success/40 bg-success/10 text-success",
+  warning: "border-warning/40 bg-warning/10 text-warning",
+  danger: "border-danger/40 bg-danger/10 text-danger",
 };
 const ICON: Record<Tone, string> = { info: "i", success: "✓", warning: "!", danger: "!" };
 
@@ -77,7 +77,7 @@ export function Notice({
 }
 
 export const inputClass =
-  "block w-full min-h-11 rounded-md border border-slate-400 bg-white px-3 text-base text-slate-900 placeholder:text-slate-500 aria-[invalid=true]:border-red-700 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-slate-900";
+  "block w-full min-h-11 rounded-md border border-line-strong bg-surface px-3 text-base text-ink placeholder:text-ink-2 aria-[invalid=true]:border-danger focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus";
 
 export function Field({
   label,
@@ -94,17 +94,17 @@ export function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-slate-900">
+      <label htmlFor={id} className="text-sm font-medium text-ink">
         {label}
       </label>
       {hint ? (
-        <p id={`${id}-hint`} className="text-xs text-slate-600">
+        <p id={`${id}-hint`} className="text-xs text-ink-2">
           {hint}
         </p>
       ) : null}
       {children}
       {error ? (
-        <p id={`${id}-error`} className="text-sm font-medium text-red-800">
+        <p id={`${id}-error`} className="text-sm font-medium text-danger">
           {error}
         </p>
       ) : null}
@@ -166,14 +166,14 @@ export function Dialog({
         e.preventDefault();
         onClose();
       }}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white p-0 text-slate-900 shadow-xl backdrop:bg-slate-900/50"
+      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-xl border border-line bg-surface p-0 text-ink shadow-xl backdrop:bg-black/50"
     >
       {open ? (
         <div className="flex flex-col gap-4 p-5">
           <h2 id={titleId} className="text-lg font-semibold">
             {title}
           </h2>
-          <div className="text-sm text-slate-700">{children}</div>
+          <div className="text-sm text-ink-2">{children}</div>
           {footer ? <div className="flex flex-wrap justify-end gap-2">{footer}</div> : null}
         </div>
       ) : null}

@@ -42,17 +42,17 @@ export default async function CoveragePage({ params }: Props) {
         }}
       />
       {data.ok ? <CoverageTables rows={data.value} /> : <Unavailable retryHref={`/${locale}/prize-bonds/coverage`} />}
-      <section aria-labelledby="method" className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 id="method" className="text-lg font-semibold text-slate-900">{t("coverage.methodTitle")}</h2>
-        <ol className="mt-2 list-decimal space-y-1 ps-5 text-sm text-slate-800">
+      <section aria-labelledby="method" className="rounded-lg border border-line bg-surface p-4">
+        <h2 id="method" className="text-lg font-semibold text-ink">{t("coverage.methodTitle")}</h2>
+        <ol className="mt-2 list-decimal space-y-1 ps-5 text-sm text-ink">
           {(["1", "2", "3", "4"] as const).map((k) => (
             <li key={k}>{t(`coverage.method.${k}`)}</li>
           ))}
         </ol>
       </section>
-      <section aria-labelledby="attribution" className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 id="attribution" className="text-lg font-semibold text-slate-900">{t("coverage.sourcesTitle")}</h2>
-        <ul className="mt-2 list-disc space-y-1 ps-5 text-sm text-slate-800">
+      <section aria-labelledby="attribution" className="rounded-lg border border-line bg-surface p-4">
+        <h2 id="attribution" className="text-lg font-semibold text-ink">{t("coverage.sourcesTitle")}</h2>
+        <ul className="mt-2 list-disc space-y-1 ps-5 text-sm text-ink">
           <li>{t("coverage.sources.official")}</li>
           <li>{t("coverage.sources.pkprizebond")}</li>
           <li>{t("coverage.sources.prizeinfo")}</li>

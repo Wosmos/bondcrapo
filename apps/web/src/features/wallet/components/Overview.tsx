@@ -11,16 +11,16 @@ import { BondNumber, LinkButton, Ltr } from "./bits";
 function Onboarding() {
   const t = useTranslations("wallet.onboarding");
   return (
-    <section aria-labelledby="onboarding-title" className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <h2 id="onboarding-title" className="text-xl font-semibold text-slate-900">
+    <section aria-labelledby="onboarding-title" className="rounded-2xl border border-line bg-surface p-6 shadow-sm sm:p-8">
+      <h2 id="onboarding-title" className="text-xl font-semibold text-ink">
         {t("title")}
       </h2>
-      <p className="mt-2 max-w-prose text-slate-700">{t("lead")}</p>
+      <p className="mt-2 max-w-prose text-ink-2">{t("lead")}</p>
       <ul className="mt-6 grid gap-4 sm:grid-cols-3">
         {(["noAccount", "automatic", "private"] as const).map((k) => (
-          <li key={k} className="rounded-lg bg-slate-50 p-4">
-            <p className="font-semibold text-slate-900">{t(`${k}Title`)}</p>
-            <p className="mt-1 text-sm text-slate-700">{t(`${k}Body`)}</p>
+          <li key={k} className="rounded-lg bg-surface-2 p-4">
+            <p className="font-semibold text-ink">{t(`${k}Title`)}</p>
+            <p className="mt-1 text-sm text-ink-2">{t(`${k}Body`)}</p>
           </li>
         ))}
       </ul>
@@ -50,14 +50,14 @@ function UnclaimedReminder() {
       title={t("unclaimedTitle")}
       actions={<LinkButton href="/my/wins" variant="ghost">{t("seeWins")}</LinkButton>}
     >
-      <p className="text-sm text-slate-700">
+      <p className="text-sm text-ink-2">
         {t("unclaimedBody", { count: open.length, amount: f.rupees(total) })}
       </p>
-      <ul className="mt-3 divide-y divide-slate-100">
+      <ul className="mt-3 divide-y divide-line">
         {open.slice(0, 3).map((m) => (
           <li key={claimedKey(m)} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
             <span>
-              <BondNumber value={m.bondNumber} /> <span className="text-slate-600">· {f.denomination(m.denominationCode)} · {f.date(m.drawDate)}</span>
+              <BondNumber value={m.bondNumber} /> <span className="text-ink-2">· {f.denomination(m.denominationCode)} · {f.date(m.drawDate)}</span>
             </span>
             <span className="flex items-center gap-2">
               <span className="font-semibold tabular-nums">{f.rupees(m.amountPkr)}</span>
@@ -68,7 +68,7 @@ function UnclaimedReminder() {
           </li>
         ))}
       </ul>
-      <p className="mt-2 text-xs text-slate-600">{t("claimedLocalNote")}</p>
+      <p className="mt-2 text-xs text-ink-2">{t("claimedLocalNote")}</p>
     </Card>
   );
 }
@@ -85,7 +85,7 @@ function WinsByYear() {
       <table className="w-full text-sm">
         <caption className="sr-only">{t("byYearCaption")}</caption>
         <thead>
-          <tr className="text-slate-600">
+          <tr className="text-ink-2">
             <th scope="col" className="py-1 text-start font-medium">{t("year")}</th>
             <th scope="col" className="py-1 text-end font-medium">{t("wins")}</th>
             <th scope="col" className="py-1 text-end font-medium">{t("amount")}</th>
@@ -94,13 +94,13 @@ function WinsByYear() {
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.year} className="border-t border-slate-100">
+            <tr key={r.year} className="border-t border-line">
               <th scope="row" className="py-2 text-start font-medium"><Ltr>{r.year}</Ltr></th>
               <td className="py-2 text-end tabular-nums">{f.number(r.count)}</td>
               <td className="py-2 text-end tabular-nums">{f.rupees(r.amountPkr)}</td>
               <td className="py-2 ps-3" aria-hidden="true">
-                <div className="h-2 rounded-full bg-slate-100">
-                  <div className="h-2 rounded-full bg-emerald-700" style={{ width: `${Math.max(4, (r.amountPkr / max) * 100)}%` }} />
+                <div className="h-2 rounded-full bg-surface-2">
+                  <div className="h-2 rounded-full bg-brand" style={{ width: `${Math.max(4, (r.amountPkr / max) * 100)}%` }} />
                 </div>
               </td>
             </tr>
@@ -119,13 +119,13 @@ function Upcoming() {
   return (
     <Card title={t("upcomingTitle")}>
       {draws.length === 0 ? (
-        <p className="text-sm text-slate-600">{t("upcomingEmpty")}</p>
+        <p className="text-sm text-ink-2">{t("upcomingEmpty")}</p>
       ) : (
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-line">
           {draws.slice(0, 6).map((d) => (
             <li key={`${d.denominationCode}-${d.drawDate}`} className="flex flex-wrap justify-between gap-2 py-2 text-sm">
               <span className="font-medium">{f.denomination(d.denominationCode)}</span>
-              <span className="text-slate-700">
+              <span className="text-ink-2">
                 {f.date(d.drawDate)}
                 {d.city ? ` · ${d.city}` : ""}
               </span>
@@ -150,9 +150,9 @@ function Holdings() {
     <Card title={t("holdingsTitle")} actions={<LinkButton href="/my/bonds" variant="ghost">{t("manageBonds")}</LinkButton>}>
       <ul className="flex flex-wrap gap-2">
         {groups.map(([code, n]) => (
-          <li key={code} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm">
+          <li key={code} className="rounded-full border border-line bg-surface-2 px-3 py-1 text-sm">
             <span className="font-medium">{f.denomination(code)}</span>
-            <span className="text-slate-600"> × {f.number(n)}</span>
+            <span className="text-ink-2"> × {f.number(n)}</span>
           </li>
         ))}
       </ul>
@@ -215,7 +215,7 @@ export function Overview() {
         <Stat label={t("statWinnings")} value={f.rupees(totals.winningsPkr)} hint={t("beforeTax")} />
       </div>
       {unseen > 0 ? (
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-emerald-300 bg-emerald-50 p-4 text-emerald-950">
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-success/40 bg-success/10 p-4 text-success">
           <span aria-hidden="true" className="text-xl">★</span>
           <p className="flex-1 font-medium">{t("newWinsBanner", { count: unseen })}</p>
           <LinkButton href="/my/wins" variant="secondary">{t("seeWins")}</LinkButton>
@@ -230,23 +230,23 @@ export function Overview() {
             title={t("evTitle")}
             actions={<Badge tone="info">{t("estimate")}</Badge>}
           >
-            <p className="text-2xl font-semibold tabular-nums text-slate-900">{f.rupeesPrecise(a.expectedValuePkrPerDraw)}</p>
-            <p className="mt-1 text-sm text-slate-700">{t("evLead")}</p>
+            <p className="text-2xl font-semibold tabular-nums text-ink">{f.rupeesPrecise(a.expectedValuePkrPerDraw)}</p>
+            <p className="mt-1 text-sm text-ink-2">{t("evLead")}</p>
             <button
               type="button"
-              className="mt-2 min-h-11 text-sm font-medium text-slate-800 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+              className="mt-2 min-h-11 text-sm font-medium text-ink underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
               aria-expanded={showEv}
               onClick={() => setShowEv((v) => !v)}
             >
               {t("evHow")}
             </button>
-            {showEv ? <p className="mt-1 text-sm text-slate-700">{t("evExplain")}</p> : null}
+            {showEv ? <p className="mt-1 text-sm text-ink-2">{t("evExplain")}</p> : null}
           </Card>
         ) : null}
         <WinsByYear />
         {a && a.nearMisses.length > 0 ? (
           <Card title={t("nearMissTitle")} actions={<LinkButton href="/my/near-misses" variant="ghost">{t("seeAll")}</LinkButton>}>
-            <p className="text-sm text-slate-700">{t("nearMissBody", { count: a.nearMisses.length })}</p>
+            <p className="text-sm text-ink-2">{t("nearMissBody", { count: a.nearMisses.length })}</p>
           </Card>
         ) : null}
       </div>

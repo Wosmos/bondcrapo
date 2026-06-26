@@ -61,7 +61,7 @@ export function FindInDraw({ listUrl, amounts }: Props) {
   if (outcome?.kind === "won") {
     const amount = amounts[outcome.tier];
     message = (
-      <p className="flex items-start gap-2 rounded-md border border-emerald-700 bg-emerald-50 p-3 text-emerald-950">
+      <p className="flex items-start gap-2 rounded-md border border-brand bg-success/10 p-3 text-success">
         <span aria-hidden="true">✓</span>
         <span>
           {amount
@@ -72,25 +72,25 @@ export function FindInDraw({ listUrl, amounts }: Props) {
     );
   } else if (outcome?.kind === "lost") {
     message = (
-      <p className="flex items-start gap-2 rounded-md border border-slate-300 bg-slate-50 p-3 text-slate-800">
+      <p className="flex items-start gap-2 rounded-md border border-line-strong bg-surface-2 p-3 text-ink">
         <span aria-hidden="true">✗</span>
         <span>{t("draw.findLost", { number: outcome.number })}</span>
       </p>
     );
   } else if (outcome?.kind === "invalid") {
-    message = <p className="text-red-800">{t("draw.findInvalid")}</p>;
+    message = <p className="text-danger">{t("draw.findInvalid")}</p>;
   } else if (outcome?.kind === "error") {
-    message = <p className="text-red-800">{t("draw.findError")}</p>;
+    message = <p className="text-danger">{t("draw.findError")}</p>;
   }
 
   return (
-    <section aria-labelledby={`${inputId}-title`} className="rounded-lg border border-slate-200 bg-white p-4">
-      <h2 id={`${inputId}-title`} className="text-base font-semibold text-slate-900">
+    <section aria-labelledby={`${inputId}-title`} className="rounded-lg border border-line bg-surface p-4">
+      <h2 id={`${inputId}-title`} className="text-base font-semibold text-ink">
         {t("draw.findTitle")}
       </h2>
       <form onSubmit={onSubmit} className="mt-3 flex flex-wrap items-end gap-3" noValidate>
         <div className="flex flex-col gap-1">
-          <label htmlFor={inputId} className="text-sm font-medium text-slate-800">
+          <label htmlFor={inputId} className="text-sm font-medium text-ink">
             {t("draw.findLabel")}
           </label>
           <input
@@ -103,13 +103,13 @@ export function FindInDraw({ listUrl, amounts }: Props) {
             dir="ltr"
             aria-describedby={hintId}
             aria-invalid={outcome?.kind === "invalid" || undefined}
-            className="min-h-11 w-40 rounded-md border border-slate-400 px-3 font-mono text-lg tracking-widest focus:border-slate-900 focus:outline-2 focus:outline-slate-900"
+            className="min-h-11 w-40 rounded-md border border-line-strong px-3 font-mono text-lg tracking-widest focus:border-brand focus:outline-2 focus:outline-focus"
           />
         </div>
         <Button type="submit" loading={busy} size="lg">
           {t("draw.findButton")}
         </Button>
-        <p id={hintId} className="w-full text-sm text-slate-600">
+        <p id={hintId} className="w-full text-sm text-ink-2">
           {t("draw.findHint")}
         </p>
       </form>

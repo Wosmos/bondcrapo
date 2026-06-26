@@ -76,16 +76,16 @@ export function Converter({ locale, rates, date, initialFrom, initialTo, popular
     </>
   );
 
-  const field = "min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-slate-900";
+  const field = "min-h-11 w-full rounded-lg border border-line-strong bg-surface px-3 text-base text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus";
 
   return (
-    <section aria-labelledby={`${id}-title`} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-      <Heading id={`${id}-title`} className="text-lg font-semibold text-slate-900">
+    <section aria-labelledby={`${id}-title`} className="rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-6">
+      <Heading id={`${id}-title`} className="text-lg font-semibold text-ink">
         {labels.title}
       </Heading>
       <form className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto_1fr] sm:items-end" onSubmit={(e) => e.preventDefault()}>
         <div>
-          <label htmlFor={`${id}-amount`} className="mb-1 block text-sm font-medium text-slate-700">
+          <label htmlFor={`${id}-amount`} className="mb-1 block text-sm font-medium text-ink-2">
             {labels.amount}
           </label>
           <input
@@ -101,7 +101,7 @@ export function Converter({ locale, rates, date, initialFrom, initialTo, popular
           />
         </div>
         <div>
-          <label htmlFor={`${id}-from`} className="mb-1 block text-sm font-medium text-slate-700">
+          <label htmlFor={`${id}-from`} className="mb-1 block text-sm font-medium text-ink-2">
             {labels.from}
           </label>
           <select id={`${id}-from`} value={from} onChange={(e) => setFrom(e.target.value)} className={field}>
@@ -114,13 +114,13 @@ export function Converter({ locale, rates, date, initialFrom, initialTo, popular
             setFrom(to);
             setTo(from);
           }}
-          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-line-strong bg-surface text-ink hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
         >
           <span aria-hidden="true">⇄</span>
           <span className="sr-only">{labels.swap}</span>
         </button>
         <div>
-          <label htmlFor={`${id}-to`} className="mb-1 block text-sm font-medium text-slate-700">
+          <label htmlFor={`${id}-to`} className="mb-1 block text-sm font-medium text-ink-2">
             {labels.to}
           </label>
           <select id={`${id}-to`} value={to} onChange={(e) => setTo(e.target.value)} className={field}>
@@ -129,25 +129,25 @@ export function Converter({ locale, rates, date, initialFrom, initialTo, popular
         </div>
       </form>
       {value === null ? (
-        <p id={`${id}-err`} role="alert" className="mt-2 text-sm text-red-800">
+        <p id={`${id}-err`} role="alert" className="mt-2 text-sm text-danger">
           {labels.invalid}
         </p>
       ) : null}
-      <output htmlFor={`${id}-amount ${id}-from ${id}-to`} aria-live="polite" className="mt-4 block rounded-lg bg-slate-50 p-4">
+      <output htmlFor={`${id}-amount ${id}-from ${id}-to`} aria-live="polite" className="mt-4 block rounded-lg bg-surface-2 p-4">
         {result !== null && value !== null && rate !== null ? (
           <>
-            <span className="block text-2xl font-semibold text-slate-900">
+            <span className="block text-2xl font-semibold text-ink">
               <bdi dir="ltr" className="tabular-nums">
                 {fill(labels.result, { amount: formatNumber(locale, value, value % 1 ? 2 : 0), from, result: formatNumber(locale, result, result >= 1000 ? 2 : 4), to })}
               </bdi>
             </span>
-            <span className="mt-1 block text-sm text-slate-600">
+            <span className="mt-1 block text-sm text-ink-2">
               <bdi dir="ltr">{fill(labels.rate, { from, rate: formatNumber(locale, rate, rate >= 100 ? 4 : 6), to })}</bdi>
             </span>
           </>
         ) : null}
       </output>
-      <p className="mt-2 text-xs text-slate-600">{fill(labels.asOf, { date: formatDate(locale, date, "long") })}</p>
+      <p className="mt-2 text-xs text-ink-2">{fill(labels.asOf, { date: formatDate(locale, date, "long") })}</p>
     </section>
   );
 }

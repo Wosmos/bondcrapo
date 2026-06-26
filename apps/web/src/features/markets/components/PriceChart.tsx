@@ -48,10 +48,11 @@ export interface PriceChartProps {
 }
 
 const TONES = {
-  gold: { stroke: "#b45309", fill: "#f59e0b" },
-  silver: { stroke: "#475569", fill: "#94a3b8" },
-  platinum: { stroke: "#0f766e", fill: "#14b8a6" },
-  currency: { stroke: "#0369a1", fill: "#0ea5e9" },
+  // Theme tokens, so the chart follows light and dark mode (styles/globals.css).
+  gold: { stroke: "var(--gold-ink)", fill: "var(--gold)" },
+  silver: { stroke: "var(--ink-2)", fill: "var(--line-strong)" },
+  platinum: { stroke: "var(--brand)", fill: "var(--brand)" },
+  currency: { stroke: "var(--info)", fill: "var(--info)" },
 } as const;
 
 const MAX_DRAWN = 320;
@@ -195,8 +196,8 @@ export function PriceChart(props: PriceChartProps) {
             type="button"
             aria-pressed={r === range}
             onClick={() => choose(r)}
-            className={`min-h-9 min-w-11 rounded-full px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 ${
-              r === range ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            className={`min-h-9 min-w-11 rounded-full px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${
+              r === range ? "bg-brand text-on-brand" : "bg-surface-2 text-ink-2 hover:bg-line"
             }`}
           >
             {labels.ranges[r]}
@@ -211,7 +212,7 @@ export function PriceChart(props: PriceChartProps) {
             scale.ticks.map((t) => (
               <span
                 key={t}
-                className="absolute end-0 -translate-y-1/2 text-[11px] tabular-nums text-slate-500"
+                className="absolute end-0 -translate-y-1/2 text-[11px] tabular-nums text-ink-2"
                 style={{ top: `${yPct(t)}%` }}
               >
                 {formatNumber(locale, t, Math.abs(scale.max) < 10 ? 2 : 0)}
@@ -236,51 +237,51 @@ export function PriceChart(props: PriceChartProps) {
           onPointerLeave={() => setActive(null)}
           onKeyDown={onKey}
           onBlur={() => setActive(null)}
-          className={`relative h-56 touch-pan-y rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 sm:h-72 ${
+          className={`relative h-56 touch-pan-y rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 sm:h-72 ${
             status === "loading" ? "opacity-50" : ""
           } motion-safe:transition-opacity`}
         >
           <svg viewBox="0 0 1000 300" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden="true" focusable="false">
             <defs>
               <linearGradient id={`${id}-fill`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={colors.fill} stopOpacity="0.28" />
-                <stop offset="100%" stopColor={colors.fill} stopOpacity="0" />
+                <stop offset="0%" style={{ stopColor: colors.fill }} stopOpacity="0.28" />
+                <stop offset="100%" style={{ stopColor: colors.fill }} stopOpacity="0" />
               </linearGradient>
             </defs>
             {n > 1 &&
               scale.ticks.map((t) => {
                 const y = (yPct(t) / 100) * 300;
-                return <line key={t} x1="0" x2="1000" y1={y} y2={y} stroke="#e2e8f0" strokeWidth="1" vectorEffect="non-scaling-stroke" />;
+                return <line key={t} x1="0" x2="1000" y1={y} y2={y} style={{ stroke: "var(--line)" }} strokeWidth="1" vectorEffect="non-scaling-stroke" />;
               })}
             {n > 1 && (
               <>
                 <path d={`${path}L1000,300L0,300Z`} fill={`url(#${id}-fill)`} />
-                <path d={path} fill="none" stroke={colors.stroke} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+                <path d={path} fill="none" style={{ stroke: colors.stroke }} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
               </>
             )}
           </svg>
 
           {shown && active !== null && (
             <>
-              <div className="pointer-events-none absolute inset-y-0 w-px bg-slate-400" style={{ left: `${xPct(active)}%` }} aria-hidden="true" />
+              <div className="pointer-events-none absolute inset-y-0 w-px bg-line-strong" style={{ left: `${xPct(active)}%` }} aria-hidden="true" />
               <div
-                className="pointer-events-none absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow"
+                className="pointer-events-none absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface shadow"
                 style={{ left: `${xPct(active)}%`, top: `${yPct(shown.value)}%`, background: colors.stroke }}
                 aria-hidden="true"
               />
               <div
-                className="pointer-events-none absolute top-1 z-10 rounded-md bg-slate-900 px-2.5 py-1.5 text-xs text-white shadow-lg"
+                className="pointer-events-none absolute top-1 z-10 rounded-md bg-ink px-2.5 py-1.5 text-xs text-paper shadow-lg"
                 style={xPct(active) > 60 ? { right: `${100 - xPct(active) + 1.5}%` } : { left: `${xPct(active) + 1.5}%` }}
                 aria-hidden="true"
               >
                 <div className="font-semibold tabular-nums">{fmt(shown.value)}</div>
-                <div className="text-slate-300">{formatDate(locale, shown.date)}</div>
+                <div className="text-ink-2">{formatDate(locale, shown.date)}</div>
               </div>
             </>
           )}
 
           {n <= 1 && status !== "loading" && (
-            <p className="absolute inset-0 flex items-center justify-center p-4 text-center text-sm text-slate-600">
+            <p className="absolute inset-0 flex items-center justify-center p-4 text-center text-sm text-ink-2">
               {status === "error" ? labels.error : labels.empty}
             </p>
           )}
@@ -292,7 +293,7 @@ export function PriceChart(props: PriceChartProps) {
           {xTicks.map((i, k) => (
             <span
               key={`${i}-${k}`}
-              className={`absolute top-1.5 whitespace-nowrap text-[11px] text-slate-500 ${k === 0 ? "" : k === xTicks.length - 1 ? "-translate-x-full" : "-translate-x-1/2"}`}
+              className={`absolute top-1.5 whitespace-nowrap text-[11px] text-ink-2 ${k === 0 ? "" : k === xTicks.length - 1 ? "-translate-x-full" : "-translate-x-1/2"}`}
               style={{ left: `${xPct(i)}%` }}
             >
               {formatDate(locale, drawn[i]!.date, points.length > 400 ? "medium" : "short")}
@@ -308,7 +309,7 @@ export function PriceChart(props: PriceChartProps) {
         {status === "loading" ? labels.loading : status === "error" ? labels.error : ""}
       </div>
       {status === "error" && (
-        <p className="mt-2 text-sm text-red-800">
+        <p className="mt-2 text-sm text-danger">
           {labels.error}{" "}
           <button type="button" onClick={() => void load(range)} className="font-semibold underline underline-offset-2">
             {labels.retry}
@@ -317,37 +318,37 @@ export function PriceChart(props: PriceChartProps) {
       )}
 
       {summaryText && (
-        <figcaption id={`${id}-summary`} className="mt-3 text-sm leading-relaxed text-slate-700">
+        <figcaption id={`${id}-summary`} className="mt-3 text-sm leading-relaxed text-ink-2">
           {summaryText}
         </figcaption>
       )}
 
       {points.length > 0 && (
-        <details className="group mt-3 rounded-lg border border-slate-200 bg-slate-50/60">
-          <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900">
+        <details className="group mt-3 rounded-lg border border-line bg-surface-2/60">
+          <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
             {labels.showTable}
           </summary>
           <div className="max-h-80 overflow-y-auto px-3 pb-3">
             <table className="w-full border-collapse text-sm" data-testid="chart-table">
-              <caption className="py-2 text-start text-xs text-slate-600">
+              <caption className="py-2 text-start text-xs text-ink-2">
                 {labels.tableCaption}
                 {table.step > 1 ? ` ${fill(labels.tableSampled, { step: String(table.step) })}` : ""}
               </caption>
               <thead>
-                <tr className="border-b border-slate-200">
-                  <th scope="col" className="py-1.5 text-start font-semibold text-slate-700">
+                <tr className="border-b border-line">
+                  <th scope="col" className="py-1.5 text-start font-semibold text-ink-2">
                     {labels.date}
                   </th>
-                  <th scope="col" className="py-1.5 text-end font-semibold text-slate-700">
+                  <th scope="col" className="py-1.5 text-end font-semibold text-ink-2">
                     {labels.value}
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {table.rows.map((p) => (
-                  <tr key={p.date} className="border-b border-slate-100 last:border-0">
-                    <td className="py-1.5 text-slate-700">{formatDate(locale, p.date)}</td>
-                    <td className="py-1.5 text-end tabular-nums text-slate-900">
+                  <tr key={p.date} className="border-b border-line last:border-0">
+                    <td className="py-1.5 text-ink-2">{formatDate(locale, p.date)}</td>
+                    <td className="py-1.5 text-end tabular-nums text-ink">
                       <bdi dir="ltr">{fmt(p.value)}</bdi>
                     </td>
                   </tr>

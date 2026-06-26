@@ -20,19 +20,19 @@ export function ThirdPrizeList({ numbers }: { numbers: number[] }) {
   return (
     <section aria-labelledby="third-prize">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="third-prize" className="text-lg font-semibold text-slate-900">
+        <h2 id="third-prize" className="text-lg font-semibold text-ink">
           {t("thirdPrizeTitle")}
         </h2>
-        <p className="text-sm text-slate-600">{t("thirdCount", { count: numbers.length })}</p>
+        <p className="text-sm text-ink-2">{t("thirdCount", { count: numbers.length })}</p>
       </div>
       <nav aria-label={t("jumpToRange")} className="mt-3">
-        <p className="mb-1 text-sm text-slate-600">{t("jumpToRange")}</p>
+        <p className="mb-1 text-sm text-ink-2">{t("jumpToRange")}</p>
         <ul className="flex flex-wrap gap-2">
           {ranges.map((g) => (
             <li key={g}>
               <a
                 href={`#range-${g}`}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-slate-300 bg-white px-3 font-mono text-sm hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-line-strong bg-surface px-3 font-mono text-sm hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
               >
                 <bdi dir="ltr">{g}…</bdi>
                 <span className="sr-only"> ({label(g)})</span>
@@ -43,13 +43,13 @@ export function ThirdPrizeList({ numbers }: { numbers: number[] }) {
       </nav>
       {ranges.map((g) => (
         <section key={g} id={`range-${g}`} aria-labelledby={`range-${g}-h`} className="mt-5 scroll-mt-24">
-          <h3 id={`range-${g}-h`} className="mb-2 text-sm font-semibold text-slate-700">
+          <h3 id={`range-${g}-h`} className="mb-2 text-sm font-semibold text-ink-2">
             <bdi dir="ltr">{label(g)}</bdi>{" "}
-            <span className="font-normal text-slate-500">({formatNumber(groups.get(g)!.length, locale)})</span>
+            <span className="font-normal text-ink-2">({formatNumber(groups.get(g)!.length, locale)})</span>
           </h3>
-          <ul dir="ltr" className="grid grid-cols-3 gap-x-2 gap-y-1 text-slate-900 min-[420px]:grid-cols-4 sm:grid-cols-6 lg:grid-cols-8">
+          <ul dir="ltr" className="grid grid-cols-3 gap-x-2 gap-y-1 text-ink min-[420px]:grid-cols-4 sm:grid-cols-6 lg:grid-cols-8">
             {groups.get(g)!.map((n) => (
-              <li key={n} className="rounded px-1 py-0.5 text-center odd:bg-slate-50">
+              <li key={n} className="rounded px-1 py-0.5 text-center odd:bg-surface-2">
                 <BondNumber value={n} size="sm" />
               </li>
             ))}

@@ -8,13 +8,13 @@ import { Link } from "@/i18n/navigation";
 export function QuickCheck({ action }: { action: string }) {
   const t = useTranslations("bonds.hub");
   return (
-    <section aria-labelledby="quick-check" className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 id="quick-check" className="text-lg font-semibold text-slate-900">
+    <section aria-labelledby="quick-check" className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+      <h2 id="quick-check" className="text-lg font-semibold text-ink">
         {t("quickCheck")}
       </h2>
       <form action={action} method="get" className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex flex-1 flex-col gap-1">
-          <label htmlFor="quick-numbers" className="text-sm font-medium text-slate-800">
+          <label htmlFor="quick-numbers" className="text-sm font-medium text-ink">
             {t("quickCheckLabel")}
           </label>
           <input
@@ -25,15 +25,15 @@ export function QuickCheck({ action }: { action: string }) {
             dir="ltr"
             required
             aria-describedby="quick-numbers-hint"
-            className="min-h-11 rounded-md border border-slate-400 px-3 font-mono text-lg focus:border-slate-900 focus:outline-2 focus:outline-slate-900"
+            className="min-h-11 rounded-md border border-line-strong px-3 font-mono text-lg focus:border-brand focus:outline-2 focus:outline-focus"
           />
-          <p id="quick-numbers-hint" className="text-sm text-slate-600">
+          <p id="quick-numbers-hint" className="text-sm text-ink-2">
             {t("quickCheckHint")}
           </p>
         </div>
         <button
           type="submit"
-          className="inline-flex min-h-11 items-center justify-center rounded-md bg-slate-900 px-6 font-medium text-white hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 sm:mb-7"
+          className="inline-flex min-h-11 items-center justify-center rounded-md bg-brand px-6 font-medium text-on-brand hover:bg-brand-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:mb-7"
         >
           {t("quickCheckButton")}
         </button>

@@ -12,7 +12,7 @@ export function QrCode({ value, label, size = 176 }: { value: string; label: str
       height={size}
       viewBox={`0 0 ${dim} ${dim}`}
       shapeRendering="crispEdges"
-      className="rounded-lg bg-white"
+      className="rounded-lg bg-surface"
     >
       <rect width={dim} height={dim} fill="#ffffff" />
       <path d={qrPath(qr)} fill="#0f172a" />
