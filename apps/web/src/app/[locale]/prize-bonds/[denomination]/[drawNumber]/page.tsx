@@ -6,6 +6,7 @@ import { Card, EmptyState, PageHeader } from "@/components/ui";
 import { Link } from "@/i18n/navigation";
 import { Breadcrumbs } from "@/features/bonds/components/Breadcrumbs";
 import { FindInDraw } from "@/features/bonds/components/FindInDraw";
+import { ClientMessages } from "@/i18n/ClientMessages";
 import { JsonLd } from "@/features/bonds/components/JsonLd";
 import { PrizeTable } from "@/features/bonds/components/PrizeTable";
 import { SourcesList } from "@/features/bonds/components/SourcesList";
@@ -138,7 +139,9 @@ export default async function DrawPage({ params }: Props) {
       ) : (
         <>
           <TopPrizes tier1={d.tier1} tier2={d.tier2} />
-          <FindInDraw listUrl={listUrl} amounts={amounts} />
+          <ClientMessages locale={locale} paths={["bonds.draw", "bonds.common"]}>
+            <FindInDraw listUrl={listUrl} amounts={amounts} />
+          </ClientMessages>
           <div className="grid gap-4 md:grid-cols-2">
             <Card title={t("draw.prizeTableTitle")}>
               {d.prizes.length ? (

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { WalletShell } from "@/features/wallet/components/WalletShell";
+import { ClientMessages } from "@/i18n/ClientMessages";
 
 /** Personal pages: never indexed, never cached by search engines. */
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -14,5 +15,9 @@ export default async function MyLayout({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <WalletShell>{children}</WalletShell>;
+  return (
+    <ClientMessages locale={locale} paths={["wallet"]}>
+      <WalletShell>{children}</WalletShell>
+    </ClientMessages>
+  );
 }

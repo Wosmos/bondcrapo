@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui";
 import { Breadcrumbs } from "@/features/bonds/components/Breadcrumbs";
 import { Checker } from "@/features/bonds/components/Checker";
 import { alternates } from "@/features/bonds/seo";
+import { ClientMessages } from "@/i18n/ClientMessages";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -24,7 +25,9 @@ export default async function CheckPage({ params }: Props) {
       <PageHeader title={t("check.title")} description={t("check.description")} />
       {/* The checker reads `?numbers=` on the client; the page itself stays static. */}
       <Suspense>
-        <Checker />
+        <ClientMessages locale={locale} paths={["bonds.check", "bonds.common", "bonds.hub.coverageLink"]}>
+          <Checker />
+        </ClientMessages>
       </Suspense>
     </div>
   );
