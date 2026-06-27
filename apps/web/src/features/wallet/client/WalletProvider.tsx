@@ -2,22 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLocale } from "next-intl";
-import {
-  ApiClient,
-  ApiError,
-  createWallet,
-  deleteWallet,
-  deleteWalletBond,
-  getWallet,
-  importWalletBonds,
-  listWalletBonds,
-  listWalletMatches,
-  markMatchesSeen,
-  putWalletBonds,
-  restoreWallet,
-  rotateSyncCode,
-  walletAnalytics,
-} from "@bondcheck/shared";
+import type { ApiResult } from "@bondcheck/shared/client";
+import type { EndpointInput } from "@bondcheck/shared/api/endpoint";
 import { clearWalletCache, readPendingSyncCode, readSnapshot, writePendingSyncCode, writeSnapshot } from "./cache";
 import type { ImportSource, WalletBond, WalletBondInput, WalletSnapshot } from "./types";
 
@@ -71,11 +57,32 @@ interface WalletContextValue {
 
 const WalletContext = createContext<WalletContextValue | null>(null);
 
-const client = new ApiClient({ credentials: "same-origin" });
+type WalletApi = typeof import("./api");
+type Endpoints = WalletApi["endpoints"];
+
+let apiModule: Promise<WalletApi> | undefined;
+/** zod and the contracts load after hydration (they are most of the wallet's JavaScript). */
+const loadApi = () => (apiModule ??= import("./api"));
+
+async function call<K extends keyof Endpoints>(
+  name: K,
+  input?: EndpointInput<Endpoints[K]>,
+): Promise<ApiResult<Endpoints[K]>> {
+  const { client, endpoints } = await loadApi();
+  return client.call(endpoints[name], input) as Promise<ApiResult<Endpoints[K]>>;
+}
+
+interface ApiErrorLike {
+  code: string;
+  details?: unknown;
+}
+/** Structural check, so this module does not import the client (and zod) eagerly. */
+const isApiError = (error: unknown): error is ApiErrorLike =>
+  error instanceof Error && error.name === "ApiError" && typeof (error as { code?: unknown }).code === "string";
 
 function toActionError(error: unknown): WalletActionError {
   if (error instanceof WalletActionError) return error;
-  if (error instanceof ApiError) {
+  if (isApiError(error)) {
     if (error.code === "network" || error.code === "invalid_response") return new WalletActionError("network");
     const retry = (error.details as { retryAfterSeconds?: number } | undefined)?.retryAfterSeconds;
     const known: WalletErrorCode[] = ["rate_limited", "not_found", "conflict", "bad_request", "unauthorized", "unavailable"];
@@ -85,7 +92,7 @@ function toActionError(error: unknown): WalletActionError {
 }
 
 const authReason = (error: unknown) =>
-  error instanceof ApiError && error.code === "unauthorized"
+  isApiError(error) && error.code === "unauthorized"
     ? ((error.details as { reason?: string } | undefined)?.reason ?? "revoked")
     : null;
 
@@ -108,10 +115,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     const gen = ++generation.current;
     try {
       const [profile, bonds, matches, analytics] = await Promise.all([
-        client.call(getWallet),
-        client.call(listWalletBonds),
-        client.call(listWalletMatches),
-        client.call(walletAnalytics).catch(() => null),
+        call("getWallet"),
+        call("listWalletBonds"),
+        call("listWalletMatches"),
+        call("walletAnalytics").catch(() => null),
       ]);
       if (gen !== generation.current) return;
       const next: WalletSnapshot = {
@@ -182,7 +189,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     } catch {
       timezone = undefined;
     }
-    const res = await client.call(createWallet, { body: { locale, timezone } });
+    const res = await call("createWallet", { body: { locale, timezone } });
     await rememberCode(res.data.syncCode);
     setStatus("ready");
     return true;
@@ -204,12 +211,12 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           for (let i = 0; i < bonds.length; i += MAX_PER_REQUEST) {
             const chunk = bonds.slice(i, i + MAX_PER_REQUEST);
             if (source) {
-              const r = await client.call(importWalletBonds, { body: { source, bonds: chunk } });
+              const r = await call("importWalletBonds", { body: { source, bonds: chunk } });
               added += r.data.added;
               skipped += r.data.skipped;
               newMatches += r.data.newMatches;
             } else {
-              const r = await client.call(putWalletBonds, { body: { bonds: chunk } });
+              const r = await call("putWalletBonds", { body: { bonds: chunk } });
               added += r.data.added;
               skipped += chunk.length - r.data.added;
               newMatches += r.data.newMatches;
@@ -223,7 +230,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       },
       async removeBond(bond) {
         try {
-          await client.call(deleteWalletBond, {
+          await call("deleteWalletBond", {
             params: { denomination: bond.denominationCode, number: bond.bondNumber },
           });
         } catch (error) {
@@ -235,7 +242,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       async restore(syncCode) {
         try {
           generation.current++;
-          const res = await client.call(restoreWallet, { body: { syncCode } });
+          const res = await call("restoreWallet", { body: { syncCode } });
           // The used code is retired by the server; the new one must be saved again.
           applySnapshot(null);
           await clearWalletCache();
@@ -248,7 +255,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       },
       async rotateSyncCode() {
         try {
-          const res = await client.call(rotateSyncCode);
+          const res = await call("rotateSyncCode");
           await rememberCode(res.data.syncCode);
           return res.data.syncCode;
         } catch (error) {
@@ -261,7 +268,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       async markAllSeen() {
         if (!snapshotRef.current?.matches.some((m) => m.seenAt === null)) return;
         try {
-          await client.call(markMatchesSeen, { body: {} });
+          await call("markMatchesSeen", { body: {} });
           await load();
         } catch {
           /* best effort: the badge stays until the next visit */
@@ -269,7 +276,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       },
       async deleteWallet() {
         try {
-          await client.call(deleteWallet);
+          await call("deleteWallet");
         } catch (error) {
           const e = toActionError(error);
           if (e.code !== "unauthorized") throw e;
