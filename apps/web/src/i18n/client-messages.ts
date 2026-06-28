@@ -2,9 +2,9 @@ import type { AbstractIntlMessages } from "next-intl";
 
 /**
  * Messages sent to the browser by the root layout. Only what shell client islands use, so legal
- * pages and other namespaces never bloat every page's payload. A lane whose client components
- * call `useTranslations` wraps its island in its own `NextIntlClientProvider` with
- * `pickNamespaces(messages, ["bonds"])` (see docs/lanes/lane-d-requests.md).
+ * pages and other namespaces never bloat every page's payload. A feature whose client components
+ * call `useTranslations` wraps that island in `<ClientMessages locale paths>` (`./ClientMessages`),
+ * which adds just the message paths the island uses.
  */
 export const CLIENT_PATHS = ["common.actions", "common.status"] as const;
 

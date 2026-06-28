@@ -42,7 +42,11 @@ export function Checker() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [rangeError, setRangeError] = useState<string | null>(null);
-  const [denomination, setDenomination] = useState<string>("");
+  // `?denomination=` from the home page quick check preselects the filter when it is a known code.
+  const [denomination, setDenomination] = useState<string>(() => {
+    const d = searchParams.get("denomination") ?? "";
+    return (DISPLAY_ORDER as readonly string[]).includes(d) ? d : "";
+  });
   const [scan, setScan] = useState<{ kind: "idle" } | { kind: "working"; progress: number } | { kind: "done"; count: number } | { kind: "error" }>({ kind: "idle" });
   const [state, setState] = useState<State>({ kind: "idle" });
   const [formError, setFormError] = useState<string | null>(null);
