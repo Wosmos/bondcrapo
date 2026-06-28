@@ -3,12 +3,9 @@
 /**
  * Reads bond numbers from a photo, PDF or text file on the device; nothing is uploaded.
  * tesseract.js and pdf.js are loaded only when a file is chosen (PLAN section 7).
- *
- * TESSERACT_PATHS: when the integrator self-hosts the tesseract worker, core and English data
- * under /vendor/tesseract (requested in docs/lanes/lane-a-requests.md), set the paths here so
- * the strict CSP needs no third-party host. Until then tesseract.js loads them from its CDN.
+ * Both libraries load their workers and data from this origin (see `@/lib/vendor-assets`).
  */
-export const TESSERACT_PATHS: { workerPath?: string; corePath?: string; langPath?: string } = {};
+import { PDF_WORKER_SRC, TESSERACT_PATHS } from "@/lib/vendor-assets";
 
 export function extractBondNumbers(text: string): string[] {
   const out = new Set<string>();
@@ -24,7 +21,7 @@ export async function numbersFromFile(file: File, onProgress: (percent: number) 
   }
   if (file.type === "application/pdf" || name.endsWith(".pdf")) {
     const pdfjs = await import("pdfjs-dist");
-    pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+    pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
     const doc = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false }).promise;
     let text = "";
     for (let p = 1; p <= doc.numPages; p++) {

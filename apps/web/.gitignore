@@ -45,3 +45,6 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /.lighthouseci/
+
+# self-hosted scanner assets, copied by scripts/vendor-assets.mjs
+/public/vendor/

@@ -1,6 +1,7 @@
 "use client";
 
 import { extractBondNumbers, parseCsv, parseSheetRows, type ParsedSheet } from "@bondcheck/shared/wallet/parse";
+import { PDF_WORKER_SRC, TESSERACT_PATHS } from "@/lib/vendor-assets";
 
 /**
  * File readers for the bond importer. Every heavy library (xlsx, pdf.js, tesseract) is loaded on
@@ -36,8 +37,8 @@ export async function scanFile(file: File, onProgress: (percent: number) => void
   let text = "";
   if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
     const pdfjs = await import("pdfjs-dist");
-    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
-    const pdf = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+    pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+    const pdf = await pdfjs.getDocument({ data: await file.arrayBuffer(), isEvalSupported: false }).promise;
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
@@ -47,6 +48,7 @@ export async function scanFile(file: File, onProgress: (percent: number) => void
   } else {
     const Tesseract = await import("tesseract.js");
     const worker = await Tesseract.createWorker("eng", undefined, {
+      ...TESSERACT_PATHS,
       logger: (m: { status: string; progress: number }) => {
         if (m.status === "recognizing text") onProgress(Math.round(m.progress * 100));
       },
