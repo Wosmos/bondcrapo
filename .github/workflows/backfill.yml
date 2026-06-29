@@ -68,7 +68,7 @@ jobs:
       - name: Run the backfill
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          INGEST_USER_AGENT: BondCheckBot/1.0 (+${{ vars.APP_BASE_URL || 'https://bondcheck.invalid' }}/about/data)
+          INGEST_USER_AGENT: BondCheckBot/1.0 (+${{ secrets.APP_BASE_URL || 'https://bondcheck.invalid' }}/about/data)
         run: pnpm --filter @bondcheck/ingest backfill:bonds ${{ steps.args.outputs.args }}
 
       - name: Upload the coverage report

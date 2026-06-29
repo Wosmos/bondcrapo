@@ -1,0 +1,8 @@
+// Cloudflare Workers settings for the OpenNext build (not deployed yet, see README "Deployment").
+{
+  "name": "bondcheck",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" }
+}

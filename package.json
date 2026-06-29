@@ -16,7 +16,8 @@
     "test": "pnpm -r test",
     "format": "prettier --write \"packages/**/*.{ts,json,md}\" \"docs/**/*.md\" \"*.{json,md,mjs}\"",
     "db:generate": "pnpm --filter @bondcheck/db generate",
-    "db:migrate": "pnpm --filter @bondcheck/db migrate"
+    "db:migrate": "pnpm --filter @bondcheck/db migrate",
+    "version": "node scripts/version.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",

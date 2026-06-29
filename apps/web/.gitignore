@@ -48,3 +48,7 @@ next-env.d.ts
 
 # self-hosted scanner assets, copied by scripts/vendor-assets.mjs
 /public/vendor/
+
+# OpenNext and Wrangler output
+/.open-next/
+/.wrangler/

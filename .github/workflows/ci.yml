@@ -24,6 +24,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Versions agree across the workspace and the Expo config
+        run: node scripts/version.mjs --check
       - run: pnpm -r lint
       - run: pnpm -r typecheck
       - run: pnpm -r test
@@ -32,3 +34,92 @@ jobs:
       - name: Dependency audit (non-blocking)
         run: pnpm audit --prod
         continue-on-error: true
+
+  e2e:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium
+        run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: Build web
+        run: pnpm --filter web build
+      - name: Shell, accessibility, PWA and security headers (next start)
+        run: pnpm --filter web e2e
+      - name: Prize bond pages
+        run: pnpm --filter web e2e:bonds
+      - name: Market pages
+        run: pnpm --filter web e2e:markets
+      - name: Wallet flows
+        run: pnpm --filter web e2e:wallet
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+          retention-days: 7
+
+  lighthouse:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Budgets are tracked, not enforced: lab scores vary between runner images.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web build
+      - name: Lighthouse CI (mobile profile)
+        working-directory: apps/web
+        run: pnpm dlx @lhci/cli@0.15.1 autorun --config=lighthouserc.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse
+          path: apps/web/.lighthouseci
+          retention-days: 14
+
+  cloudflare:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Portability check for the future Cloudflare move (PLAN section 13); never blocks a merge.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: OpenNext Cloudflare build
+        working-directory: apps/web
+        run: pnpm dlx @opennextjs/cloudflare@1.20.12 build
+
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint the workflows
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12
+          ./actionlint -color

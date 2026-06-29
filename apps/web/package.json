@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "playwright test",
+    "e2e:bonds": "playwright test -c src/features/bonds/e2e/playwright.config.ts",
     "e2e:markets": "playwright test -c src/features/markets/e2e/playwright.config.ts",
     "e2e:wallet": "playwright test -c src/features/wallet/e2e/playwright.config.ts"
   },
