@@ -1,6 +1,6 @@
 # ADR 0004: Anonymous wallets with sync codes instead of fingerprinting
 
-Status: accepted, 2026-10-15
+Status: accepted, 2026-04-07
 
 ## Context
 The current app identifies users by a browser fingerprint and logs IP, geolocation, battery level and more in an `events` table. That is fragile (fingerprints change), privacy-hostile, and does not work across devices or in the mobile app.

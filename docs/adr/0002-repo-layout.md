@@ -1,6 +1,6 @@
 # ADR 0002: pnpm workspace monorepo
 
-Status: accepted, 2026-10-15
+Status: accepted, 2026-04-07
 
 ## Context
 The repo holds a Next.js app (`bondcheck-next/`) plus legacy Python and vanilla JS apps being deleted. An Expo app is in scope, ingestion must run outside Next (CLI backfill, GitHub Actions, future Cloudflare Workers), and five implementers must work in parallel without editing the same files.

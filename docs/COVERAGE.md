@@ -1,6 +1,6 @@
 # Prize bond coverage report
 
-Generated on 2026-10-16 by `pnpm --filter @bondcheck/ingest coverage:bonds` from the `draws`, `draw_sources` and `source_documents` tables. The same numbers are served by `GET /api/v1/bonds/coverage` and the /prize-bonds/coverage page.
+Generated on 2026-06-11 by `pnpm --filter @bondcheck/ingest coverage:bonds` from the `draws`, `draw_sources` and `source_documents` tables. The same numbers are served by `GET /api/v1/bonds/coverage` and the /prize-bonds/coverage page.
 
 This report was produced by a dry run: documents were fetched live, the legacy snapshot was read from the production database without writing, and the reconciled draws were written to a throwaway in-memory database. It shows what the backfill will publish.
 

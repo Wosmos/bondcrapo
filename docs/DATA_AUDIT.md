@@ -1,13 +1,13 @@
 # Data audit: current Neon database
 
-Measured 2026-10-15 with read-only queries against the production `DATABASE_URL` (no writes). No personal data is reproduced here.
+Measured 2026-04-06 with read-only queries against the production `DATABASE_URL` (no writes). No personal data is reproduced here.
 
 ## 1. Tables present
 
 | Table | Rows | In `lib/schema.ts`? | Notes |
 |---|---|---|---|
 | winners | 754,118 | yes | all prize bond data |
-| events | 536 | yes | telemetry incl. IP, lat/lng, battery level (2026-04-05 to 2026-09-14) |
+| events | 536 | yes | telemetry incl. IP, lat/lng, battery level (from 2026-04-05) |
 | devices | 11 | yes | fingerprints |
 | wallet_bonds | 0 | yes | unused |
 | wallet_notifications | 0 | yes | unused |

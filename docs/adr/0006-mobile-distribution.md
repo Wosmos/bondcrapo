@@ -1,6 +1,6 @@
 # ADR 0006: Expo Android app built in GitHub Actions, distributed through the website
 
-Status: accepted, 2026-10-15. Amended: release assets are served from GitHub Releases through the website, not from Cloudflare R2.
+Status: accepted, 2026-04-07. Amended 2026-04-14: release assets are served from GitHub Releases through the website, not from Cloudflare R2.
 
 ## Context
 The repo is private, so GitHub Release assets are not publicly downloadable. We want no EAS cloud dependency and no extra storage vendor. The owner's zcrypt repo uses tag-triggered release workflows (its `release.yml` is GoReleaser plus npm on `v*` tags; the same trigger, permissions and concurrency pattern is reused here). The owner's duolingo-clone project already solves the private-repo download problem: the website calls the GitHub Releases API server side with a fine-grained token and exposes its own `/api/releases/*` routes (`app/api/releases/latest`, `download/[asset]`, `updater`, documented in its `docs/RELEASING.md`). BondCheck reuses that pattern.

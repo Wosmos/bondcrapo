@@ -1,6 +1,6 @@
 # ADR 0001: Data sources and precedence
 
-Status: accepted, 2026-10-15
+Status: accepted, 2026-04-07
 
 ## Context
 The current database mixes two third-party scrapes (pkprizebond.com, prizeinfo.net), assumes a constant prize table, and has no market data. We need correct, attributable data for prize bonds since 1999 and for metals and FX.

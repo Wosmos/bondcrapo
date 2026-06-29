@@ -1,5 +1,7 @@
 # Starting a lane
 
+> Historical guide. The five workstreams below were built in parallel after the foundation milestone and merged into `master` for release 1.0.0 (June 2026). The `lane-*-requests.md` files record what each workstream asked of the integration: the code changes were applied in 1.0.0 and the owner actions moved to `docs/OWNER_SETUP.md`. For day to day work see `docs/CONTRIBUTING.md`.
+
 Milestone M1 (foundation) is on `master`. Five lanes now run in parallel, each in its own git worktree and branch. Read `docs/PLAN.md` sections 2, 3, 6, 11, 13 and 14 and your lane's section first.
 
 | Lane | Branch | Worktree directory | Web dev port | Milestones |

@@ -1,7 +1,7 @@
 # BondCheck rebuild plan
 
-Status: approved for implementation. Author: architecture pass, 2026-10-15.
-Audience: implementers (one implementer per lane, each in its own git worktree and branch).
+Status: approved for implementation, 2026-04-07.
+Audience: the engineering team (one engineer per workstream, called a lane below, each on its own branch).
 
 Read first: `docs/DATA_AUDIT.md` (what the current DB holds and why it must be rebuilt) and the ADRs in `docs/adr/`.
 
@@ -164,7 +164,7 @@ draw_sources {                    // which documents contributed to a draw, and 
 }
 ```
 
-The legacy `winners` table is renamed to `legacy_winners` in Milestone 1 (no data loss) and becomes one input of the backfill (source `legacy_db_snapshot`). It is dropped only in Milestone F after the coverage report proves every legacy draw is represented or explicitly rejected.
+The legacy `winners` table is renamed to `legacy_winners` in Milestone 1 (no data loss) and becomes one input of the backfill (source `legacy_db_snapshot`). It is dropped only after the coverage report proves every legacy draw is represented or explicitly rejected. Release 1.0.0 keeps the table; dropping it is an owner follow-up once the backfill has run against production and coverage parity is confirmed (`docs/OWNER_SETUP.md`).
 
 ### 3.2 Markets
 
@@ -492,8 +492,8 @@ Global rules for every lane:
 ### M1. Foundation: cleanup, monorepo, schema, contracts (shared, runs first)
 
 Scope:
-1. Delete `backend/`, `frontend/`, `AUTH_GUIDE.md`, `AUTH_SETUP.md`, root `readme.md`, `.agent/`, `.github/instructions/codacy.instructions.md`, `bondcheck-next/bun.lock`, `bondcheck-next/actions/`, `bondcheck-next/app/admin/`, `lib/fingerprint.ts`, `hooks/useTelemetry.ts`, `app/api/track`, `app/api/device`, `lib/rate-limit.ts`. Clean `.gitignore` of Python entries.
-2. `git mv bondcheck-next apps/web`; move code into `apps/web/src/`; delete `AGENTS.md`; `CLAUDE.md` moves to the repo root as the monorepo guide (it carries the Next 16 rules).
+1. Delete `backend/`, `frontend/`, `AUTH_GUIDE.md`, `AUTH_SETUP.md`, root `readme.md`, editor tooling folders, `.github/instructions/codacy.instructions.md`, `bondcheck-next/bun.lock`, `bondcheck-next/actions/`, `bondcheck-next/app/admin/`, `lib/fingerprint.ts`, `hooks/useTelemetry.ts`, `app/api/track`, `app/api/device`, `lib/rate-limit.ts`. Clean `.gitignore` of Python entries.
+2. `git mv bondcheck-next apps/web`; move code into `apps/web/src/`; delete editor-specific instruction files; the Next 16 rules move into a repository guide (now `docs/CONTRIBUTING.md`).
 3. Root workspace: `pnpm-workspace.yaml`, `package.json` (`packageManager: pnpm@10.x`, scripts `dev`, `build`, `lint`, `typecheck`, `test`, `db:generate`, `db:migrate`), `.npmrc` (`save-exact=true`), `.nvmrc` (22), `tsconfig.base.json`, shared ESLint config, Prettier. Re-pin every dependency to the exact currently resolved version.
 4. `packages/db`: full schema from section 3 (all tables, including those lanes will fill), first migration written to be safe on the live DB (rename `winners` to `legacy_winners`, copy `draw_schedule` into `draws`, drop listed tables), PGlite test harness `createTestDb()`. Do not run the migration against production in this milestone; the owner runs `pnpm db:migrate` after review.
 5. `packages/shared`: zod contracts for every endpoint in section 6 (request, response, error), `ApiClient` (fetch-based, works in RN), units, `formatBondNumber`, denomination constants, `RateLimiter` interface, wallet credential header helpers.

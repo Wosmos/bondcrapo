@@ -1,6 +1,6 @@
 # ADR 0003: Scheduler-agnostic cron via authenticated HTTP endpoints
 
-Status: accepted, 2026-10-15
+Status: accepted, 2026-04-07
 
 ## Context
 Vercel Hobby crons run at most once a day with hour-level precision (https://vercel.com/docs/cron-jobs/manage-cron-jobs). Draw results appear on specific days and markets need intraday updates. We will move to Cloudflare later.
