@@ -85,7 +85,7 @@ describe("PriceChart", () => {
     expect(html).toContain("<caption");
     expect(html).toMatch(/<th scope="col"[^>]*>Date<\/th>/);
     // 30 rows in the alternative table, one per day
-    expect(html.match(/<tr class="border-b border-line/g)).toHaveLength(30);
+    expect(html.match(/<tr class="border-b border-line last:border-0/g)).toHaveLength(30);
     expect(html).toContain('aria-pressed="true"');
   });
 
