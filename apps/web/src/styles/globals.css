@@ -292,3 +292,17 @@
     padding-block-end: env(safe-area-inset-bottom);
   }
 }
+
+/* Inner pages share one centred column; the home page opts out with `data-bleed` on its first section. */
+main:not(:has(> [data-bleed])) {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding: 2rem 1rem 3rem;
+}
+
+@media (min-width: 40rem) {
+  main:not(:has(> [data-bleed])) {
+    padding-inline: 1.5rem;
+  }
+}

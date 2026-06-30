@@ -47,7 +47,7 @@ export default async function Home({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structured) }} />
 
       {/* Hero */}
-      <section aria-labelledby="hero-title" className="relative overflow-hidden">
+      <section data-bleed aria-labelledby="hero-title" className="relative overflow-hidden">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(60rem_30rem_at_85%_-10%,color-mix(in_oklab,var(--gold)_16%,transparent),transparent_60%),radial-gradient(40rem_30rem_at_-10%_110%,color-mix(in_oklab,var(--brand)_12%,transparent),transparent_60%)]"
