@@ -10,7 +10,7 @@ import { parseLooseDate, pktDate } from "./dates";
 import { FormPoster } from "./form-post";
 import { HOST_INTERVALS_MS } from "./sources";
 
-const USAGE = `usage: pnpm --filter @bondcheck/ingest backfill:bonds [options]
+const USAGE = `usage: bun run --cwd packages/ingest backfill:bonds [options]
 
   --from YYYY-MM-DD     only draws on or after this date
   --denomination CODE   repeatable: 100 200 750 1500 7500 15000 25000 40000 25000P 40000P

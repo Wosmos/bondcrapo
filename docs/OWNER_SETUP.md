@@ -20,7 +20,7 @@ Every variable is optional for the build. `apps/web/.env.example` documents the 
 | `CRON_SECRET` | `/api/v1/cron/*` (Vercel Cron sends it automatically) | `openssl rand -base64 32` |
 | `RATE_LIMIT_SECRET` | Keyed hashes in rate limit keys | `openssl rand -base64 32` (falls back to `WALLET_PEPPER`, then `CRON_SECRET`) |
 | `WALLET_PEPPER` | The wallet (answers 503 without it) | `openssl rand -base64 32`. **Set once, never rotate**: rotating invalidates every wallet token and sync code. Keep a copy in a password manager |
-| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Web Push win alerts | `pnpm dlx web-push generate-vapid-keys`; subject `mailto:<support address>` |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Web Push win alerts | `bunx web-push generate-vapid-keys`; subject `mailto:<support address>` |
 | `GITHUB_RELEASES_TOKEN` | `/download` and in-app updates | Fine-grained GitHub token, this repository only, permission Contents: read-only. Website host only, never a GitHub secret |
 | `GITHUB_RELEASES_REPO` | Optional | `owner/repo` if releases move (default `Wosmos/bondcrapo`) |
 | `METALS_FALLBACK_API_KEY` | Optional metals fallback | Free MetalpriceAPI key |
@@ -47,15 +47,15 @@ Enable Dependabot alerts and security updates for the repository (Settings, Code
 The migrations in `packages/db/migrations` are reviewed but have never been applied to production. `0000_foundation` renames `winners` to `legacy_winners`, creates the new tables and drops the unused tables listed in `docs/DATA_AUDIT.md`; `0001_wallet_bond_lookup` adds one index.
 
 1. Create a Neon branch from production and apply there first:
-   `DATABASE_URL=<branch url> pnpm db:migrate`
+   `DATABASE_URL=<branch url> bun run db:migrate`
 2. Check the branch (row count of `legacy_winners` equals the old `winners`, the app works against it with a preview deployment).
-3. Apply to production: `DATABASE_URL=<production url> pnpm db:migrate`.
+3. Apply to production: `DATABASE_URL=<production url> bun run db:migrate`.
 
 ## 5. Backfills (once, after the migration)
 
-1. **Prize bonds.** Run the GitHub Actions workflow "Backfill (prize bonds)" with `dry_run` checked, review the coverage artifact, then run it again unchecked. Locally: `pnpm --filter @bondcheck/ingest backfill:bonds --dry-run --coverage`, then without `--dry-run`. It fetches about 200 official files at one request every two seconds (15 to 30 minutes) and is resumable.
-2. **Markets history.** Run the `history-backfill` choice of the "Ingest markets" workflow, or `pnpm --filter @bondcheck/ingest backfill:markets --from 2024-03-02`.
-3. Regenerate the coverage report with `pnpm --filter @bondcheck/ingest coverage:bonds` and commit `docs/COVERAGE.md`.
+1. **Prize bonds.** Run the GitHub Actions workflow "Backfill (prize bonds)" with `dry_run` checked, review the coverage artifact, then run it again unchecked. Locally: `bun run --cwd packages/ingest backfill:bonds --dry-run --coverage`, then without `--dry-run`. It fetches about 200 official files at one request every two seconds (15 to 30 minutes) and is resumable.
+2. **Markets history.** Run the `history-backfill` choice of the "Ingest markets" workflow, or `bun run --cwd packages/ingest backfill:markets --from 2024-03-02`.
+3. Regenerate the coverage report with `bun run --cwd packages/ingest coverage:bonds` and commit `docs/COVERAGE.md`.
 4. **Follow-up: drop `legacy_winners`.** Release 1.0.0 keeps the legacy table. Once the production coverage report shows every legacy draw represented or explicitly rejected, add a migration that drops `legacy_winners` and `legacy_draw_schedule`, review it and apply it as in step 4.
 
 ## 6. Android signing and the first release
@@ -65,7 +65,7 @@ The migrations in `packages/db/migrations` are reviewed but have never been appl
 
 ## 7. Content, licences and permissions
 
-1. **Urdu review.** A native speaker reviews `apps/web/messages/ur/*.json` (Privacy and Terms first) and `apps/mobile/src/i18n/messages/ur.json` (ADR 0005). After changing `common.json`, run `pnpm --filter mobile messages`.
+1. **Urdu review.** A native speaker reviews `apps/web/messages/ur/*.json` (Privacy and Terms first) and `apps/mobile/src/i18n/messages/ur.json` (ADR 0005). After changing `common.json`, run `bun run --cwd apps/mobile messages`.
 2. **Contact address.** Add a support email for data requests to the Privacy and Terms pages (`apps/web/messages/*/common.json`) and as `VAPID_SUBJECT`.
 3. **Permission emails.** Write to the operators of prizeinfo.net and pkprizebond.com about attributed reuse of their compilations, and courtesy emails to Forex Association of Pakistan (forex.pk) and the Associated Press of Pakistan about the reported rates. Both bond sites are credited on the coverage and data sources pages.
 4. **FreeGoldAPI licence.** Confirm the licence of the monthly gold history before 2024; only then set `MARKETS_ALLOW_FREEGOLDAPI=1` and run the `--gold-monthly` backfill.

@@ -1,0 +1,5 @@
+[install]
+# Exact pins, as .npmrc's save-exact did under pnpm.
+exact = true
+# Isolated installs keep the web app on React 19.2 and the mobile app on React 19.3.
+linker = "isolated"

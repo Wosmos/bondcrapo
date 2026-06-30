@@ -1,6 +1,6 @@
 # Starting a lane
 
-> Historical guide. The five workstreams below were built in parallel after the foundation milestone and merged into `master` for release 1.0.0 (June 2026). The `lane-*-requests.md` files record what each workstream asked of the integration: the code changes were applied in 1.0.0 and the owner actions moved to `docs/OWNER_SETUP.md`. For day to day work see `docs/CONTRIBUTING.md`.
+> Historical guide. The five workstreams below were built in parallel after the foundation milestone and merged into `master` for release 1.0.0 (June 2026). The `lane-*-requests.md` files record what each workstream asked of the integration: the code changes were applied in 1.0.0 and the owner actions moved to `docs/OWNER_SETUP.md`. For day to day work see `docs/DEVELOPMENT.md`.
 
 Milestone M1 (foundation) is on `master`. Five lanes now run in parallel, each in its own git worktree and branch. Read `docs/PLAN.md` sections 2, 3, 6, 11, 13 and 14 and your lane's section first.
 
@@ -27,16 +27,15 @@ Swap the directory and branch for your lane. Do not commit to `master`; the inte
 
 ```
 source ~/.nvm/nvm.sh && nvm use 22
-corepack enable pnpm
-pnpm install --frozen-lockfile
+bun install --frozen-lockfile
 ```
 
-pnpm 10.34.7 is selected by the `packageManager` field. Add dependencies only to your own package or app, pinned exactly (`pnpm --filter <pkg> add <name>@<exact version>`, `.npmrc` makes `save-exact` the default). Do not hand edit `pnpm-lock.yaml`; the integrator regenerates it on merge.
+Bun 1.3.12 is pinned by the `packageManager` field and CI. Add dependencies only to your own package or app, pinned exactly (`bun add --cwd <dir> <name>@<exact version>`, `bunfig.toml` makes exact the default). Do not hand edit `bun.lock`; the integrator regenerates it on merge.
 
 ## 3. Run the web app on your lane port
 
 ```
-PORT=3101 pnpm --filter web dev      # A=3101 B=3102 C=3103 D=3104 E=3105
+PORT=3101 bun run --cwd apps/web dev      # A=3101 B=3102 C=3103 D=3104 E=3105
 ```
 
 The Expo app (lane E) uses Metro's own port; 3105 is the web `/download` page and API. Every unbuilt `/api/v1` endpoint answers `501 { error: { code: "not_implemented" } }`. `apps/web/.env.local` is gitignored and is not copied into worktrees; you do not need it. Never point development at the production Neon database for writes or migrations.
@@ -80,7 +79,7 @@ Where things are:
 ## 6. Finish each milestone green
 
 ```
-pnpm -r lint && pnpm -r typecheck && pnpm -r test && pnpm --filter web build
+bun run --filter "*" lint && bun run --filter "*" typecheck && bun run --filter "*" test && bun run --cwd apps/web build
 ```
 
-`pnpm --filter web build` must pass with no environment variables. Commit with conventional messages (`feat(bonds): ...`). No em dashes in docs.
+`bun run --cwd apps/web build` must pass with no environment variables. Commit with conventional messages (`feat(bonds): ...`). No em dashes in docs.

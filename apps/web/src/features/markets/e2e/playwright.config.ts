@@ -6,7 +6,7 @@ import { defineConfig, devices } from "@playwright/test";
  * Market pages end to end (Lane B). Runs the web app on the lane port against the recorded
  * snapshot (no database, no network):
  *
- *   pnpm --filter web exec playwright test -c src/features/markets/e2e/playwright.config.ts
+ *   bun run --cwd apps/web playwright test -c src/features/markets/e2e/playwright.config.ts
  *
  * Set MARKETS_E2E_BASE_URL to test an already running server instead (for example `next start`).
  */
@@ -29,7 +29,7 @@ export default defineConfig({
   webServer: external
     ? undefined
     : {
-        command: `pnpm exec next dev --port ${port}`,
+        command: `bunx next dev --port ${port}`,
         cwd: webRoot,
         port,
         timeout: 240_000,

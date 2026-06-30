@@ -17,7 +17,7 @@ export default defineConfig({
     hookTimeout: 120_000,
     // next-intl imports "next/server" without an extension, which plain Node ESM cannot resolve.
     server: { deps: { inline: ["next-intl"] } },
-    // Playwright specs run with `pnpm e2e`, not Vitest.
+    // Playwright specs run with `bun run e2e`, not Vitest.
     exclude: ["**/node_modules/**", "e2e/**"],
   },
 });

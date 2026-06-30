@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 /**
  * End to end tests (PLAN section 12): Chromium with mobile emulation against a production
- * build. Run `pnpm build` first, then `pnpm e2e`. Port 3104 is this lane's port; override with
+ * build. Run `bun run build` first, then `bun run e2e`. Port 3104 is this lane's port; override with
  * E2E_PORT. Snapshots are stored per platform next to the specs.
  */
 const port = Number(process.env.E2E_PORT ?? 3104);
@@ -19,7 +19,7 @@ export default defineConfig({
   use: { baseURL, trace: "retain-on-failure" },
   projects: [{ name: "mobile-chromium", use: { ...devices["Pixel 7"] } }],
   webServer: {
-    command: `pnpm exec next start -p ${port}`,
+    command: `bunx next start -p ${port}`,
     url: `${baseURL}/en`,
     reuseExistingServer: true,
     timeout: 120_000,

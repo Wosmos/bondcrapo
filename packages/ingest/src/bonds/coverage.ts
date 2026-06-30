@@ -84,7 +84,7 @@ export function renderCoverageMarkdown(rows: CoverageRow[], audit: AuditResoluti
   const codes = [...new Set(rows.map((r) => r.denominationCode))];
   const lines: string[] = [];
   lines.push("# Prize bond coverage report", "");
-  lines.push(`Generated on ${meta.generatedOn} by \`pnpm --filter @bondcheck/ingest coverage:bonds\` from the \`draws\`, \`draw_sources\` and \`source_documents\` tables. The same numbers are served by \`GET /api/v1/bonds/coverage\` and the /prize-bonds/coverage page.`, "");
+  lines.push(`Generated on ${meta.generatedOn} by \`bun run --cwd packages/ingest coverage:bonds\` from the \`draws\`, \`draw_sources\` and \`source_documents\` tables. The same numbers are served by \`GET /api/v1/bonds/coverage\` and the /prize-bonds/coverage page.`, "");
   if (meta.note) lines.push(meta.note, "");
   lines.push(
     "Legend: **expected** draws held in the year (catalogued draws, and at least the denomination's draws per year between its first and last year); **full** first, second and third prize lists; **top** first and second prizes only; **none** nothing published; **verified** two independent sources agree on the top prizes, or an official file for draws since 2019; **disputed** valid sources disagree (the draw page lists them).",

@@ -18,21 +18,22 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.12
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - run: bun install --frozen-lockfile
       - name: Versions agree across the workspace and the Expo config
         run: node scripts/version.mjs --check
-      - run: pnpm -r lint
-      - run: pnpm -r typecheck
-      - run: pnpm -r test
+      - run: bun run --filter "*" lint
+      - run: bun run --filter "*" typecheck
+      - run: bun run --filter "*" test
       - name: Build web (no environment variables are needed)
-        run: pnpm --filter web build
+        run: bun run --cwd apps/web build
       - name: Dependency audit (non-blocking)
-        run: pnpm audit --prod
+        run: bun audit --prod
         continue-on-error: true
 
   e2e:
@@ -43,24 +44,25 @@ jobs:
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.12
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - run: bun install --frozen-lockfile
       - name: Install Chromium
-        run: pnpm --filter web exec playwright install --with-deps chromium
+        run: bun run --cwd apps/web playwright install --with-deps chromium
       - name: Build web
-        run: pnpm --filter web build
+        run: bun run --cwd apps/web build
       - name: Shell, accessibility, PWA and security headers (next start)
-        run: pnpm --filter web e2e
+        run: bun run --cwd apps/web e2e
       - name: Prize bond pages
-        run: pnpm --filter web e2e:bonds
+        run: bun run --cwd apps/web e2e:bonds
       - name: Market pages
-        run: pnpm --filter web e2e:markets
+        run: bun run --cwd apps/web e2e:markets
       - name: Wallet flows
-        run: pnpm --filter web e2e:wallet
+        run: bun run --cwd apps/web e2e:wallet
       - name: Upload the Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
@@ -79,16 +81,17 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.12
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter web build
+      - run: bun install --frozen-lockfile
+      - run: bun run --cwd apps/web build
       - name: Lighthouse CI (mobile profile)
         working-directory: apps/web
-        run: pnpm dlx @lhci/cli@0.15.1 autorun --config=lighthouserc.json
+        run: bunx @lhci/cli@0.15.1 autorun --config=lighthouserc.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -104,15 +107,16 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.12
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - run: bun install --frozen-lockfile
       - name: OpenNext Cloudflare build
         working-directory: apps/web
-        run: pnpm dlx @opennextjs/cloudflare@1.20.12 build
+        run: bunx @opennextjs/cloudflare@1.20.12 build
 
   actionlint:
     runs-on: ubuntu-latest

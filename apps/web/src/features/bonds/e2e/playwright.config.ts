@@ -5,7 +5,7 @@ import { defineConfig, devices } from "@playwright/test";
  * Prize bond end to end tests (Lane A). Runs `next dev` on this lane's port with
  * BONDS_DATA=fixtures, so every page shows the recorded official documents without a database.
  *
- *   pnpm --filter web exec playwright test -c src/features/bonds/e2e/playwright.config.ts
+ *   bun run --cwd apps/web playwright test -c src/features/bonds/e2e/playwright.config.ts
  */
 const port = Number(process.env.E2E_PORT ?? 3101);
 const baseURL = `http://localhost:${port}`;
@@ -26,7 +26,7 @@ export default defineConfig({
   use: { baseURL, trace: "retain-on-failure" },
   projects: [{ name: "mobile-chromium", use: { ...devices["Pixel 7"] } }],
   webServer: {
-    command: `pnpm exec next dev -p ${port}`,
+    command: `bunx next dev -p ${port}`,
     cwd: webDir,
     url: `${baseURL}/en/prize-bonds`,
     reuseExistingServer: !process.env.CI,

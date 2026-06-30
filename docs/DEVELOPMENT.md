@@ -1,6 +1,6 @@
-# Contributing to BondCheck
+# Development guide
 
-BondCheck is one pnpm workspace: a Next.js web app, an Expo Android app and three shared packages. This guide covers the conventions every change follows. The architecture is in `docs/PLAN.md` and the decisions behind it in `docs/adr/`.
+BondCheck is one Bun workspace: a Next.js web app, an Expo Android app and three shared packages. This guide covers the conventions every change follows. The architecture is in `docs/PLAN.md` and the decisions behind it in `docs/adr/`.
 
 ## Layout
 
@@ -18,10 +18,10 @@ Inside `apps/web/src`: `app/` (routes), `features/<area>/` (bonds, markets, wall
 ## Setup
 
 ```
-source ~/.nvm/nvm.sh && nvm use 22 && corepack enable pnpm
-pnpm install
+source ~/.nvm/nvm.sh && nvm use 22
+bun install
 cp apps/web/.env.example apps/web/.env.local     # optional; every variable is optional locally
-pnpm dev                                          # http://localhost:3000 (PORT=3101 pnpm dev for another port)
+bun run dev                                          # http://localhost:3000 (PORT=3101 bun run dev for another port)
 ```
 
 ## Checks
@@ -29,24 +29,24 @@ pnpm dev                                          # http://localhost:3000 (PORT=
 Every change must leave these green:
 
 ```
-pnpm -r lint && pnpm -r typecheck && pnpm -r test && pnpm --filter web build
+bun run --filter "*" lint && bun run --filter "*" typecheck && bun run --filter "*" test && bun run --cwd apps/web build
 ```
 
-`pnpm --filter web build` must pass with no environment variables. End to end suites (Chromium, Pixel 7 emulation, axe in both locales):
+`bun run --cwd apps/web build` must pass with no environment variables. End to end suites (Chromium, Pixel 7 emulation, axe in both locales):
 
 ```
-pnpm --filter web build && pnpm --filter web e2e     # shell, accessibility, PWA, security headers (next start)
-pnpm --filter web e2e:bonds                          # prize bond pages on recorded official documents
-pnpm --filter web e2e:markets                        # market pages on a recorded snapshot
-pnpm --filter web e2e:wallet                         # wallet flows on an in-memory database
+bun run --cwd apps/web build && bun run --cwd apps/web e2e     # shell, accessibility, PWA, security headers (next start)
+bun run --cwd apps/web e2e:bonds                          # prize bond pages on recorded official documents
+bun run --cwd apps/web e2e:markets                        # market pages on a recorded snapshot
+bun run --cwd apps/web e2e:wallet                         # wallet flows on an in-memory database
 ```
 
-Install the browser once with `pnpm --filter web exec playwright install chromium`.
+Install the browser once with `bun run --cwd apps/web playwright install chromium`.
 
 ## Rules
 
-- **pnpm only**, every dependency pinned to an exact version (`save-exact=true` in `.npmrc`). Add a dependency to the package that uses it, never to the root, and commit the regenerated `pnpm-lock.yaml`.
-- **Databases.** Never run migrations, `drizzle-kit push` or writes against the production Neon database. Tests use PGlite (`createTestDb()` from `@bondcheck/db/testing`) with the real migrations applied. Migrations are generated with `pnpm db:generate`, reviewed, committed under `packages/db/migrations` and applied by the owner (`docs/OWNER_SETUP.md`). Never edit an applied migration; add a new one with a `when` later than every journal entry.
+- **Bun only**, every dependency pinned to an exact version (`exact = true` in `bunfig.toml`). Add a dependency to the package that uses it, never to the root, and commit the regenerated `bun.lock`.
+- **Databases.** Never run migrations, `drizzle-kit push` or writes against the production Neon database. Tests use PGlite (`createTestDb()` from `@bondcheck/db/testing`) with the real migrations applied. Migrations are generated with `bun run db:generate`, reviewed, committed under `packages/db/migrations` and applied by the owner (`docs/OWNER_SETUP.md`). Never edit an applied migration; add a new one with a `when` later than every journal entry.
 - **Next.js 16.** Several APIs differ from older releases: `src/proxy.ts` replaces `middleware.ts`, `params` and `searchParams` are promises, `revalidateTag` takes a cache profile. Read the matching guide in `apps/web/node_modules/next/dist/docs/` before changing framework-level code.
 - **Portability.** No `@vercel/*` import outside `apps/web/src/platform/`, no `export const runtime = "edge"`, cache tags only through `src/platform/revalidate.ts`. The app must keep building with OpenNext for Cloudflare (PLAN section 13).
 - **Contracts and schema.** Request and response shapes live in `packages/shared/src/api`; route handlers validate input with them and tests parse every response with them. Change a contract together with both clients (web and mobile).

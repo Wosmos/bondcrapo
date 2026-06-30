@@ -90,6 +90,6 @@ backfill, `DATABASE_URL`. `apps/web/vercel.json` already lists the daily safety 
 4. Review the India import levy in `packages/ingest/src/markets/countries.ts` (6%) whenever the
    Union Budget changes it.
 5. Run the history backfill once after the M1 migration is applied:
-   `pnpm --filter @bondcheck/ingest exec tsx src/markets/backfill-cli.ts --from 2024-03-02`
+   `bun run --cwd packages/ingest tsx src/markets/backfill-cli.ts --from 2024-03-02`
    (or the `history-backfill` choice of the workflow). Daily history before 2024-03-02 has no free
    licensed source; the long range chart starts there unless item 2 is cleared.

@@ -7,7 +7,7 @@ const USER_AGENT = process.env.INGEST_USER_AGENT ?? "BondCheckBot/1.0 (+https://
 
 function usage(): never {
   const names = Object.keys(cliJobs);
-  console.error(`usage: pnpm --filter @bondcheck/ingest ingest <job>\njobs: ${names.length ? names.join(", ") : "(none registered yet)"}`);
+  console.error(`usage: bun run --cwd packages/ingest ingest <job>\njobs: ${names.length ? names.join(", ") : "(none registered yet)"}`);
   process.exit(2);
 }
 

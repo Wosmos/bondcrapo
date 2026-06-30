@@ -30,16 +30,16 @@ The full design is in `docs/PLAN.md`, with decisions recorded in `docs/adr/`.
 
 ## Development
 
-Requirements: Node 22 and pnpm 10 through Corepack.
+Requirements: Node 22 and Bun 1.3.
 
 ```
-source ~/.nvm/nvm.sh && nvm use 22 && corepack enable pnpm
-pnpm install
-pnpm dev                     # website on http://localhost:3000
-pnpm -r lint && pnpm -r typecheck && pnpm -r test && pnpm --filter web build
+source ~/.nvm/nvm.sh && nvm use 22
+bun install
+bun run dev                     # website on http://localhost:3000
+bun run --filter "*" lint && bun run --filter "*" typecheck && bun run --filter "*" test && bun run --cwd apps/web build
 ```
 
-Every environment variable is optional during development (`apps/web/.env.example` lists them); without a database the pages show a friendly "data unavailable" state, and the end to end suites run on recorded data. Tests never touch a real database: they use an in-memory PGlite with the real migrations. See `docs/CONTRIBUTING.md` for the conventions and the end to end suites, and `docs/MOBILE_RELEASE.md` for the Android app.
+Every environment variable is optional during development (`apps/web/.env.example` lists them); without a database the pages show a friendly "data unavailable" state, and the end to end suites run on recorded data. Tests never touch a real database: they use an in-memory PGlite with the real migrations. See `docs/DEVELOPMENT.md` for the conventions and the end to end suites, and `docs/MOBILE_RELEASE.md` for the Android app.
 
 ## Data sources and attribution
 
@@ -59,7 +59,7 @@ Crawlers identify themselves (`BondCheckBot/1.0`), fetch at most one request eve
 
 ## Deployment
 
-**Vercel (current).** Import the repository and set the project's **Root Directory to `apps/web`**; the framework preset is Next.js and the build command is the default (`pnpm build`, which also copies the self-hosted scanner assets). `apps/web/vercel.json` declares the daily cron safety net. Set the environment variables from `docs/OWNER_SETUP.md`, apply the database migrations and run the backfills once. Vercel Web Analytics and Speed Insights are wired through `apps/web/src/platform/analytics.tsx` and need only to be enabled in the Vercel dashboard.
+**Vercel (current).** Import the repository and set the project's **Root Directory to `apps/web`**; the framework preset is Next.js and the build command is the default (`bun run build`, which also copies the self-hosted scanner assets). `apps/web/vercel.json` declares the daily cron safety net. Set the environment variables from `docs/OWNER_SETUP.md`, apply the database migrations and run the backfills once. Vercel Web Analytics and Speed Insights are wired through `apps/web/src/platform/analytics.tsx` and need only to be enabled in the Vercel dashboard.
 
 **Cloudflare (future).** The app avoids edge-only runtimes and keeps hosting code behind adapters so it can move to Cloudflare Workers with OpenNext (`@opennextjs/cloudflare`). CI already runs the OpenNext build as a non-blocking job. The move needs an R2 incremental cache and a D1 or Durable Object tag cache for `revalidateTag`, a Cron Trigger calling `/api/v1/cron/<job>`, and a Cloudflare Web Analytics adapter (PLAN section 13).
 
@@ -68,7 +68,7 @@ Crawlers identify themselves (`BondCheckBot/1.0`), fetch at most one request eve
 ## Documentation
 
 - `docs/OWNER_SETUP.md`: every secret, variable and one-time action needed to run production
-- `docs/CONTRIBUTING.md`: conventions, checks and end to end suites
+- `docs/DEVELOPMENT.md`: conventions, checks and end to end suites
 - `docs/PLAN.md` and `docs/adr/`: architecture and decisions
 - `docs/COVERAGE.md`: prize bond coverage report
 - `docs/MOBILE_RELEASE.md`: Android builds, signing and releases

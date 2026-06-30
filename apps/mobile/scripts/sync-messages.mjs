@@ -33,6 +33,6 @@ for (const locale of LOCALES) {
 }
 
 if (stale.length > 0) {
-  console.error(`Shared messages are out of date: ${stale.join(", ")}. Run: pnpm --filter mobile messages`);
+  console.error(`Shared messages are out of date: ${stale.join(", ")}. Run: bun run --cwd apps/mobile messages`);
   process.exit(1);
 }

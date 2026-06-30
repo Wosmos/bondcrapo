@@ -83,9 +83,9 @@ official date lists and the prizeinfo.net schedules. It can be dropped together 
 
 ## 11. Owner actions
 
-1. After `pnpm db:migrate`, run the backfill as a dry run first (GitHub Actions "Backfill (prize
+1. After `bun run db:migrate`, run the backfill as a dry run first (GitHub Actions "Backfill (prize
    bonds)" with `dry_run` checked, or locally
-   `pnpm --filter @bondcheck/ingest backfill:bonds --dry-run --coverage`), review the coverage
+   `bun run --cwd packages/ingest backfill:bonds --dry-run --coverage`), review the coverage
    artifact, then run it for real. It needs `DATABASE_URL`; it fetches about 200 official files
    at one request every 2 seconds and takes roughly 15 to 30 minutes.
 2. Set `APP_BASE_URL` and `CRON_SECRET` as GitHub Actions secrets for `ingest.yml`, and

@@ -20,17 +20,17 @@ Accessibility: every control has a role, label and state; touch targets are at l
 ## Local development
 
 ```
-source ~/.nvm/nvm.sh && nvm use 22 && corepack enable pnpm
-pnpm install
-EXPO_PUBLIC_API_BASE_URL=http://192.168.1.10:3105 pnpm --filter mobile start   # dev build or emulator
-pnpm --filter mobile test        # Jest + React Native Testing Library
-pnpm --filter mobile typecheck
-pnpm --filter mobile lint
-pnpm --filter mobile doctor      # expo-doctor
-pnpm --filter mobile messages    # copy the website's shared message namespaces (common)
+source ~/.nvm/nvm.sh && nvm use 22
+bun install
+EXPO_PUBLIC_API_BASE_URL=http://192.168.1.10:3105 bun run --cwd apps/mobile start   # dev build or emulator
+bun run --cwd apps/mobile test        # Jest + React Native Testing Library
+bun run --cwd apps/mobile typecheck
+bun run --cwd apps/mobile lint
+bun run --cwd apps/mobile doctor      # expo-doctor
+bun run --cwd apps/mobile messages    # copy the website's shared message namespaces (common)
 ```
 
-The camera scanner and secure storage need a development build (`pnpm --filter mobile android`, which runs `expo run:android` against a local Android SDK); Expo Go cannot load the ML Kit module. `http://` base URLs are accepted only in development builds.
+The camera scanner and secure storage need a development build (`bun run --cwd apps/mobile android`, which runs `expo run:android` against a local Android SDK); Expo Go cannot load the ML Kit module. `http://` base URLs are accepted only in development builds.
 
 `expo-doctor` is told (in `apps/mobile/package.json`, `expo.install.exclude`) not to compare `typescript`, `jest` and `@types/jest`: the monorepo pins TypeScript 5.9.3 for every package, and `jest-expo` 58 runs on Jest 30.
 

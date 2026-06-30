@@ -6,7 +6,7 @@ test.use({ serviceWorkers: "block" });
 
 /**
  * Visual snapshots, Urdu (RTL) first. Baselines live in visual.spec.ts-snapshots and are
- * platform specific; refresh them with `pnpm e2e --update-snapshots` after intended changes.
+ * platform specific; refresh them with `bun run e2e --update-snapshots` after intended changes.
  */
 for (const locale of ["ur", "en"]) {
   for (const scheme of ["light", "dark"] as const) {

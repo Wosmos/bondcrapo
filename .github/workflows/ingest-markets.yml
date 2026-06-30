@@ -71,14 +71,15 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.12
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - run: bun install --frozen-lockfile
       - name: Backfill daily FX and metal history (resumable)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           FROM: ${{ inputs.from }}
-        run: pnpm --filter @bondcheck/ingest exec tsx src/markets/backfill-cli.ts --from "$FROM"
+        run: bun run --cwd packages/ingest tsx src/markets/backfill-cli.ts --from "$FROM"

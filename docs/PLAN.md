@@ -43,7 +43,7 @@ Read first: `docs/DATA_AUDIT.md` (what the current DB holds and why it must be r
      Vercel Cron (daily safety net) ---- GET /api/v1/cron/<job> -----+        |
      GitHub Actions schedule (frequent) - POST /api/v1/cron/<job> ---+        |
      Cloudflare Cron Trigger (later) ---- scheduled() -> same handler +       |
-   Backfill: `pnpm ingest:backfill` CLI (GitHub Actions workflow_dispatch or local) --+
+   Backfill: `bun run ingest:backfill` CLI (GitHub Actions workflow_dispatch or local) --+
 
    Release assets: GitHub Release of this private repo (canonical), served by website
    server routes /api/v1/releases/* using GITHUB_RELEASES_TOKEN -> /download and in-app update prompt.
@@ -58,7 +58,7 @@ Principles:
 
 ---
 
-## 2. Repo layout after cleanup (decision: pnpm workspace monorepo, see ADR 0002)
+## 2. Repo layout after cleanup (decision: Bun workspace monorepo, see ADR 0002)
 
 ```
 bondcrapo/
@@ -80,12 +80,12 @@ bondcrapo/
   scripts/                   version.mjs, coverage report, misc
   docs/                      PLAN.md, DATA_AUDIT.md, COVERAGE.md, adr/
   .github/workflows/         ci.yml, ingest.yml (schedules), backfill.yml, mobile-release.yml
-  pnpm-workspace.yaml, package.json (root scripts), tsconfig.base.json, .nvmrc (22), LICENSE
+  bunfig.toml, package.json (root scripts), tsconfig.base.json, .nvmrc (22), LICENSE
 ```
 
 Why not a single app at root: the Expo app is in scope and must share zod contracts and bond math; the ingestion code must run outside Next (CLI backfill, GitHub Actions, future Cloudflare Worker). Three small packages keep those boundaries honest and give parallel lanes disjoint directories.
 
-Tooling: Node 22 LTS, pnpm 10 via Corepack (`packageManager` field), TypeScript strict, exact-pinned versions (`save-exact=true` in `.npmrc`), ESLint 9 flat config, Vitest, Playwright + `@axe-core/playwright`, Prettier. Note: the owner machine currently has bun but no node or pnpm; implementers install Node 22 and run `corepack enable`.
+Tooling: Node 22 LTS, Bun 1.3 (`packageManager` field), TypeScript strict, exact-pinned versions (`exact = true` in `bunfig.toml`), ESLint 9 flat config, Vitest, Playwright + `@axe-core/playwright`, Prettier. Note: the owner machine currently has bun but no node or pnpm; implementers install Node 22 and run `corepack enable`.
 
 ---
 
@@ -333,7 +333,7 @@ Reconciliation precedence: official TXT > official PDF > legacy snapshot > prize
 
 ### 5.2 Backfill (one-off, resumable)
 
-`pnpm --filter @bondcheck/ingest backfill:bonds [--denomination 750] [--from 2000-01-01] [--dry-run]`
+`bun run --cwd packages/ingest backfill:bonds [--denomination 750] [--from 2000-01-01] [--dry-run]`
 
 1. Seed `denominations` and `prize_structures`.
 2. Catalog: official legacy date lists (13 POSTs total), official schedule pages, prizeinfo schedule pages, and distinct dates in `legacy_winners`. Normalise both legacy date formats (`DD-Mon-YYYY` and `D Month YYYY`) into one `date`.
@@ -458,7 +458,7 @@ App and ops:
 - Rate limiting: `RateLimiter` interface in `packages/shared`; Postgres fixed-window implementation (`rate_limits` table) for `POST /bonds/check`, wallet create/restore (stricter: 5 per hour per IP hash for restore), push subscribe. The in-memory limiter in `lib/rate-limit.ts` is ineffective on serverless and is removed. Add Vercel Firewall rate-limit rules as an outer layer; on Cloudflare, use the Rate Limiting binding.
 - Wallet secrets: 32-byte random token, stored as HMAC-SHA256 with `WALLET_PEPPER`; sync code 12 chars Crockford base32 (60 bits) with HMAC hash, constant-time compare, rotate on use.
 - Headers (in `next.config.ts` `headers()`): `Content-Security-Policy` (`default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://va.vercel-scripts.com; worker-src 'self' blob:; img-src 'self' data: blob:; connect-src 'self' https://vitals.vercel-insights.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'`), `Strict-Transport-Security`, `X-Content-Type-Options`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(self), geolocation=()`. Nonce-based CSP is rejected because it forces dynamic rendering and breaks ISR; revisit if needed.
-- Dependencies: Dependabot or Renovate weekly, `pnpm audit` in CI, exact pins.
+- Dependencies: Dependabot or Renovate weekly, `bun audit` in CI, exact pins.
 
 ## 12. Testing strategy
 
@@ -475,7 +475,7 @@ App and ops:
 - No `runtime = "edge"`, no `@vercel/*` outside `src/platform`, no `next/after` assumptions without the adapter (`waitUntil` wrapper).
 - Cron: `apps/web/src/server/cron.ts` exports `runJob(job, trigger)`; the route handler wraps it; on Cloudflare a `scheduled()` handler in the OpenNext worker entry (or a 20-line separate Worker) calls the same function or the HTTP endpoint.
 - Caching: `revalidateTag` usage concentrated in `src/platform/revalidate.ts`; OpenNext needs R2 incremental cache and D1 tag cache configured in `open-next.config.ts` (added during the migration, not now).
-- Keep server bundle small; verify with `pnpm dlx @opennextjs/cloudflare build` in a non-blocking CI job from Milestone F onward.
+- Keep server bundle small; verify with `bunx @opennextjs/cloudflare build` in a non-blocking CI job from Milestone F onward.
 
 ---
 
@@ -486,23 +486,23 @@ Execution model: **M1 runs alone first** on `master` (or branch `m1-foundation` 
 Global rules for every lane:
 - Only edit files you own (listed below). If you need a change in a file you do not own, write it down in `docs/lanes/<lane>-requests.md` (your own file) and stub around it; the integrator applies it in M-F.
 - Contracts in `packages/shared/src/api/*` and the schema in `packages/db/src/schema/*` are frozen after M1. A lane may **add** new files in its own namespace (`packages/shared/src/api/<lane>-extra.ts`, `packages/db/src/schema/<lane>-extra.ts` plus a new migration file named `NNNN_<lane>_*.sql`), never edit M1 files. Migration numbering collisions are resolved at merge by the integrator (regenerate).
-- `pnpm-lock.yaml` conflicts: lanes may add dependencies only to their own package or app; the integrator regenerates the lockfile on merge.
-- Exact pins, no em dashes in docs, conventional commit messages, every milestone ends green on: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`.
+- `bun.lock` conflicts: lanes may add dependencies only to their own package or app; the integrator regenerates the lockfile on merge.
+- Exact pins, no em dashes in docs, conventional commit messages, every milestone ends green on: `bun run lint && bun run typecheck && bun run test && bun run build`.
 
 ### M1. Foundation: cleanup, monorepo, schema, contracts (shared, runs first)
 
 Scope:
 1. Delete `backend/`, `frontend/`, `AUTH_GUIDE.md`, `AUTH_SETUP.md`, root `readme.md`, editor tooling folders, `.github/instructions/codacy.instructions.md`, `bondcheck-next/bun.lock`, `bondcheck-next/actions/`, `bondcheck-next/app/admin/`, `lib/fingerprint.ts`, `hooks/useTelemetry.ts`, `app/api/track`, `app/api/device`, `lib/rate-limit.ts`. Clean `.gitignore` of Python entries.
-2. `git mv bondcheck-next apps/web`; move code into `apps/web/src/`; delete editor-specific instruction files; the Next 16 rules move into a repository guide (now `docs/CONTRIBUTING.md`).
-3. Root workspace: `pnpm-workspace.yaml`, `package.json` (`packageManager: pnpm@10.x`, scripts `dev`, `build`, `lint`, `typecheck`, `test`, `db:generate`, `db:migrate`), `.npmrc` (`save-exact=true`), `.nvmrc` (22), `tsconfig.base.json`, shared ESLint config, Prettier. Re-pin every dependency to the exact currently resolved version.
-4. `packages/db`: full schema from section 3 (all tables, including those lanes will fill), first migration written to be safe on the live DB (rename `winners` to `legacy_winners`, copy `draw_schedule` into `draws`, drop listed tables), PGlite test harness `createTestDb()`. Do not run the migration against production in this milestone; the owner runs `pnpm db:migrate` after review.
+2. `git mv bondcheck-next apps/web`; move code into `apps/web/src/`; delete editor-specific instruction files; the Next 16 rules move into a repository guide (now `docs/DEVELOPMENT.md`).
+3. Root workspace: `bunfig.toml`, `package.json` (`packageManager: bun@1.3.x`, `workspaces`, scripts `dev`, `build`, `lint`, `typecheck`, `test`, `db:generate`, `db:migrate`), `bunfig.toml` (`exact = true`), `.nvmrc` (22), `tsconfig.base.json`, shared ESLint config, Prettier. Re-pin every dependency to the exact currently resolved version.
+4. `packages/db`: full schema from section 3 (all tables, including those lanes will fill), first migration written to be safe on the live DB (rename `winners` to `legacy_winners`, copy `draw_schedule` into `draws`, drop listed tables), PGlite test harness `createTestDb()`. Do not run the migration against production in this milestone; the owner runs `bun run db:migrate` after review.
 5. `packages/shared`: zod contracts for every endpoint in section 6 (request, response, error), `ApiClient` (fetch-based, works in RN), units, `formatBondNumber`, denomination constants, `RateLimiter` interface, wallet credential header helpers.
 6. `packages/ingest`: skeleton with `Fetcher` (rate limit, retries, sha256, UA), `Job` interface `{ name, run(ctx, cursor): Promise<{done, cursor, stats}> }`, `runJob` with `ingestion_runs` bookkeeping, CLI entry `src/cli.ts`.
 7. `apps/web`: `[locale]` routing with next-intl (en, ur) skeleton, `src/platform/{analytics,revalidate,waitUntil,env}.ts`, minimal UI primitives with frozen props (`Button`, `Card`, `PageHeader`, `DataTable`, `Stat`, `Badge`, `EmptyState`, `Skeleton`), nav registry `src/features/registry.ts` importing `src/features/<area>/nav.ts` stubs for bonds, markets, wallet, download; route stubs returning 501 for every `/api/v1` endpoint (each in its lane's folder), including `/api/v1/releases/{latest,download/[asset],updater}` for Lane E; cron dispatcher `/api/v1/cron/[job]` with fail-closed auth and a job registry `src/server/jobs.ts` importing per-lane `jobs.ts` stubs; message files per namespace.
 8. CI workflow `ci.yml`; `vercel.json` with root directory note (Vercel project Root Directory must be changed to `apps/web` by the owner).
 9. Keep the existing user-facing checker working against `legacy_winners` via a temporary adapter so production is never broken.
 
-Files touched: whole repo. Acceptance: `pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm test && pnpm build` green; `rg -n "backend|frontend" -g '!docs/**'` finds no references; migration applies cleanly to a PGlite database seeded with the legacy table shapes (test); `curl /api/v1/cron/bonds-sync` without secret returns 401 even when `CRON_SECRET` is unset (test); every contract file exports request/response schemas.
+Files touched: whole repo. Acceptance: `bun install --frozen-lockfile && bun run lint && bun run typecheck && bun run test && bun run build` green; `rg -n "backend|frontend" -g '!docs/**'` finds no references; migration applies cleanly to a PGlite database seeded with the legacy table shapes (test); `curl /api/v1/cron/bonds-sync` without secret returns 401 even when `CRON_SECRET` is unset (test); every contract file exports request/response schemas.
 
 ### Lane A: prize bonds (owns `packages/ingest/src/bonds/**`, `packages/ingest/fixtures/bonds/**`, `packages/db/src/queries/bonds.ts`, `apps/web/src/app/api/v1/bonds/**`, `apps/web/src/features/bonds/**`, `apps/web/src/app/[locale]/prize-bonds/**`, `apps/web/messages/*/bonds.json`, `.github/workflows/ingest.yml`, `.github/workflows/backfill.yml`, `docs/COVERAGE.md`)
 Must not touch: shell layout, UI primitives, wallet, markets, mobile, M1 schema/contract files.
@@ -511,7 +511,7 @@ Consumes: `draws`, `draw_results`, `draw_prizes`, `denominations`, `prize_struct
 **A1. Parsers, validation and 2000-to-now backfill with coverage report.**
 Scope: parsers for official TXT, official PDF (text extraction with `pdfjs-dist` in Node, fallback), official legacy date list, prizeinfo record and schedule pages, legacy snapshot importer; validation and reconciliation per section 5.1; denominations and prize structures seed (cite sources in seed file comments); backfill CLI and `backfill.yml` (workflow_dispatch, runs CLI with `DATABASE_URL` secret); coverage generator writing `docs/COVERAGE.md`.
 Acceptance: fixture tests for each parser (at least 3 real documents per source, including Rs 200 with 5 second prizes and one premium draw); running backfill twice yields zero changes the second time (PGlite integration test with fixtures); coverage report lists every denomination and year 1999 to 2026 with full/top/none counts; no draw with conflicting top tiers is marked verified; the 17 multi-first-prize draws and 4 cross-source conflicts from DATA_AUDIT are each resolved or listed as disputed.
-Commands: `pnpm --filter @bondcheck/ingest test`, `pnpm --filter @bondcheck/ingest backfill:bonds --dry-run --from 2024-01-01`.
+Commands: `bun run --cwd packages/ingest test`, `bun run --cwd packages/ingest backfill:bonds --dry-run --from 2024-01-01`.
 
 **A2. Bond API, scheduled sync, public pages.**
 Scope: implement all `/api/v1/bonds/*` handlers; jobs `bonds-sync`, `bonds-verify`, `bonds-schedule` registered in the lane's `jobs.ts`; tag revalidation; GitHub Actions schedules; pages: `/prize-bonds` hub, `/prize-bonds/[denomination]` (list of draws, next draw), `/prize-bonds/[denomination]/[drawNumber]` (result page with prize table, top numbers, searchable full list, download, sources and status badge), `/prize-bonds/schedule/[year]`, `/prize-bonds/check` (multi-number and range checker, OCR import kept as dynamic import), `/prize-bonds/coverage`; JSON-LD (`Dataset`, `BreadcrumbList`) and metadata.
@@ -559,7 +559,7 @@ Consumes: `packages/shared` contracts and `ApiClient`, wallet credential scheme.
 
 **E1. Expo app.**
 Scope: Expo SDK (latest stable at implementation time), Expo Router, screens: home, bond checker (with camera OCR via on-device ML Kit text recognition module or manual entry), draw results browser, my wallet (create/restore via sync code, credentials in `expo-secure-store`), gold and currency, settings (language with `I18nManager.forceRTL` for Urdu and reload), local notifications for upcoming draws of owned denominations (`expo-notifications` local scheduling only; remote push deferred, see ADR 0006), background refresh via `expo-background-task` to check new results on app open and periodically; in-app update prompt reading `GET /api/v1/app/latest` and opening the APK URL.
-Acceptance: `pnpm --filter mobile test` (Jest RNTL) green; `npx expo-doctor` clean; `npx expo prebuild --platform android --clean && cd android && ./gradlew assembleDebug` succeeds locally or in CI; typecheck uses shared contracts (no duplicated types).
+Acceptance: `bun run --cwd apps/mobile test` (Jest RNTL) green; `npx expo-doctor` clean; `npx expo prebuild --platform android --clean && cd android && ./gradlew assembleDebug` succeeds locally or in CI; typecheck uses shared contracts (no duplicated types).
 
 **E2. Mobile CI, versioning, downloads.**
 Scope: `scripts/version.mjs <x.y.z>` updates root and all workspace `package.json` versions, `apps/mobile/app.json` `expo.version` and `android.versionCode = major*10000 + minor*100 + patch`, and fails CI if the tag does not equal the version (`--check`); `mobile-release.yml` on `v*` tags: setup Node 22, pnpm, Java 17, Android SDK, `expo prebuild --platform android --no-install`, Gradle `assembleRelease`; if `ANDROID_KEYSTORE_BASE64` exists decode it and sign via Gradle signing config injected by an Expo config plugin, else build unsigned and name the file `*-unsigned.apk` with a release note; compute sha256; create the GitHub Release with the APK, `SHA256SUMS.txt` and `latest.json` (`version`, `versionCode`, `url`, `sha256`, `minSupportedVersionCode`, `notes`) as assets (no Cloudflare R2, see ADR 0006); the website serves them server side: `/api/v1/releases/latest` (public view, no token or GitHub URL), `/api/v1/releases/download/[asset]` (302 to the short lived signed asset URL, only names present in the latest release), `/api/v1/releases/updater` (the `latest.json` manifest), all through `GITHUB_RELEASES_TOKEN` and cached 5 min, following the owner's duolingo-clone `app/api/releases/**` pattern; desktop artefacts, if ever built, are picked up from the same release by asset name; `/download` page (en, ur) with version, size, sha256, install instructions, QR code; `/api/v1/app/latest` returns the manifest from the same source.
@@ -568,7 +568,7 @@ Acceptance: workflow lint (`actionlint`); dry-run job on a test tag in a fork or
 ### M-F. Integration and release v1.0.0 (runs last, single implementer)
 
 Scope: merge lanes in order D, A, B, C, E; regenerate lockfile and migration numbering; apply each `docs/lanes/*-requests.md`; security headers and CSP from section 11; analytics adapter wiring; remove the legacy adapter and drop `legacy_winners` once `docs/COVERAGE.md` confirms parity; README (product, architecture, dev setup, data sources and attribution), `LICENSE` (owner chooses: proprietary "All rights reserved" recommended since the repo is private; MIT only if open-sourcing), `SECURITY.md`, `CHANGELOG.md`; OpenNext Cloudflare build as a non-blocking CI job; final Lighthouse and axe sweep; `scripts/version.mjs 1.0.0`; tag `v1.0.0` (owner pushes).
-Acceptance: full CI green; `pnpm build` and `pnpm dlx @opennextjs/cloudflare build` both succeed; Playwright suite green in both locales; no file references `bondcheck-next`, `devices`, `events`, `fingerprint`; security headers verified by an integration test hitting `next start`.
+Acceptance: full CI green; `bun run build` and `bunx @opennextjs/cloudflare build` both succeed; Playwright suite green in both locales; no file references `bondcheck-next`, `devices`, `events`, `fingerprint`; security headers verified by an integration test hitting `next start`.
 
 Milestone count: M1, A1, A2, B1, B2, C1, C2, D1, D2, E1, E2, M-F = 12.
 
@@ -576,8 +576,8 @@ Milestone count: M1, A1, A2, B1, B2, C1, C2, D1, D2, E1, E2, M-F = 12.
 
 ## 15. Owner actions and blockers
 
-1. Install Node 22 and Corepack on the dev machine (only bun exists today).
-2. Change the Vercel project Root Directory to `apps/web` after M1 merges; set env vars from section 5.4; run `pnpm db:migrate` against Neon after reviewing the M1 migration (consider a Neon branch first).
+1. Install Node 22 on the dev machine.
+2. Change the Vercel project Root Directory to `apps/web` after M1 merges; set env vars from section 5.4; run `bun run db:migrate` against Neon after reviewing the M1 migration (consider a Neon branch first).
 3. Create a fine-grained GitHub token with read-only Contents access to this repository only and set it as `GITHUB_RELEASES_TOKEN` (and optionally `GITHUB_RELEASES_REPO`) on the website host. No Cloudflare R2 bucket is needed for releases.
 4. Optional Android signing keystore (secrets listed in 5.4). Without it, APKs ship unsigned and cannot be installed as updates over each other reliably; strongly recommended.
 5. Optional paid or free-key metals fallback (MetalpriceAPI or GoldAPI) key.

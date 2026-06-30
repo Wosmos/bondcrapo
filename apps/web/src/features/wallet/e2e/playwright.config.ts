@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * Wallet end-to-end tests (PLAN Lane C2). They run against `next dev` on the lane port with the
  * Neon HTTP driver pointed at a local PGlite bridge, so no real database is involved.
- *   pnpm --filter web exec playwright test -c src/features/wallet/e2e/playwright.config.ts
+ *   bun run --cwd apps/web playwright test -c src/features/wallet/e2e/playwright.config.ts
  */
 const PORT = Number(process.env.WALLET_E2E_PORT ?? 3103);
 const SQL_PORT = Number(process.env.WALLET_E2E_SQL_PORT ?? 3193);

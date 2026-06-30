@@ -62,12 +62,12 @@ Changes Lane D needs in files it does not own, plus contracts other lanes should
 ### Lane E (mobile and downloads)
 
 - Done: the `[locale]` layout renders the skip link and the single `<main id="main">` landmark; `/download` is in the footer (Explore column, from the nav registry) and in the sitemap for both locales.
-- After merge run `pnpm --filter mobile messages` so the app's copy of `common.json` matches.
+- After merge run `bun run --cwd apps/mobile messages` so the app's copy of `common.json` matches.
 
 ### CI
 
-- Add a job (after build) running `pnpm --filter web e2e` with `npx playwright install --with-deps chromium`, and a non-blocking Lighthouse job: `pnpm dlx @lhci/cli@0.15.1 autorun --config=apps/web/lighthouserc.json` from `apps/web`. The `/gold-rate` and `/currency` URLs in that config only exist after Lane B merges.
-- The visual snapshot baselines (`apps/web/e2e/visual.spec.ts-snapshots/*-linux.png`) were recorded on Linux; regenerate them on the CI runner image once (`pnpm e2e --update-snapshots`) if fonts render differently there.
+- Add a job (after build) running `bun run --cwd apps/web e2e` with `npx playwright install --with-deps chromium`, and a non-blocking Lighthouse job: `bunx @lhci/cli@0.15.1 autorun --config=apps/web/lighthouserc.json` from `apps/web`. The `/gold-rate` and `/currency` URLs in that config only exist after Lane B merges.
+- The visual snapshot baselines (`apps/web/e2e/visual.spec.ts-snapshots/*-linux.png`) were recorded on Linux; regenerate them on the CI runner image once (`bun run e2e --update-snapshots`) if fonts render differently there.
 
 ## Owner actions
 

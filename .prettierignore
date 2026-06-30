@@ -1,4 +1,4 @@
 apps/
-pnpm-lock.yaml
+bun.lock
 **/migrations/
 **/fixtures/

@@ -4,19 +4,29 @@
   "private": true,
   "license": "UNLICENSED",
   "description": "BondCheck: Pakistan prize bond results, anonymous wallets and market rates",
-  "packageManager": "pnpm@10.34.7",
+  "packageManager": "bun@1.3.12",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "trustedDependencies": [
+    "esbuild",
+    "sharp",
+    "unrs-resolver",
+    "@tailwindcss/oxide"
+  ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "dev": "pnpm --filter web dev",
-    "build": "pnpm --filter web build",
-    "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "dev": "bun run --cwd apps/web dev",
+    "build": "bun run --cwd apps/web build",
+    "lint": "bun run --filter \"*\" lint",
+    "typecheck": "bun run --filter \"*\" typecheck",
+    "test": "bun run --filter \"*\" test",
     "format": "prettier --write \"packages/**/*.{ts,json,md}\" \"docs/**/*.md\" \"*.{json,md,mjs}\"",
-    "db:generate": "pnpm --filter @bondcheck/db generate",
-    "db:migrate": "pnpm --filter @bondcheck/db migrate",
+    "db:generate": "bun run --cwd packages/db generate",
+    "db:migrate": "bun run --cwd packages/db migrate",
     "version": "node scripts/version.mjs"
   },
   "devDependencies": {
