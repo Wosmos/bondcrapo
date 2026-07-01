@@ -108,7 +108,13 @@
     "summary": "اس مدت میں {subject} {trend} ({change})، {startDate} کو {start} سے {endDate} کو {end} تک۔ سب سے زیادہ {high} ({highDate})، سب سے کم {low} ({lowDate})۔",
     "trendUp": "میں اضافہ ہوا",
     "trendDown": "میں کمی ہوئی",
-    "trendFlat": "میں معمولی تبدیلی ہوئی"
+    "trendFlat": "میں معمولی تبدیلی ہوئی",
+    "custom": {
+      "label": "اپنی مدت",
+      "apply": "دکھائیں",
+      "clear": "صاف کریں",
+      "window": "{from} سے {to} تک"
+    }
   },
   "gold": {
     "title": "{country} میں آج سونے کا ریٹ",

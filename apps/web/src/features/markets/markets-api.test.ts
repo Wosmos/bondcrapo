@@ -75,6 +75,19 @@ describe("/api/v1/markets contracts", () => {
     expect(body.data.points[1]!.close).toBeCloseTo(4153 * 277.1, 2);
   });
 
+  it("a custom from/to window overrides the range on both history endpoints", async () => {
+    const metals = await ok(marketsEndpoints.metalsHistory, await get(metalsHistory, "metal=XAU&currency=PKR&range=1m&from=2026-10-14&to=2026-10-14"));
+    expect(metals.data.points.map((p) => p.date)).toEqual(["2026-10-14"]);
+    // the 13 Oct rate still carries into a window that starts after it
+    expect(metals.data.points[0]!.close).toBeCloseTo(4153 * 277.1, 2);
+    const fx = await ok(marketsEndpoints.fxHistory, await get(fxHistory, "base=USD&quote=PKR&from=2026-10-14"));
+    expect(fx.data.points.map((p) => p.date)).toEqual(["2026-10-15"]);
+    const upTo = await ok(marketsEndpoints.fxHistory, await get(fxHistory, "base=USD&quote=PKR&to=2026-10-14"));
+    expect(upTo.data.points.map((p) => p.date)).toEqual(["2026-10-13"]);
+    await failsWith(await get(fxHistory, "base=USD&quote=PKR&from=2026-10-15&to=2026-10-13"), 400, "bad_request");
+    await failsWith(await get(metalsHistory, "metal=XAU&from=15-10-2026"), 400, "bad_request");
+  });
+
   it("local-rates returns reported and derived rows for Pakistan", async () => {
     const body = await ok(marketsEndpoints.localRates, await get(localRates, "country=PK"));
     expect(body.data.some((r) => r.kind === "reported" && r.karat === 24 && r.unit === "tola" && r.price === 437836)).toBe(true);

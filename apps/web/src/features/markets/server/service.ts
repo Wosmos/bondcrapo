@@ -34,6 +34,12 @@ export function rangeStart(range: Range, today: Date): string | null {
   return new Date(today.getTime() - RANGE_DAYS[range] * DAY).toISOString().slice(0, 10);
 }
 
+/** Start and end of a history request: an explicit `from`/`to` wins over the preset range. */
+export function historyWindow(args: { range: Range; from?: string; to?: string }, today: Date): { from: string | null; to: string | null } {
+  if (args.from || args.to) return { from: args.from ?? null, to: args.to ?? null };
+  return { from: rangeStart(args.range, today), to: null };
+}
+
 const round = (n: number, places: number) => Math.round(n * 10 ** places) / 10 ** places;
 /** Significant precision for prices: 4 decimals below 10, 2 above. */
 const price = (n: number) => round(n, Math.abs(n) < 10 ? 6 : 4);
@@ -106,18 +112,18 @@ function carryForward(rows: FxRow[], quote: string): (date: string) => number | 
 
 export async function getMetalHistory(
   store: MarketsStore,
-  args: { metal: Metal; currency: string; range: Range },
+  args: { metal: Metal; currency: string; range: Range; from?: string; to?: string },
   today = new Date(),
 ): Promise<Result<MetalsHistory>> {
   assertCurrency(args.currency);
-  const from = rangeStart(args.range, today);
-  const daily = await store.metalDaily(args.metal, from);
+  const { from, to } = historyWindow(args, today);
+  const daily = await store.metalDaily(args.metal, from, to);
   const sources = new Set(daily.map((d) => d.source));
   let rateOn: (date: string) => number | undefined = () => 1;
   if (args.currency !== "USD") {
     // Start the FX series a week early so the first points have a rate to carry forward.
     const fxFrom = from ? new Date(Date.parse(from) - 7 * DAY).toISOString().slice(0, 10) : null;
-    const fx = await store.fxSeries([args.currency], fxFrom);
+    const fx = await store.fxSeries([args.currency], fxFrom, to);
     fx.forEach((r) => sources.add(r.source));
     rateOn = carryForward(fx, args.currency);
   }
@@ -183,14 +189,14 @@ export async function getPkrRates(store: MarketsStore, kind?: "interbank" | "ope
 
 export async function getFxHistory(
   store: MarketsStore,
-  args: { base: string; quote: string; range: Range },
+  args: { base: string; quote: string; range: Range; from?: string; to?: string },
   today = new Date(),
 ): Promise<Result<FxHistory>> {
   assertCurrency(args.base);
   assertCurrency(args.quote);
-  const from = rangeStart(args.range, today);
+  const { from, to } = historyWindow(args, today);
   const codes = [...new Set([args.base, args.quote].filter((c) => c !== "USD"))];
-  const rows = await store.fxSeries(codes, from);
+  const rows = await store.fxSeries(codes, from, to);
   const byDate = new Map<string, Map<string, number>>();
   for (const r of rows) {
     if (!byDate.has(r.date)) byDate.set(r.date, new Map([["USD", 1]]));

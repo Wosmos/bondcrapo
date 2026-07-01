@@ -28,6 +28,7 @@ export function chartLabels(t: MarketsT): ChartLabels {
     trendUp: t("chart.trendUp"),
     trendDown: t("chart.trendDown"),
     trendFlat: t("chart.trendFlat"),
+    custom: { label: t("chart.custom.label"), apply: t("chart.custom.apply"), clear: t("chart.custom.clear"), window: t.raw("chart.custom.window") as string },
   };
 }
 

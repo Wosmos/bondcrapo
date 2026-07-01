@@ -108,7 +108,13 @@
     "summary": "{subject} {trend} {change} over this period, from {start} on {startDate} to {end} on {endDate}. Highest {high} on {highDate}, lowest {low} on {lowDate}.",
     "trendUp": "rose",
     "trendDown": "fell",
-    "trendFlat": "moved"
+    "trendFlat": "moved",
+    "custom": {
+      "label": "Custom",
+      "apply": "Show",
+      "clear": "Clear",
+      "window": "{from} to {to}"
+    }
   },
   "gold": {
     "title": "Gold rate in {country} today",

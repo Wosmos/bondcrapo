@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { downsample, fill, linePath, summarize, tableRows, yScale, type ChartPoint } from "./chart-math";
 import { formatDate, formatMoney, formatNumber, formatPercent } from "../lib/format";
+import { RangePicker, type CustomWindow, type RangePickerLabels } from "./RangePicker";
 
 export type ChartRange = "1m" | "6m" | "1y" | "5y" | "max";
 
@@ -30,6 +31,8 @@ export interface ChartLabels {
   trendUp: string;
   trendDown: string;
   trendFlat: string;
+  /** Strings for the custom date range picker. */
+  custom: RangePickerLabels;
 }
 
 export interface PriceChartProps {
@@ -57,12 +60,18 @@ const TONES = {
 
 const MAX_DRAWN = 320;
 
-function endpoint(source: ChartSource, range: ChartRange): string {
+/** A preset range, or `custom` with its own window. */
+type Selection = ChartRange | "custom";
+
+function endpoint(source: ChartSource, range: ChartRange, window?: CustomWindow): string {
+  const span = window ? `&from=${window.from}&to=${window.to}` : "";
   if (source.kind === "metal") {
-    return `/api/v1/markets/metals/history?metal=${source.metal}&currency=${source.currency}&range=${range}`;
+    return `/api/v1/markets/metals/history?metal=${source.metal}&currency=${source.currency}&range=${range}${span}`;
   }
-  return `/api/v1/markets/fx/history?base=${source.base}&quote=${source.quote}&range=${range}`;
+  return `/api/v1/markets/fx/history?base=${source.base}&quote=${source.quote}&range=${range}${span}`;
 }
+
+const seriesKey = (sel: Selection, window: CustomWindow | null) => (sel === "custom" && window ? `custom:${window.from}:${window.to}` : sel);
 
 function toPoints(source: ChartSource, json: unknown): ChartPoint[] {
   const data = (json as { data?: { points?: unknown[] } })?.data?.points;
@@ -82,8 +91,9 @@ function toPoints(source: ChartSource, json: unknown): ChartPoint[] {
  */
 export function PriceChart(props: PriceChartProps) {
   const { locale, labels, source, currency, tone = "gold" } = props;
-  const [range, setRange] = useState<ChartRange>(props.initialRange);
-  const [series, setSeries] = useState<Partial<Record<ChartRange, ChartPoint[]>>>({ [props.initialRange]: props.initialPoints });
+  const [range, setRange] = useState<Selection>(props.initialRange);
+  const [custom, setCustom] = useState<CustomWindow | null>(null);
+  const [series, setSeries] = useState<Record<string, ChartPoint[]>>({ [props.initialRange]: props.initialPoints });
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [active, setActive] = useState<number | null>(null);
   const plotRef = useRef<HTMLDivElement>(null);
@@ -91,7 +101,8 @@ export function PriceChart(props: PriceChartProps) {
   const id = useId();
   const colors = TONES[tone];
 
-  const points = useMemo(() => series[range] ?? [], [series, range]);
+  const key = seriesKey(range, custom);
+  const points = useMemo(() => series[key] ?? [], [series, key]);
   const drawn = useMemo(() => downsample(points, MAX_DRAWN), [points]);
   const scale = useMemo(() => yScale(drawn.map((p) => p.value)), [drawn]);
   const path = useMemo(() => linePath(drawn, scale.min, scale.max), [drawn, scale]);
@@ -103,16 +114,16 @@ export function PriceChart(props: PriceChartProps) {
   );
 
   const load = useCallback(
-    async (next: ChartRange) => {
+    async (next: Selection, window: CustomWindow | null) => {
       abortRef.current?.abort();
       const ctrl = new AbortController();
       abortRef.current = ctrl;
       setStatus("loading");
       try {
-        const res = await fetch(endpoint(source, next), { signal: ctrl.signal, headers: { Accept: "application/json" } });
+        const res = await fetch(endpoint(source, next === "custom" ? "max" : next, next === "custom" ? (window ?? undefined) : undefined), { signal: ctrl.signal, headers: { Accept: "application/json" } });
         if (!res.ok) throw new Error(String(res.status));
         const pts = toPoints(source, await res.json());
-        setSeries((s) => ({ ...s, [next]: pts }));
+        setSeries((s) => ({ ...s, [seriesKey(next, window)]: pts }));
         setStatus("idle");
       } catch (error) {
         if ((error as Error).name !== "AbortError") setStatus("error");
@@ -123,10 +134,11 @@ export function PriceChart(props: PriceChartProps) {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  const choose = (next: ChartRange) => {
+  const choose = (next: Selection, window: CustomWindow | null = custom) => {
     setRange(next);
     setActive(null);
-    if (!series[next]) void load(next);
+    if (next === "custom") setCustom(window);
+    if (!series[seriesKey(next, window)]) void load(next, window);
     else setStatus("idle");
   };
 
@@ -203,6 +215,14 @@ export function PriceChart(props: PriceChartProps) {
             {labels.ranges[r]}
           </button>
         ))}
+        <RangePicker
+          locale={locale}
+          pressed={range === "custom"}
+          value={custom}
+          labels={labels.custom}
+          formatDate={(d) => formatDate(locale, d)}
+          onApply={(w) => choose("custom", w)}
+        />
       </div>
 
       <div dir="ltr" className="relative grid grid-cols-[3.75rem_1fr] grid-rows-[1fr_1.75rem] gap-x-2">
@@ -311,7 +331,7 @@ export function PriceChart(props: PriceChartProps) {
       {status === "error" && (
         <p className="mt-2 text-sm text-danger">
           {labels.error}{" "}
-          <button type="button" onClick={() => void load(range)} className="font-semibold underline underline-offset-2">
+          <button type="button" onClick={() => void load(range, custom)} className="font-semibold underline underline-offset-2">
             {labels.retry}
           </button>
         </p>

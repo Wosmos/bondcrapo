@@ -5,6 +5,10 @@ import { defineEndpoint } from "./endpoint";
 
 export const metalSchema = z.enum(METALS);
 export const rangeSchema = z.enum(["1m", "6m", "1y", "5y", "max"]);
+/** A custom window (`from` and/or `to`, inclusive) overrides `range`. */
+const customWindow = { from: isoDateSchema.optional(), to: isoDateSchema.optional() };
+const windowInOrder = (q: { from?: string; to?: string }) => !q.from || !q.to || q.from <= q.to;
+const WINDOW_ORDER = { message: "to is before from", path: ["to"] };
 export const rateKindSchema = z.enum(["reported", "derived"]);
 export const weightUnitSchema = z.enum(["tola", "10g", "g", "oz", "kg"]);
 export const countrySchema = z.enum(RATE_COUNTRIES);
@@ -52,7 +56,8 @@ export const metalsHistory = defineEndpoint({
     metal: metalSchema,
     currency: currencyCodeSchema.default("USD"),
     range: rangeSchema.default("1m"),
-  }),
+    ...customWindow,
+  }).refine(windowInOrder, WINDOW_ORDER),
   response: z.object({
     metal: metalSchema,
     currency: currencyCodeSchema,
@@ -128,7 +133,8 @@ export const fxHistory = defineEndpoint({
     base: currencyCodeSchema.default("USD"),
     quote: currencyCodeSchema,
     range: rangeSchema.default("1m"),
-  }),
+    ...customWindow,
+  }).refine(windowInOrder, WINDOW_ORDER),
   response: z.object({
     base: currencyCodeSchema,
     quote: currencyCodeSchema,

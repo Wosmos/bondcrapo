@@ -14,10 +14,10 @@ export interface MarketsStore {
   readonly sample: boolean;
   latestSpot(): Promise<SpotRow[]>;
   previousCloses(date: string): Promise<DailyRow[]>;
-  metalDaily(metal: string, fromDate: string | null): Promise<DailyRow[]>;
+  metalDaily(metal: string, fromDate: string | null, toDate?: string | null): Promise<DailyRow[]>;
   latestFxDate(): Promise<string | null>;
   fxOn(date: string): Promise<FxRow[]>;
-  fxSeries(quotes: string[], fromDate: string | null): Promise<FxRow[]>;
+  fxSeries(quotes: string[], fromDate: string | null, toDate?: string | null): Promise<FxRow[]>;
   pkrLatest(kind?: "interbank" | "open_market"): Promise<PkrRow[]>;
   localRates(country: string, date: string | null): Promise<LocalRateRecord[]>;
 }
@@ -27,10 +27,10 @@ export function dbStore(db: Db): MarketsStore {
     sample: false,
     latestSpot: () => q.latestSpotPerMetal(db),
     previousCloses: (date) => q.previousCloses(db, date),
-    metalDaily: (metal, from) => q.metalDailySince(db, metal, from),
+    metalDaily: (metal, from, to) => q.metalDailySince(db, metal, from, to ?? null),
     latestFxDate: () => q.latestFxDate(db),
     fxOn: (date) => q.fxOn(db, date),
-    fxSeries: (quotes, from) => q.fxSeries(db, quotes, from),
+    fxSeries: (quotes, from, to) => q.fxSeries(db, quotes, from, to ?? null),
     pkrLatest: (kind) => q.latestPkrQuotes(db, kind),
     localRates: (country, date) => q.localRatesFor(db, country, date),
   };
@@ -68,10 +68,10 @@ export function snapshotStore(s: MarketsSnapshot): MarketsStore {
         (r) => r.metal,
         (a, b) => a.date > b.date,
       ),
-    metalDaily: async (metal, from) => s.metalDaily.filter((r) => r.metal === metal && (!from || r.date >= from)).sort(byDate),
+    metalDaily: async (metal, from, to) => s.metalDaily.filter((r) => r.metal === metal && (!from || r.date >= from) && (!to || r.date <= to)).sort(byDate),
     latestFxDate: async () => s.fxDaily.reduce<string | null>((m, r) => (!m || r.date > m ? r.date : m), null),
     fxOn: async (date) => s.fxDaily.filter((r) => r.date === date),
-    fxSeries: async (quotes, from) => s.fxDaily.filter((r) => quotes.includes(r.quote) && (!from || r.date >= from)).sort(byDate),
+    fxSeries: async (quotes, from, to) => s.fxDaily.filter((r) => quotes.includes(r.quote) && (!from || r.date >= from) && (!to || r.date <= to)).sort(byDate),
     pkrLatest: async (kind) =>
       newestPer(
         pkr.filter((r) => !kind || r.kind === kind),

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lt, lte, sql } from "drizzle-orm";
 import type { Db } from "../client";
 import { fxDaily, fxPkrMarket, localRates, metalDaily, metalSpot } from "../schema/markets";
 import { rateLimits } from "../schema/ops";
@@ -245,11 +245,11 @@ export async function latestSpotPerMetal(db: Db): Promise<SpotRow[]> {
 }
 
 /** Daily rows of one metal from `fromDate` (inclusive, or everything), oldest first. */
-export async function metalDailySince(db: Db, metal: string, fromDate: string | null): Promise<DailyRow[]> {
+export async function metalDailySince(db: Db, metal: string, fromDate: string | null, toDate: string | null = null): Promise<DailyRow[]> {
   const rows = await db
     .select()
     .from(metalDaily)
-    .where(fromDate ? and(eq(metalDaily.metal, metal), gte(metalDaily.date, fromDate)) : eq(metalDaily.metal, metal))
+    .where(and(eq(metalDaily.metal, metal), fromDate ? gte(metalDaily.date, fromDate) : undefined, toDate ? lte(metalDaily.date, toDate) : undefined))
     .orderBy(asc(metalDaily.date));
   return rows.map(toDaily);
 }
@@ -275,12 +275,12 @@ export async function fxOn(db: Db, date: string): Promise<FxRow[]> {
 }
 
 /** Daily rates of `quotes` from `fromDate` (inclusive, or everything), oldest first. */
-export async function fxSeries(db: Db, quotes: string[], fromDate: string | null): Promise<FxRow[]> {
+export async function fxSeries(db: Db, quotes: string[], fromDate: string | null, toDate: string | null = null): Promise<FxRow[]> {
   if (quotes.length === 0) return [];
   const rows = await db
     .select()
     .from(fxDaily)
-    .where(fromDate ? and(inArray(fxDaily.quote, quotes), gte(fxDaily.date, fromDate)) : inArray(fxDaily.quote, quotes))
+    .where(and(inArray(fxDaily.quote, quotes), fromDate ? gte(fxDaily.date, fromDate) : undefined, toDate ? lte(fxDaily.date, toDate) : undefined))
     .orderBy(asc(fxDaily.date));
   return rows.map(toFx);
 }
