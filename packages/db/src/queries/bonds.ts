@@ -361,3 +361,30 @@ function rowsOf<T>(res: unknown): T[] {
   if (Array.isArray(res)) return res as T[];
   return ((res as { rows?: T[] }).rows ?? []) as T[];
 }
+
+export interface BondsFreshness {
+  /** Draws that took place and carry results. */
+  heldDraws: number;
+  /** Date of the newest draw with results. */
+  latestDrawDate: string | null;
+  /** Newest official or reference document fetched, per source. */
+  documents: { source: string; latestFetchedAt: Date }[];
+}
+
+/** How current the prize bond data is, for the data sources page. */
+export async function bondsFreshness(db: Db): Promise<BondsFreshness> {
+  const [held] = await db
+    .select({ n: count(), latest: sql<string | null>`max(${draws.drawDate})` })
+    .from(draws)
+    .where(inArray(draws.status, [...HELD]));
+  const docs = await db
+    .select({ source: sourceDocuments.source, latest: sql<Date | string>`max(${sourceDocuments.fetchedAt})` })
+    .from(sourceDocuments)
+    .groupBy(sourceDocuments.source)
+    .orderBy(asc(sourceDocuments.source));
+  return {
+    heldDraws: Number(held?.n ?? 0),
+    latestDrawDate: held?.latest ?? null,
+    documents: docs.map((d) => ({ source: d.source, latestFetchedAt: new Date(d.latest) })),
+  };
+}

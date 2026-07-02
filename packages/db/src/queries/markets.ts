@@ -60,6 +60,8 @@ export interface LocalRateRecord {
   price: number;
   kind: "reported" | "derived";
   source: string;
+  /** The report this row was read from (reported rows), or null. */
+  sourceUrl?: string | null;
   date: string;
   observedAt: Date;
 }
@@ -198,6 +200,7 @@ export async function upsertLocalRates(db: Db, rows: LocalRateRecord[]): Promise
         price: fixed(r.price, 4),
         kind: r.kind,
         source: r.source,
+        sourceUrl: r.sourceUrl ?? null,
         date: r.date,
         observedAt: r.observedAt,
       })),
@@ -208,6 +211,7 @@ export async function upsertLocalRates(db: Db, rows: LocalRateRecord[]): Promise
         price: sql`excluded.price`,
         currency: sql`excluded.currency`,
         source: sql`excluded.source`,
+        sourceUrl: sql`excluded.source_url`,
         observedAt: sql`excluded.observed_at`,
       },
     })
@@ -373,6 +377,7 @@ function toLocal(r: typeof localRates.$inferSelect): LocalRateRecord {
     price: Number(r.price),
     kind: r.kind as LocalRateRecord["kind"],
     source: r.source,
+    sourceUrl: r.sourceUrl,
     date: r.date,
     observedAt: r.observedAt,
   };
@@ -382,4 +387,37 @@ function rowCount(res: unknown): number {
   if (Array.isArray(res)) return res.length;
   const r = res as { rows?: unknown[]; rowCount?: number | null; affectedRows?: number };
   return r.rows?.length ?? r.rowCount ?? r.affectedRows ?? 0;
+}
+
+export interface MarketsFreshness {
+  /** Newest intraday metal price per source. */
+  spot: { source: string; latest: Date }[];
+  /** Newest daily reference exchange rate per source. */
+  fx: { source: string; latest: string }[];
+  /** Newest Pakistan rupee quote per market (open market, interbank) and source. */
+  pkr: { kind: string; source: string; latest: Date }[];
+  /** Newest local rate per country, kind and source. */
+  local: { country: string; kind: string; source: string; latest: string }[];
+}
+
+/** How current each market dataset is, per source, for the data sources page. */
+export async function marketsFreshness(db: Db): Promise<MarketsFreshness> {
+  const [spot, fx, pkr, local] = await Promise.all([
+    db.select({ source: metalSpot.source, latest: sql<Date | string>`max(${metalSpot.observedAt})` }).from(metalSpot).groupBy(metalSpot.source),
+    db.select({ source: fxDaily.source, latest: sql<string>`max(${fxDaily.date})` }).from(fxDaily).groupBy(fxDaily.source),
+    db
+      .select({ kind: fxPkrMarket.kind, source: fxPkrMarket.source, latest: sql<Date | string>`max(${fxPkrMarket.observedAt})` })
+      .from(fxPkrMarket)
+      .groupBy(fxPkrMarket.kind, fxPkrMarket.source),
+    db
+      .select({ country: localRates.country, kind: localRates.kind, source: localRates.source, latest: sql<string>`max(${localRates.date})` })
+      .from(localRates)
+      .groupBy(localRates.country, localRates.kind, localRates.source),
+  ]);
+  return {
+    spot: spot.map((r) => ({ source: r.source, latest: new Date(r.latest) })),
+    fx: fx.map((r) => ({ source: r.source, latest: String(r.latest) })),
+    pkr: pkr.map((r) => ({ kind: r.kind, source: r.source, latest: new Date(r.latest) })),
+    local: local.map((r) => ({ country: r.country, kind: r.kind, source: r.source, latest: String(r.latest) })),
+  };
 }

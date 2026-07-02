@@ -76,6 +76,8 @@ export const localRateSchema = z.object({
   price: z.number(),
   kind: rateKindSchema,
   source: z.string(),
+  /** The report a reported figure was read from. */
+  sourceUrl: z.string().url().nullable().optional(),
   date: isoDateSchema,
   observedAt: isoDateTimeSchema,
 });

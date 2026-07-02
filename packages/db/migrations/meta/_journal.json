@@ -15,6 +15,13 @@
       "when": 1776872467000,
       "tag": "0001_wallet_bond_lookup",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782971534000,
+      "tag": "0002_local_rate_source_url",
+      "breakpoints": true
     }
   ]
 }

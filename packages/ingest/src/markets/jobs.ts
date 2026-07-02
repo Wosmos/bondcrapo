@@ -315,7 +315,7 @@ async function ingestReportedGold(
   }
   const stored = await upsertLocalRates(
     ctx.db,
-    accepted.map((r) => ({ ...r, kind: "reported" as const })),
+    accepted.map((r) => ({ ...r, kind: "reported" as const, sourceUrl: batch.url })),
   );
   stats.gold = { stored, rejected: batch.rates.length - accepted.length, reportDate: batch.date, url: batch.url };
   return accepted.some((r) => r.metal === "XAU");

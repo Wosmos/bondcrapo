@@ -115,7 +115,9 @@ describe("pk-market and derivation", () => {
     const pk = await localRatesFor(t.db, "PK", null);
     const pick = (karat: number, unit: string, kind: string, metal = "XAU") =>
       pk.find((x) => x.metal === metal && x.karat === karat && x.unit === unit && x.kind === kind);
-    expect(pick(24, "tola", "reported")).toMatchObject({ price: 437836, source: "app-apsgja", date: "2026-10-15" });
+    expect(pick(24, "tola", "reported")).toMatchObject({ price: 437836, source: "app-apsgja", date: "2026-10-15", sourceUrl: "https://www.app.com.pk/business/gold-prices-remain-unchanged-at-rs437836-per-tola/" });
+    // purity fills are our calculation: they carry no report link of their own
+    expect(pick(21, "tola", "derived")!.sourceUrl).toBeNull();
     expect(pick(21, "tola", "derived")).toMatchObject({ source: "apsgja-purity" });
     expect(pick(21, "tola", "derived")!.price).toBeCloseTo((437836 * 21) / 24, 2);
     // the bare international parity next to the reported 24K tola: within 0.1% that day

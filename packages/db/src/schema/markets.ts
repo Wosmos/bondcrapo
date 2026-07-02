@@ -83,6 +83,8 @@ export const localRates = pgTable(
     /** 'reported' | 'derived' */
     kind: text("kind").notNull(),
     source: text("source").notNull(),
+    /** The exact page or report the figure was read from, when it differs from day to day. */
+    sourceUrl: text("source_url"),
     date: date("date").notNull(),
     observedAt: ts("observed_at").notNull(),
   },
