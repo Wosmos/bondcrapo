@@ -281,5 +281,16 @@
     "invalid": "Enter an amount greater than zero.",
     "popular": "Popular",
     "all": "All currencies"
+  },
+  "provenance": {
+    "source": "Source:",
+    "internationalPrice": "International price from:",
+    "readReport": "Read the report",
+    "officialTitle": "Latest sarafa association rate",
+    "officialDate": "Published on {date} by the All Pakistan Sarafa Gems and Jewellers Association.",
+    "estimateBecause": "Today’s sarafa rate is not out yet, so the price above is an estimate from the international price and the open market dollar rate, adjusted to this latest association rate.",
+    "legend": "Reported figures are published by the source named under the price. Estimated figures are calculated by BondCheck from the international price, the exchange rate and purity; shops add making charges and taxes.",
+    "openMarketFrom": "Open market rates from:",
+    "interbankFrom": "Interbank rates from:"
   }
 }

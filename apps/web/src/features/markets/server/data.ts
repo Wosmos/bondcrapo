@@ -6,6 +6,7 @@ import {
   getFxHistory,
   getFxLatest,
   getLocalRates,
+  getLatestReported,
   getMetalHistory,
   getMetalsLatest,
   getPkrRates,
@@ -47,6 +48,8 @@ export const loadMetalHistory = (metal: Metal, currency: string, range: Range) =
   load(["metal-history", metal, currency, range], (s) => getMetalHistory(s, { metal, currency, range }));
 
 export const loadLocalRates = (country: string) => load(["local-rates", country], (s) => getLocalRates(s, country));
+
+export const loadLatestReported = (country: string) => load(["latest-reported", country], (s) => getLatestReported(s, country));
 
 export const loadFxLatest = (base: string) => load(["fx-latest", base], (s) => getFxLatest(s, base));
 

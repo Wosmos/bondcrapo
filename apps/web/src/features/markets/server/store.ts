@@ -20,6 +20,8 @@ export interface MarketsStore {
   fxSeries(quotes: string[], fromDate: string | null, toDate?: string | null): Promise<FxRow[]>;
   pkrLatest(kind?: "interbank" | "open_market"): Promise<PkrRow[]>;
   localRates(country: string, date: string | null): Promise<LocalRateRecord[]>;
+  /** Newest reported (not estimated) rows of a country on or after `sinceDate`. */
+  latestReported(country: string, sinceDate: string): Promise<LocalRateRecord[]>;
 }
 
 export function dbStore(db: Db): MarketsStore {
@@ -33,6 +35,7 @@ export function dbStore(db: Db): MarketsStore {
     fxSeries: (quotes, from, to) => q.fxSeries(db, quotes, from, to ?? null),
     pkrLatest: (kind) => q.latestPkrQuotes(db, kind),
     localRates: (country, date) => q.localRatesFor(db, country, date),
+    latestReported: (country, since) => q.latestReported(db, country, since),
   };
 }
 
@@ -81,6 +84,11 @@ export function snapshotStore(s: MarketsSnapshot): MarketsStore {
     localRates: async (country, date) => {
       const rows = local.filter((r) => r.country === country);
       const day = date ?? rows.reduce<string | null>((m, r) => (!m || r.date > m ? r.date : m), null);
+      return rows.filter((r) => r.date === day);
+    },
+    latestReported: async (country, since) => {
+      const rows = local.filter((r) => r.country === country && r.kind === "reported" && r.date >= since);
+      const day = rows.reduce<string | null>((m, r) => (!m || r.date > m ? r.date : m), null);
       return rows.filter((r) => r.date === day);
     },
   };

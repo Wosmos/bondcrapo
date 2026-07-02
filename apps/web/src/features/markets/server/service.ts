@@ -2,7 +2,7 @@ import type { z } from "zod";
 import type { fxHistory, fxLatest, fxPkr, localRates, metalsHistory, metalsLatest, convert } from "@bondcheck/shared";
 import { METALS, type Metal } from "@bondcheck/shared";
 import { isFxCurrency } from "@bondcheck/ingest/markets/currencies";
-import type { FxRow } from "@bondcheck/db/queries/markets";
+import type { FxRow, LocalRateRecord } from "@bondcheck/db/queries/markets";
 import type { MarketsStore } from "./store";
 
 /**
@@ -137,24 +137,34 @@ export async function getMetalHistory(
 
 // ---------------------------------------------------------------- local rates
 
+const toLocalRate = (r: LocalRateRecord): LocalRates[number] => ({
+  country: r.country,
+  city: r.city,
+  metal: r.metal as Metal,
+  karat: r.karat,
+  unit: r.unit as LocalRates[number]["unit"],
+  currency: r.currency,
+  price: round(r.price, 2),
+  kind: r.kind,
+  source: r.source,
+  sourceUrl: r.sourceUrl ?? null,
+  date: r.date,
+  observedAt: r.observedAt.toISOString(),
+});
+
 export async function getLocalRates(store: MarketsStore, country: string, date?: string): Promise<Result<LocalRates>> {
   const rows = await store.localRates(country, date ?? null);
-  return {
-    data: rows.map((r) => ({
-      country: r.country,
-      city: r.city,
-      metal: r.metal as Metal,
-      karat: r.karat,
-      unit: r.unit as LocalRates[number]["unit"],
-      currency: r.currency,
-      price: round(r.price, 2),
-      kind: r.kind,
-      source: r.source,
-      date: r.date,
-      observedAt: r.observedAt.toISOString(),
-    })),
-    sources: [...new Set(rows.map((r) => r.source))],
-  };
+  return { data: rows.map(toLocalRate), sources: [...new Set(rows.map((r) => r.source))] };
+}
+
+/**
+ * The newest reported (published, not estimated) rates of a country from the last `days` days. On a
+ * day the association has not reported yet, the page shows these next to that day's estimate.
+ */
+export async function getLatestReported(store: MarketsStore, country: string, today = new Date(), days = 7): Promise<Result<LocalRates>> {
+  const since = new Date(today.getTime() - days * DAY).toISOString().slice(0, 10);
+  const rows = await store.latestReported(country, since);
+  return { data: rows.map(toLocalRate), sources: [...new Set(rows.map((r) => r.source))] };
 }
 
 // ---------------------------------------------------------------- fx

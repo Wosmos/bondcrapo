@@ -48,6 +48,40 @@ export function Updated({ iso, locale, label, staleLabel }: { iso: string; local
   );
 }
 
+/**
+ * Where one number comes from, in plain text next to it (no hover, so it works on touch screens
+ * and for screen readers): "Source: APSGJA via APP · Read the report". Unknown ids are skipped.
+ */
+export function SourceLine({ label, ids, report, className = "" }: { label: string; ids: string[]; report?: { url: string; label: string } | null; className?: string }) {
+  const list = attributionFor(ids);
+  if (list.length === 0 && !report) return null;
+  return (
+    <p className={`text-xs leading-relaxed text-ink-2 ${className}`}>
+      <span>{label} </span>
+      {list.map((a, i) => (
+        <span key={a.name}>
+          {i > 0 ? ", " : null}
+          {a.url ? (
+            <a href={a.url} rel="noopener noreferrer external" target="_blank" className="font-medium text-ink underline underline-offset-2">
+              {a.name}
+            </a>
+          ) : (
+            <span className="font-medium text-ink">{a.name}</span>
+          )}
+        </span>
+      ))}
+      {report ? (
+        <>
+          <span aria-hidden="true"> · </span>
+          <a href={report.url} rel="noopener noreferrer external" target="_blank" className="font-medium text-ink underline underline-offset-2">
+            {report.label}
+          </a>
+        </>
+      ) : null}
+    </p>
+  );
+}
+
 export interface SubnavLabels {
   label: string;
   gold: string;

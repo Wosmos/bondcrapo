@@ -12,6 +12,7 @@ import {
   MarketsSubnav,
   Price,
   SampleNotice,
+  SourceLine,
   Sources,
   Unavailable,
   Updated,
@@ -19,7 +20,7 @@ import {
 } from "../components/bits";
 import { formatDate, formatMoney, formatPercent } from "../lib/format";
 import { breadcrumbJsonLd, faqJsonLd } from "../lib/seo";
-import { loadLocalRates, loadMetalHistory, loadMetalsLatest } from "../server/data";
+import { loadLatestReported, loadLocalRates, loadMetalHistory, loadMetalsLatest } from "../server/data";
 import type { LocalRates } from "../server/service";
 import { changeLabels, chartLabels, kindLabels, marketsT, subnavLabels } from "./labels";
 
@@ -38,16 +39,17 @@ export function chartScale(config: CountryConfig, unit: WeightUnit, premiumPct =
 
 export async function GoldRatePage({ locale, config, city }: { locale: string; config: CountryConfig; city?: string }) {
   const t = await marketsT(locale);
-  const [rates, spot, history] = await Promise.all([
+  const isPk = config.code === "PK";
+  const [rates, spot, history, latestReported] = await Promise.all([
     loadLocalRates(config.code),
     loadMetalsLatest("USD"),
     loadMetalHistory("XAU", config.currency, "6m"),
+    isPk ? loadLatestReported(config.code) : Promise.resolve(null),
   ]);
   const unit = config.primaryUnit;
   const unitName = t(`units.${unit}`);
   const countryName = t(`countries.${config.code}`);
   const cityName = city ? t(`cities.${city}`) : undefined;
-  const isPk = config.code === "PK";
   const path = isPk ? (city ? `/gold-rate/pakistan/${city}` : "/gold-rate") : `/gold-rate/${config.slug}`;
 
   const rows = rates.ok ? rates.data : [];
@@ -57,6 +59,9 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
   const gold = spot.ok ? spot.data.find((s) => s.metal === "XAU") : undefined;
   const scale = chartScale(config, unit);
   const kinds = kindLabels(t);
+  // On a day the association has not reported yet, its newest rate is shown next to the estimate.
+  const official = hero?.kind === "derived" && latestReported?.ok ? pickRate(latestReported.data, "XAU", 24, unit) : undefined;
+  const reportLink = (r: Rate | undefined) => (r?.sourceUrl ? { url: r.sourceUrl, label: t("provenance.readReport") } : null);
   const date = hero?.date ?? rows[0]?.date;
   const faq = (t.raw(isPk ? "gold.faq.PK" : "gold.faq.other") as { q: string; a: string }[]).map((f) => ({
     q: f.q.replace("{country}", countryName).replace("{currency}", config.currency),
@@ -140,7 +145,27 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
               </div>
               <div className="relative mt-3">
                 <Updated iso={hero.observedAt} locale={locale} label={t.raw("common.updated") as string} staleLabel={t("common.stale")} />
+                {hero.kind === "reported" ? (
+                  <SourceLine className="mt-1" label={t("provenance.source")} ids={[hero.source]} report={reportLink(hero)} />
+                ) : (
+                  <SourceLine className="mt-1" label={t("provenance.internationalPrice")} ids={spot.ok ? spot.sources : []} />
+                )}
               </div>
+              {official ? (
+                <div className="relative mt-4 rounded-lg border border-line bg-surface-2 p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-sm font-medium text-ink">{t("provenance.officialTitle")}</h3>
+                    <KindBadge kind="reported" labels={kinds} />
+                  </div>
+                  <p className="mt-1 text-xl font-semibold text-ink">
+                    <Price>{formatMoney(locale, official.currency, official.price, 0)}</Price>
+                    <span className="ms-1 text-sm font-normal text-ink-2">{t("common.perUnit", { unit: unitName })}</span>
+                  </p>
+                  <p className="mt-1 text-xs text-ink-2">{t("provenance.officialDate", { date: formatDate(locale, official.date, "long") })}</p>
+                  <SourceLine className="mt-1" label={t("provenance.source")} ids={[official.source]} report={reportLink(official)} />
+                  <p className="mt-2 text-xs leading-relaxed text-ink-2">{t("provenance.estimateBecause")}</p>
+                </div>
+              ) : null}
             </div>
 
             <div className={`${surface} flex flex-col justify-between gap-3 p-5`}>
@@ -174,6 +199,7 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
               rows={config.gold.karats}
               getRowKey={(k) => k}
             />
+            <p className="mt-2 max-w-prose px-2 text-xs leading-relaxed text-ink-2 sm:px-0">{t("provenance.legend")}</p>
           </div>
 
           {silverUnits.length > 0 ? (

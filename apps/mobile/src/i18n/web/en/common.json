@@ -276,7 +276,48 @@
     ],
     "crawlerHeading": "Our crawler",
     "crawler": "BondCheck fetches public pages slowly, at most one request every two seconds per site, identifies itself as BondCheckBot and respects robots.txt. Files that have not changed are never downloaded again.",
-    "coverageLink": "See the coverage report for every denomination and year"
+    "coverageLink": "See the coverage report for every denomination and year",
+    "freshness": {
+      "heading": "What comes from where",
+      "lead": "Each kind of figure on BondCheck, where it comes from, how often we refresh it and the newest data we hold right now.",
+      "caption": "Sources and the newest data held, per kind of figure",
+      "what": "What you see",
+      "source": "Where it comes from",
+      "latest": "Newest data",
+      "none": "Not loaded yet",
+      "draws": "{count} draws with results",
+      "unavailable": "The dates below could not be loaded just now; the sources are the same.",
+      "rows": {
+        "bonds": {
+          "what": "Prize bond results",
+          "how": "Official result files, cross-checked against independent records. Checked for new draws every day."
+        },
+        "pkReported": {
+          "what": "Gold and silver rates in Pakistan (reported)",
+          "how": "The sarafa association’s rate as published, checked against the international price. Checked three times a day, Monday to Saturday."
+        },
+        "estimates": {
+          "what": "Estimated gold and silver rates",
+          "how": "Calculated by BondCheck from the international price, the exchange rate and purity, whenever an input changes."
+        },
+        "spot": {
+          "what": "International metal prices",
+          "how": "Gold, silver, platinum and palladium in US dollars. Every 30 minutes on weekdays, every 4 hours at weekends."
+        },
+        "openMarket": {
+          "what": "Open market rupee rates",
+          "how": "Buying and selling rates of exchange companies. Three times a day, Monday to Saturday."
+        },
+        "interbank": {
+          "what": "Interbank rupee rates",
+          "how": "Rates published by the State Bank of Pakistan. Twice a day."
+        },
+        "fx": {
+          "what": "Exchange rates between other currencies",
+          "how": "Reference rates for over 160 currencies, used by the converter and the charts. Twice a day."
+        }
+      }
+    }
   },
   "privacy": {
     "metaTitle": "Privacy",

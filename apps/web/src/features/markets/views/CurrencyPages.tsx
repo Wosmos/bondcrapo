@@ -3,7 +3,7 @@ import { DataTable, PageHeader } from "@/components/ui";
 import { Link } from "@/i18n/navigation";
 import { Converter, type ConverterLabels } from "../components/Converter";
 import { PriceChart } from "../components/PriceChart";
-import { Breadcrumbs, Faq, JsonLd, MarketsSubnav, Price, SampleNotice, Sources, Unavailable, Updated, surface } from "../components/bits";
+import { Breadcrumbs, Faq, JsonLd, MarketsSubnav, Price, SampleNotice, SourceLine, Sources, Unavailable, Updated, surface } from "../components/bits";
 import { formatDate, formatMoney, formatNumber } from "../lib/format";
 import { currencyNames } from "../lib/names";
 import { breadcrumbJsonLd, faqJsonLd } from "../lib/seo";
@@ -88,6 +88,7 @@ export async function CurrencyPage({ locale }: { locale: string }) {
   const newest = pkr.ok ? pkr.data.reduce<string | null>((m, r) => (!m || r.observedAt > m ? r.observedAt : m), null) : null;
   const faq = t.raw("currency.faq") as { q: string; a: string }[];
   const sample = (pkr.ok && pkr.sample) || (fx.ok && fx.sample);
+  const sourcesOf = (kind: "open_market" | "interbank") => (pkr.ok ? [...new Set(pkr.data.filter((r) => r.kind === kind).map((r) => r.source))] : []);
 
   return (
     <article className="mx-auto max-w-5xl">
@@ -105,6 +106,8 @@ export async function CurrencyPage({ locale }: { locale: string }) {
           <PkrTable locale={locale} t={t} rows={rows} names={names} />
           <div className="mt-3 flex flex-col gap-1 px-2 sm:px-0">
             {newest ? <Updated iso={newest} locale={locale} label={t.raw("common.updated") as string} staleLabel={t("common.stale")} /> : null}
+            <SourceLine label={t("provenance.openMarketFrom")} ids={sourcesOf("open_market")} />
+            <SourceLine label={t("provenance.interbankFrom")} ids={sourcesOf("interbank")} />
             <p className="max-w-prose text-xs leading-relaxed text-ink-2">{t("currency.openNote")}</p>
           </div>
         </div>
