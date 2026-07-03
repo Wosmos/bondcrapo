@@ -4,6 +4,9 @@ import { ParseError, type PkrQuote, type PriceProvider, type ProviderContext } f
 /**
  * State Bank of Pakistan rate sheets. The economic data index links the latest PDF of each
  * daily sheet; the parsers read the PDFs with the dependency free extractor in `pdf-text.ts`.
+ * The index sits behind a Cloudflare challenge that answers 403 to every non-browser client, while
+ * the PDFs themselves are served openly under fixed names, so when the index cannot be read the
+ * sheet is fetched by its dated name instead (`sheetUrls`).
  *   - Weighted Average Customer Exchange Rates (WACER): interbank buying and selling, 10 currencies.
  *   - Mark to Market revaluation rates (M2M): closing interbank READY rate, about 35 currencies.
  *   - ECAP open market closing rates, published by SBP: buying and selling, 6 currencies.
@@ -14,6 +17,42 @@ export interface SbpSheetLinks {
   wacer?: string;
   m2m?: string;
   ecap?: string;
+}
+
+type SheetKey = keyof SbpSheetLinks;
+
+/** File name stems and the month casing SBP uses for each sheet (M2M is all lower case). */
+const SHEETS: Record<SheetKey, { stem: string; lowerMonth: boolean }> = {
+  wacer: { stem: "weighted-average-customer-exchange-rates", lowerMonth: false },
+  m2m: { stem: "mark-to-market-revaluation-exchange-rate", lowerMonth: true },
+  ecap: { stem: "open-market-closing-exchange-rates", lowerMonth: false },
+};
+
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+/**
+ * The dated PDF addresses of a sheet for one day, SBP's usual casing first and the other one as a
+ * fallback, e.g. `.../weighted-average-customer-exchange-rates-15-October-2026.pdf`.
+ */
+export function sheetUrls(sheet: SheetKey, isoDate: string): string[] {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  const month = MONTH_NAMES[m! - 1]!;
+  const { stem, lowerMonth } = SHEETS[sheet];
+  const url = (name: string) => `https://www.sbp.org.pk/assets/document/${stem}-${d}-${name}-${y}.pdf`;
+  return lowerMonth ? [url(month.toLowerCase()), url(month)] : [url(month), url(month.toLowerCase())];
+}
+
+/** Pakistan working days (Monday to Friday) from today backwards, newest first. */
+export function recentWorkingDays(now: Date, count = 4): string[] {
+  const days: string[] = [];
+  // Pakistan is UTC+5 all year.
+  const day = new Date(now.getTime() + 5 * 3_600_000);
+  for (let i = 0; days.length < count && i < 14; i++) {
+    const weekday = day.getUTCDay();
+    if (weekday !== 0 && weekday !== 6) days.push(day.toISOString().slice(0, 10));
+    day.setUTCDate(day.getUTCDate() - 1);
+  }
+  return days;
 }
 
 export function parseSbpIndex(html: string): SbpSheetLinks {
@@ -95,26 +134,36 @@ export function parseM2mSheet(lines: string[]): M2mSheet {
 /** SBP publishes in the afternoon, Pakistan time: 16:00 PKT is used as the observation time. */
 const observedOn = (date: string) => new Date(`${date}T11:00:00Z`);
 
-async function fetchPdfLines(ctx: ProviderContext, url: string, source: string): Promise<string[]> {
-  const res = await ctx.fetcher.get(url, { bytes: true, headers: { Accept: "application/pdf" } });
-  if (!res.ok || !res.data) throw new ParseError(source, `HTTP ${res.status}`);
-  return pdfLines(res.data);
-}
-
 // One index download per job run, even when several sheets are read.
 const linkCache = new WeakMap<object, Promise<SbpSheetLinks>>();
 
+/** The links on the index, or none when it cannot be read (the dated names are tried instead). */
 function sheetLinks(ctx: ProviderContext): Promise<SbpSheetLinks> {
   let pending = linkCache.get(ctx.fetcher);
   if (!pending) {
-    pending = ctx.fetcher.get(SBP_INDEX_URL, { headers: { Accept: "text/html" } }).then((res) => {
-      if (!res.ok) throw new ParseError("sbp", `index HTTP ${res.status}`);
-      return parseSbpIndex(res.body);
-    });
-    pending.catch(() => linkCache.delete(ctx.fetcher));
+    pending = ctx.fetcher
+      .get(SBP_INDEX_URL, { headers: { Accept: "text/html" } })
+      .then((res) => (res.ok ? parseSbpIndex(res.body) : {}))
+      .catch(() => ({}));
     linkCache.set(ctx.fetcher, pending);
   }
   return pending;
+}
+
+/**
+ * The text lines of the newest copy of a sheet: the PDF the index links, else the dated names of
+ * the last few working days, newest first. Throws with every address tried when none is found.
+ */
+async function sheetLines(ctx: ProviderContext, sheet: SheetKey, source: string): Promise<string[]> {
+  const linked = (await sheetLinks(ctx))[sheet];
+  const candidates = [...new Set([...(linked ? [linked] : []), ...recentWorkingDays(ctx.now).flatMap((d) => sheetUrls(sheet, d))])];
+  const tried: string[] = [];
+  for (const url of candidates) {
+    const res = await ctx.fetcher.get(url, { bytes: true, headers: { Accept: "application/pdf" } });
+    if (res.ok && res.data) return pdfLines(res.data);
+    tried.push(`${res.status} ${url}`);
+  }
+  throw new ParseError(source, `no sheet found (${tried.join("; ")})`);
 }
 
 /** Interbank buying and selling (primary). */
@@ -123,9 +172,7 @@ export const sbpWacerProvider: PriceProvider<PkrQuote[]> = {
   dataset: "pkr-interbank",
   enabled: () => true,
   async fetch(ctx) {
-    const url = (await sheetLinks(ctx)).wacer;
-    if (!url) throw new ParseError("sbp-wacer", "sheet link not found on the index");
-    const sheet = parseBuySellSheet(await fetchPdfLines(ctx, url, "sbp-wacer"), "sbp-wacer");
+    const sheet = parseBuySellSheet(await sheetLines(ctx, "wacer", "sbp-wacer"), "sbp-wacer");
     return sheet.rows.map((r) => ({
       currency: r.currency,
       date: sheet.date,
@@ -144,9 +191,7 @@ export const sbpM2mProvider: PriceProvider<PkrQuote[]> = {
   dataset: "pkr-interbank",
   enabled: () => true,
   async fetch(ctx) {
-    const url = (await sheetLinks(ctx)).m2m;
-    if (!url) throw new ParseError("sbp-m2m", "sheet link not found on the index");
-    const sheet = parseM2mSheet(await fetchPdfLines(ctx, url, "sbp-m2m"));
+    const sheet = parseM2mSheet(await sheetLines(ctx, "m2m", "sbp-m2m"));
     return sheet.rows.map((r) => ({
       currency: r.currency,
       date: sheet.date,
@@ -165,9 +210,7 @@ export const sbpEcapProvider: PriceProvider<PkrQuote[]> = {
   dataset: "pkr-open-market",
   enabled: () => true,
   async fetch(ctx) {
-    const url = (await sheetLinks(ctx)).ecap;
-    if (!url) throw new ParseError("sbp-ecap", "sheet link not found on the index");
-    const sheet = parseBuySellSheet(await fetchPdfLines(ctx, url, "sbp-ecap"), "sbp-ecap");
+    const sheet = parseBuySellSheet(await sheetLines(ctx, "ecap", "sbp-ecap"), "sbp-ecap");
     return sheet.rows.map((r) => ({
       currency: r.currency,
       date: sheet.date,

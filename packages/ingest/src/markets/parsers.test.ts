@@ -5,7 +5,7 @@ import { parseForexPkOpenMarket, parseForexPkTimestamp } from "./providers/forex
 import { parseFreeGoldApi } from "./providers/freegoldapi";
 import { parseCurrencyApiDay, parseErApiLatest } from "./providers/fx";
 import { parseGoldApiPrice, parseMetalpriceLatest } from "./providers/metals";
-import { parseBuySellSheet, parseM2mSheet, parseSbpIndex, parseSheetDate } from "./providers/sbp";
+import { parseBuySellSheet, parseM2mSheet, parseSbpIndex, parseSheetDate, recentWorkingDays, sheetUrls } from "./providers/sbp";
 import { fixture, fixtureJson, fixtureText } from "./testing";
 import { ParseError } from "./types";
 
@@ -71,6 +71,21 @@ describe("State Bank of Pakistan sheets", () => {
     expect(links.wacer).toMatch(/weighted-average-customer-exchange-rates-15-October-2026\.pdf$/);
     expect(links.m2m).toMatch(/mark-to-market-revaluation-exchange-rate-15-october-2026\.pdf$/);
     expect(links.ecap).toMatch(/open-market-closing-exchange-rates-15-October-2026\.pdf$/);
+  });
+
+  it("builds the dated sheet addresses SBP uses, with the other month casing as a fallback", () => {
+    const doc = "https://www.sbp.org.pk/assets/document/";
+    expect(sheetUrls("wacer", "2026-10-05")).toEqual([
+      `${doc}weighted-average-customer-exchange-rates-5-October-2026.pdf`,
+      `${doc}weighted-average-customer-exchange-rates-5-october-2026.pdf`,
+    ]);
+    expect(sheetUrls("m2m", "2026-10-15")[0]).toBe(`${doc}mark-to-market-revaluation-exchange-rate-15-october-2026.pdf`);
+    expect(sheetUrls("ecap", "2026-10-15")[0]).toBe(`${doc}open-market-closing-exchange-rates-15-October-2026.pdf`);
+  });
+
+  it("lists Pakistan working days newest first, skipping weekends", () => {
+    // Monday 19 October 2026, 02:00 in Karachi (still Sunday in UTC)
+    expect(recentWorkingDays(new Date("2026-10-18T21:00:00Z"), 3)).toEqual(["2026-10-19", "2026-10-16", "2026-10-15"]);
   });
 
   it("parses sheet dates in all three styles", () => {

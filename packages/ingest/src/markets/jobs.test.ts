@@ -81,6 +81,14 @@ describe("fx-daily", () => {
     expect(usd).toMatchObject({ buy: "276.608100", sell: "277.064900", source: "sbp-wacer" });
   });
 
+  it("reads the sheets by their dated names when Cloudflare blocks the SBP index", async () => {
+    const blocked = () => new Response("Attention Required! | Cloudflare", { status: 403, headers: { "content-type": "text/html" } });
+    const r = await run(fxDailyJob(ENV), { "https://www.sbp.org.pk/ecodata/index2.asp": blocked });
+    expect(r.stats).toMatchObject({ interbank: { provider: "sbp-wacer", date: "2026-10-15", rows: 10 } });
+    const [usd] = await t.db.select().from(fxPkrMarket).where(and(eq(fxPkrMarket.currency, "USD"), eq(fxPkrMarket.kind, "interbank")));
+    expect(usd).toMatchObject({ source: "sbp-wacer", sell: "277.064900" });
+  });
+
   it("uses the M2M sheet when WACER is unavailable, then the reference rate as a last resort", async () => {
     const wacer = "https://www.sbp.org.pk/assets/document/weighted-average-customer-exchange-rates-15-October-2026.pdf";
     const m2m = "https://www.sbp.org.pk/assets/document/mark-to-market-revaluation-exchange-rate-15-october-2026.pdf";
