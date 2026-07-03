@@ -31,3 +31,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Session handoff notes (transient)
+handoff/
