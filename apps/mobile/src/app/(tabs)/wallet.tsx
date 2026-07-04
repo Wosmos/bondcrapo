@@ -3,7 +3,7 @@ import { deleteWalletBond, listWalletBonds, listWalletMatches, markMatchesSeen }
 import { getCalendars } from "expo-localization";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { Alert, Pressable, StyleSheet, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 import { useResource } from "@/hooks/useResource";
 import { useI18n } from "@/i18n";
 import { api, classifyError } from "@/lib/api";
@@ -11,7 +11,7 @@ import { denominationLabel, faceValueOf } from "@/lib/denominations";
 import { formatDate, formatPkr, groupDigits } from "@/lib/format";
 import { useWallet } from "@/lib/wallet";
 import { useTheme } from "@/theme";
-import { Badge, Button, Card, EmptyView, ErrorView, LoadingView, Num, Row, Screen, Segmented, StaleNotice, Text } from "@/ui";
+import { Badge, Button, Card, EmptyView, ErrorView, LoadingView, Num, Row, RowItem, Rows, Screen, Segmented, StaleNotice, Text } from "@/ui";
 
 export default function WalletScreen() {
   const wallet = useWallet();
@@ -49,19 +49,19 @@ function WalletOnboarding() {
   return (
     <Screen>
       <Card>
-        <View style={{ gap: 16 }}>
-          <View style={[styles.hero, { backgroundColor: colors.primaryContainer }]}>
+        <View className="gap-4">
+          <View className="size-16 items-center justify-center rounded-lg bg-primary-container">
             <Ionicons name="wallet" size={36} color={colors.onPrimaryContainer} />
           </View>
           <Text variant="title" accessibilityRole="header">
             {t("wallet.onboardingTitle")}
           </Text>
           <Text tone="textMuted">{t("wallet.onboardingBody")}</Text>
-          <View style={{ gap: 12 }}>
+          <View className="gap-3">
             {points.map((p) => (
               <Row key={p.icon} gap={12}>
                 <Ionicons name={p.icon} size={22} color={colors.primary} />
-                <Text style={{ flex: 1 }}>{p.text}</Text>
+                <Text className="flex-1">{p.text}</Text>
               </Row>
             ))}
           </View>
@@ -141,7 +141,7 @@ function WalletHome() {
           title={t("wallet.lostAccessTitle")}
           body={t("wallet.lostAccessBody")}
           action={
-            <View style={{ gap: 8, alignSelf: "stretch" }}>
+            <View className="gap-2 self-stretch">
               <Button label={t("wallet.restore")} icon="key-outline" block onPress={() => router.push("/wallet/restore")} />
               <Button label={t("wallet.forget")} variant="ghost" block onPress={() => void wallet.forget()} />
             </View>
@@ -161,7 +161,7 @@ function WalletHome() {
     >
       {(bonds.stale && bonds.error) || (matches.stale && matches.error) ? <StaleNotice savedAt={bonds.savedAt ?? matches.savedAt} /> : null}
 
-      <View style={styles.stats}>
+      <View className="flex-row flex-wrap gap-2">
         <Stat label={t("wallet.statBonds")} value={groupDigits(bonds.data?.length ?? 0)} />
         <Stat label={t("wallet.statFaceValue")} value={formatPkr(faceValue, locale)} hint={t("wallet.computed")} />
         <Stat label={t("wallet.statWinnings")} value={formatPkr(winnings, locale)} />
@@ -171,7 +171,7 @@ function WalletHome() {
         <Card tone="primary">
           <Row gap={12}>
             <Ionicons name="trophy" size={28} color={colors.gold} />
-            <View style={{ flex: 1, gap: 4 }}>
+            <View className="flex-1 gap-1">
               <Text variant="heading" tone="onPrimaryContainer">
                 {t("wallet.newWins", { count: unseen })}
               </Text>
@@ -183,19 +183,15 @@ function WalletHome() {
         </Card>
       ) : null}
 
-      <Row gap={8}>
-        <View style={{ flex: 1 }}>
-          <Segmented
-            label={t("wallet.viewLabel")}
-            value={tab}
-            onChange={setTab}
-            options={[
-              { value: "bonds", label: t("wallet.tabBonds") },
-              { value: "wins", label: t("wallet.tabWins", { count: matches.data?.length ?? 0 }) },
-            ]}
-          />
-        </View>
-      </Row>
+      <Segmented
+        label={t("wallet.viewLabel")}
+        value={tab}
+        onChange={setTab}
+        options={[
+          { value: "bonds", label: t("wallet.tabBonds") },
+          { value: "wins", label: t("wallet.tabWins", { count: matches.data?.length ?? 0 }) },
+        ]}
+      />
 
       {tab === "bonds" ? (
         <>
@@ -209,32 +205,31 @@ function WalletHome() {
           ) : (
             grouped.map(([code, list]) => (
               <Card key={code} title={`${denominationLabel(code, t)} (${groupDigits(list.length)})`} padded={false}>
-                {list.map((b, i) => (
-                  <View
-                    key={b.bondNumber}
-                    style={[styles.bondRow, i < list.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Num variant="heading" mono>
-                        {b.bondNumber}
-                      </Num>
-                      {b.label ? (
-                        <Text variant="caption" tone="textMuted">
-                          {b.label}
-                        </Text>
-                      ) : null}
-                    </View>
-                    <Pressable
-                      onPress={() => removeBond(code, b.bondNumber)}
-                      accessibilityRole="button"
-                      accessibilityLabel={t("wallet.removeA11y", { number: b.bondNumber.split("").join(" ") })}
-                      android_ripple={{ color: colors.ripple, borderless: true, radius: 22 }}
-                      style={styles.iconButton}
-                    >
-                      <Ionicons name="trash-outline" size={20} color={colors.danger} />
-                    </Pressable>
-                  </View>
-                ))}
+                <Rows>
+                  {list.map((b) => (
+                    <RowItem key={b.bondNumber}>
+                      <View className="flex-1">
+                        <Num variant="heading" mono>
+                          {b.bondNumber}
+                        </Num>
+                        {b.label ? (
+                          <Text variant="caption" tone="textMuted">
+                            {b.label}
+                          </Text>
+                        ) : null}
+                      </View>
+                      <Pressable
+                        onPress={() => removeBond(code, b.bondNumber)}
+                        accessibilityRole="button"
+                        accessibilityLabel={t("wallet.removeA11y", { number: b.bondNumber.split("").join(" ") })}
+                        android_ripple={{ color: colors.ripple, borderless: true, radius: 24 }}
+                        className="size-12 items-center justify-center rounded-full"
+                      >
+                        <Ionicons name="trash-outline" size={20} color={colors.danger} />
+                      </Pressable>
+                    </RowItem>
+                  ))}
+                </Rows>
               </Card>
             ))
           )}
@@ -249,32 +244,33 @@ function WalletHome() {
         <>
           {unseen > 0 ? <Button label={t("wallet.markSeen")} variant="secondary" icon="checkmark-done" onPress={() => void markSeen()} /> : null}
           <Card padded={false}>
-            {(matches.data ?? []).map((m, i, all) => (
-              <View
-                key={`${m.drawId}-${m.bondNumber}`}
-                accessible
-                accessibilityLabel={t("check.winA11y", {
-                  number: m.bondNumber.split("").join(" "),
-                  tier: t(`tier.${m.tier}`),
-                  amount: formatPkr(m.amountPkr, locale),
-                  date: formatDate(m.drawDate, locale),
-                })}
-                style={[styles.bondRow, i < all.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}
-              >
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Num variant="heading" mono>
-                    {m.bondNumber}
-                  </Num>
-                  <Text variant="caption" tone="textMuted">
-                    {denominationLabel(m.denominationCode, t)} · {formatDate(m.drawDate, locale)}
-                  </Text>
-                  <Text variant="label" tone="success">
-                    {t(`tier.${m.tier}`)} · {formatPkr(m.amountPkr, locale)}
-                  </Text>
-                </View>
-                {m.seenAt === null ? <Badge tone="gold" icon="sparkles" label={t("wallet.new")} /> : null}
-              </View>
-            ))}
+            <Rows>
+              {(matches.data ?? []).map((m) => (
+                <RowItem
+                  key={`${m.drawId}-${m.bondNumber}`}
+                  accessible
+                  accessibilityLabel={t("check.winA11y", {
+                    number: m.bondNumber.split("").join(" "),
+                    tier: t(`tier.${m.tier}`),
+                    amount: formatPkr(m.amountPkr, locale),
+                    date: formatDate(m.drawDate, locale),
+                  })}
+                >
+                  <View className="flex-1 gap-0.5">
+                    <Num variant="heading" mono>
+                      {m.bondNumber}
+                    </Num>
+                    <Text variant="caption" tone="textMuted">
+                      {denominationLabel(m.denominationCode, t)} · {formatDate(m.drawDate, locale)}
+                    </Text>
+                    <Text variant="label" tone="success">
+                      {t(`tier.${m.tier}`)} · {formatPkr(m.amountPkr, locale)}
+                    </Text>
+                  </View>
+                  {m.seenAt === null ? <Badge tone="gold" icon="sparkles" label={t("wallet.new")} /> : null}
+                </RowItem>
+              ))}
+            </Rows>
           </Card>
         </>
       )}
@@ -282,10 +278,10 @@ function WalletHome() {
   );
 }
 
+/** One summary tile; three share a row and wrap together on narrow screens or large text. */
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
-  const { colors } = useTheme();
   return (
-    <View style={[styles.stat, { backgroundColor: colors.surface, borderColor: colors.border }]} accessible accessibilityLabel={`${label}: ${value}${hint ? `, ${hint}` : ""}`}>
+    <View className="min-w-[30%] flex-1 gap-0.5 rounded-lg border border-border bg-surface p-3" accessible accessibilityLabel={`${label}: ${value}${hint ? `, ${hint}` : ""}`}>
       <Text variant="caption" tone="textMuted">
         {label}
       </Text>
@@ -299,10 +295,3 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
   );
 }
 
-const styles = StyleSheet.create({
-  hero: { width: 64, height: 64, borderRadius: 20, alignItems: "center", justifyContent: "center" },
-  stats: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  stat: { flexGrow: 1, flexBasis: "30%", minWidth: 100, padding: 12, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, gap: 2 },
-  bondRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingVertical: 12, minHeight: 56 },
-  iconButton: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
-});

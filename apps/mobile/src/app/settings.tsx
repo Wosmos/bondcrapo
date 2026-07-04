@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Linking, StyleSheet, Switch, View } from "react-native";
+import { Alert, Linking, Switch, View } from "react-native";
 import { applyLayoutDirection, needsDirectionChange, useI18n } from "@/i18n";
 import { classifyError } from "@/lib/api";
 import { configureBackgroundChecks } from "@/lib/background";
@@ -11,11 +11,10 @@ import { useUpdate } from "@/lib/update-context";
 import { useWallet } from "@/lib/wallet";
 import { formatSyncCode } from "@/lib/wallet-store";
 import { useTheme } from "@/theme";
-import { Button, Card, ChipGroup, ListRow, Num, Screen, Text } from "@/ui";
+import { Button, Card, ChipGroup, ListRow, Notice, Num, RowItem, Rows, Screen, Stack, Text } from "@/ui";
 
 export default function SettingsScreen() {
   const { t, locale } = useI18n();
-  const { colors } = useTheme();
   const { settings, update } = useSettings();
   const wallet = useWallet();
   const updates = useUpdate();
@@ -103,25 +102,27 @@ export default function SettingsScreen() {
   return (
     <Screen>
       {note ? (
-        <View style={[styles.note, { backgroundColor: colors.infoContainer }]} accessibilityLiveRegion="polite">
-          <Text tone="info">{note}</Text>
-        </View>
+        <Notice tone="info" live>
+          {note}
+        </Notice>
       ) : null}
 
       <Card title={t("settings.language")}>
-        <ChipGroup
-          label={t("settings.languageLabel")}
-          scroll={false}
-          value={settings.locale}
-          onChange={(v) => void changeLocale(v)}
-          options={[
-            { value: "en", label: "English" },
-            { value: "ur", label: "اردو" },
-          ]}
-        />
-        <Text variant="caption" tone="textMuted" style={{ marginTop: 8 }}>
-          {t("settings.languageNote")}
-        </Text>
+        <Stack gap={8}>
+          <ChipGroup
+            label={t("settings.languageLabel")}
+            scroll={false}
+            value={settings.locale}
+            onChange={(v) => void changeLocale(v)}
+            options={[
+              { value: "en", label: "English" },
+              { value: "ur", label: "اردو" },
+            ]}
+          />
+          <Text variant="caption" tone="textMuted">
+            {t("settings.languageNote")}
+          </Text>
+        </Stack>
       </Card>
 
       <Card title={t("settings.appearance")}>
@@ -139,25 +140,28 @@ export default function SettingsScreen() {
       </Card>
 
       <Card title={t("settings.notifications")} padded={false}>
-        <SwitchRow
-          title={t("settings.drawReminders")}
-          subtitle={t("settings.drawRemindersHelp")}
-          value={settings.drawReminders}
-          disabled={wallet.state.status !== "ready"}
-          onChange={(v) => void toggle("drawReminders", v)}
-        />
-        <SwitchRow
-          title={t("settings.winAlerts")}
-          subtitle={t("settings.winAlertsHelp")}
-          value={settings.winAlerts}
-          disabled={wallet.state.status !== "ready"}
-          onChange={(v) => void toggle("winAlerts", v)}
-          last
-        />
+        <Rows>
+          <SwitchRow
+            title={t("settings.drawReminders")}
+            subtitle={t("settings.drawRemindersHelp")}
+            value={settings.drawReminders}
+            disabled={wallet.state.status !== "ready"}
+            onChange={(v) => void toggle("drawReminders", v)}
+          />
+          <SwitchRow
+            title={t("settings.winAlerts")}
+            subtitle={t("settings.winAlertsHelp")}
+            value={settings.winAlerts}
+            disabled={wallet.state.status !== "ready"}
+            onChange={(v) => void toggle("winAlerts", v)}
+          />
+        </Rows>
         {wallet.state.status !== "ready" ? (
-          <Text variant="caption" tone="textMuted" style={{ padding: 16, paddingTop: 0 }}>
-            {t("settings.needsWallet")}
-          </Text>
+          <View className="px-4 pb-4">
+            <Text variant="caption" tone="textMuted">
+              {t("settings.needsWallet")}
+            </Text>
+          </View>
         ) : null}
       </Card>
 
@@ -209,19 +213,17 @@ function SwitchRow({
   value,
   onChange,
   disabled,
-  last,
 }: {
   title: string;
   subtitle: string;
   value: boolean;
   onChange: (v: boolean) => void;
   disabled?: boolean;
-  last?: boolean;
 }) {
   const { colors } = useTheme();
   return (
-    <View style={[styles.switchRow, !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}>
-      <View style={{ flex: 1, gap: 2 }}>
+    <RowItem>
+      <View className="flex-1 gap-0.5">
         <Text>{title}</Text>
         <Text variant="caption" tone="textMuted">
           {subtitle}
@@ -236,11 +238,6 @@ function SwitchRow({
         trackColor={{ true: colors.primary, false: colors.border }}
         thumbColor={colors.surface}
       />
-    </View>
+    </RowItem>
   );
 }
-
-const styles = StyleSheet.create({
-  note: { padding: 12, borderRadius: 12 },
-  switchRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingVertical: 12, minHeight: 64 },
-});

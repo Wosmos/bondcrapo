@@ -91,7 +91,7 @@ export function ListRow({
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: 14, minHeight: 64, paddingVertical: 10, paddingHorizontal: 16 },
+  row: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 64, paddingVertical: 10, paddingHorizontal: 16 },
   icon: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
   body: { flex: 1, gap: 2 },
   title: { fontWeight: "500" },

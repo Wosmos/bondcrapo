@@ -1,21 +1,20 @@
 import { checkBonds, getDraw, isBondNumber, listDrawResults } from "@bondcheck/shared";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { AccessibilityInfo, StyleSheet, View } from "react-native";
+import { AccessibilityInfo, View } from "react-native";
 import { useResource } from "@/hooks/useResource";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import { denominationLabel } from "@/lib/denominations";
 import { formatDate, formatDateTime, formatPkr, groupDigits } from "@/lib/format";
-import { useTheme } from "@/theme";
-import { Badge, Button, Card, DrawStatusBadge, ErrorView, Field, LoadingView, Num, Row, Screen, StaleNotice, Text } from "@/ui";
+import { cn } from "@/lib/utils";
+import { Badge, Button, Card, DrawStatusBadge, ErrorView, Field, LoadingView, Notice, Num, Row, RowItem, Rows, Screen, StaleNotice, Text } from "@/ui";
 
 const PAGE_SIZE = 200;
 
 export default function DrawDetail() {
   const { code, number } = useLocalSearchParams<{ code: string; number: string }>();
   const { t, locale } = useI18n();
-  const { colors } = useTheme();
   const drawNumber = Number.parseInt(number ?? "", 10);
   const valid = Boolean(code) && Number.isInteger(drawNumber) && drawNumber > 0;
 
@@ -78,7 +77,7 @@ export default function DrawDetail() {
       ) : (
         <>
           <Card>
-            <View style={{ gap: 8 }}>
+            <View className="gap-2">
               <Text variant="title" accessibilityRole="header">
                 {denominationLabel(d.denominationCode, t)}
               </Text>
@@ -95,9 +94,7 @@ export default function DrawDetail() {
                 />
               </Row>
               {d.notice ? (
-                <View style={[styles.notice, { backgroundColor: colors.warningContainer }]}>
-                  <Text tone="warning">{d.notice}</Text>
-                </View>
+                <Notice tone="warning">{d.notice}</Notice>
               ) : null}
             </View>
           </Card>
@@ -105,29 +102,32 @@ export default function DrawDetail() {
           {d.prizes.length > 0 ? (
             <Card title={t("draw.prizes")} padded={false}>
               <View accessibilityRole="list">
-                {d.prizes.map((p, i) => (
-                  <View
-                    key={p.tier}
-                    accessible
-                    accessibilityLabel={`${t(`tier.${p.tier}`)}, ${formatPkr(p.amountPkr, locale)}, ${t("draw.winners", { count: p.winnersCount })}`}
-                    style={[styles.prizeRow, i < d.prizes.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text variant="label">{t(`tier.${p.tier}`)}</Text>
-                      <Text variant="caption" tone="textMuted">
-                        {t("draw.winners", { count: p.winnersCount })}
-                        {p.inferred ? ` · ${t("draw.inferred")}` : ""}
-                      </Text>
-                    </View>
-                    <Num variant="heading" tone="success">
-                      {groupDigits(p.amountPkr)}
-                    </Num>
-                  </View>
-                ))}
+                <Rows>
+                  {d.prizes.map((p) => (
+                    <RowItem
+                      key={p.tier}
+                      accessible
+                      accessibilityLabel={`${t(`tier.${p.tier}`)}, ${formatPkr(p.amountPkr, locale)}, ${t("draw.winners", { count: p.winnersCount })}`}
+                    >
+                      <View className="flex-1">
+                        <Text variant="label">{t(`tier.${p.tier}`)}</Text>
+                        <Text variant="caption" tone="textMuted">
+                          {t("draw.winners", { count: p.winnersCount })}
+                          {p.inferred ? ` · ${t("draw.inferred")}` : ""}
+                        </Text>
+                      </View>
+                      <Num variant="heading" tone="success">
+                        {groupDigits(p.amountPkr)}
+                      </Num>
+                    </RowItem>
+                  ))}
+                </Rows>
               </View>
-              <Text variant="caption" tone="textMuted" style={{ padding: 16, paddingTop: 8 }}>
-                {t("draw.amountsInPkr")}
-              </Text>
+              <View className="px-4 pb-4 pt-2">
+                <Text variant="caption" tone="textMuted">
+                  {t("draw.amountsInPkr")}
+                </Text>
+              </View>
             </Card>
           ) : null}
 
@@ -139,7 +139,7 @@ export default function DrawDetail() {
           </Card>
 
           <Card title={t("draw.findTitle")}>
-            <View style={{ gap: 12 }}>
+            <View className="gap-3">
               <Field
                 label={t("draw.findLabel")}
                 value={query}
@@ -162,7 +162,7 @@ export default function DrawDetail() {
 
           {d.completeness === "full" ? (
             <Card title={t("tier.3")}>
-              <View style={{ gap: 12 }}>
+              <View className="gap-3">
                 {third ? (
                   <>
                     <Text variant="caption" tone="textMuted">
@@ -186,9 +186,9 @@ export default function DrawDetail() {
 
           {d.sources.length > 0 ? (
             <Card title={t("draw.sources")}>
-              <View style={{ gap: 10 }}>
+              <View className="gap-3">
                 {d.sources.map((s) => (
-                  <View key={s.sha256} style={{ gap: 2 }}>
+                  <View key={s.sha256} className="gap-0.5">
                     <Row gap={8} wrap>
                       <Text variant="label">{t(`sources.${s.source}`) === `sources.${s.source}` ? s.source : t(`sources.${s.source}`)}</Text>
                       <Badge tone={s.role === "conflicting" ? "warning" : "neutral"} label={t(`sourceRole.${s.role}`)} />
@@ -208,16 +208,15 @@ export default function DrawDetail() {
 }
 
 function NumberGrid({ numbers, large = false, emptyLabel }: { numbers: string[]; large?: boolean; emptyLabel: string }) {
-  const { colors } = useTheme();
   if (numbers.length === 0) return <Text tone="textMuted">{emptyLabel}</Text>;
   return (
-    <View style={styles.grid} accessibilityRole="list">
+    <View className="flex-row flex-wrap gap-2" accessibilityRole="list">
       {numbers.map((n) => (
         <View
           key={n}
           accessible
           accessibilityLabel={n.split("").join(" ")}
-          style={[styles.cell, { backgroundColor: large ? colors.goldContainer : colors.surfaceMuted }]}
+          className={cn("rounded-md px-3 py-2", large ? "bg-gold-container" : "bg-surface-muted")}
         >
           <Num variant={large ? "title" : "body"} mono tone={large ? "gold" : "text"}>
             {n}
@@ -228,9 +227,3 @@ function NumberGrid({ numbers, large = false, emptyLabel }: { numbers: string[];
   );
 }
 
-const styles = StyleSheet.create({
-  notice: { padding: 12, borderRadius: 12 },
-  prizeRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingVertical: 14 },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  cell: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
-});

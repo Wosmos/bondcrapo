@@ -1,13 +1,17 @@
 import { fxPkr, localRates } from "@bondcheck/shared";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import { useResource } from "@/hooks/useResource";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import { formatDate, formatDateTime, groupDigits } from "@/lib/format";
 import { fxTable, rateTable, readAttribution } from "@/lib/rates";
-import { useTheme } from "@/theme";
-import { Badge, Card, EmptyView, ErrorView, LoadingView, Num, Screen, Segmented, StaleNotice, Text } from "@/ui";
+import { Badge, Card, EmptyView, ErrorView, LoadingView, Num, RowItem, Rows, Screen, Segmented, StaleNotice, Text } from "@/ui";
+
+// Header and rows share one column layout (same gap and widths), so the columns line up.
+const HEAD = "flex-row gap-3 border-b border-border px-4 py-2.5";
+const COL_LABEL = "flex-[1.2]";
+const COL_VALUE = "flex-1 text-right";
 
 export default function RatesScreen() {
   const { t } = useI18n();
@@ -39,7 +43,6 @@ function KindBadge({ kind }: { kind: "reported" | "derived" }) {
 
 function GoldRates() {
   const { t, locale } = useI18n();
-  const { colors } = useTheme();
   const res = useResource("markets.local.PK", async () => {
     const { data, meta } = await api().call(localRates, { query: { country: "PK" } });
     return { rates: data, attribution: readAttribution(meta) };
@@ -54,43 +57,44 @@ function GoldRates() {
     <>
       {res.stale && res.error ? <StaleNotice savedAt={res.savedAt} /> : null}
       <Card title={t("rates.goldTitle")} padded={false}>
-        <View style={[styles.headRow, { borderBottomColor: colors.border }]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <Text variant="caption" tone="textMuted" style={styles.colLabel}>
+        <View className={HEAD} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <Text variant="caption" tone="textMuted" className={COL_LABEL}>
             {t("rates.purity")}
           </Text>
-          <Text variant="caption" tone="textMuted" style={styles.colValue}>
+          <Text variant="caption" tone="textMuted" className={COL_VALUE}>
             {t("rates.perTola")}
           </Text>
-          <Text variant="caption" tone="textMuted" style={styles.colValue}>
+          <Text variant="caption" tone="textMuted" className={COL_VALUE}>
             {t("rates.per10g")}
           </Text>
         </View>
-        {rows.map((r, i) => {
-          const name = r.metal === "XAU" ? t("rates.karat", { karat: r.karat }) : t(`metals.${r.metal}`);
-          const kind = r.perTola?.kind ?? r.per10g?.kind ?? "derived";
-          const tola = r.perTola ? groupDigits(r.perTola.price) : "-";
-          const tenG = r.per10g ? groupDigits(r.per10g.price) : "-";
-          return (
-            <View
-              key={`${r.metal}-${r.karat}`}
-              accessible
-              accessibilityLabel={t("rates.rowA11y", { name, tola, tenG, kind: kind === "reported" ? t("rates.reported") : t("rates.estimated") })}
-              style={[styles.row, i < rows.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}
-            >
-              <View style={[styles.colLabel, { gap: 4 }]}>
-                <Text variant="label">{name}</Text>
-                <KindBadge kind={kind} />
-              </View>
-              <Num variant="body" style={styles.colValue}>
-                {tola}
-              </Num>
-              <Num variant="body" style={styles.colValue}>
-                {tenG}
-              </Num>
-            </View>
-          );
-        })}
-        <View style={{ padding: 16, gap: 4 }}>
+        <Rows>
+          {rows.map((r) => {
+            const name = r.metal === "XAU" ? t("rates.karat", { karat: r.karat }) : t(`metals.${r.metal}`);
+            const kind = r.perTola?.kind ?? r.per10g?.kind ?? "derived";
+            const tola = r.perTola ? groupDigits(r.perTola.price) : "-";
+            const tenG = r.per10g ? groupDigits(r.per10g.price) : "-";
+            return (
+              <RowItem
+                key={`${r.metal}-${r.karat}`}
+                accessible
+                accessibilityLabel={t("rates.rowA11y", { name, tola, tenG, kind: kind === "reported" ? t("rates.reported") : t("rates.estimated") })}
+              >
+                <View className={`${COL_LABEL} gap-1`}>
+                  <Text variant="label">{name}</Text>
+                  <KindBadge kind={kind} />
+                </View>
+                <Num variant="body" className={COL_VALUE}>
+                  {tola}
+                </Num>
+                <Num variant="body" className={COL_VALUE}>
+                  {tenG}
+                </Num>
+              </RowItem>
+            );
+          })}
+        </Rows>
+        <View className="gap-1 p-4">
           <Text variant="caption" tone="textMuted">
             {t("rates.pkrNote")}
             {first ? ` ${t("rates.asOf", { date: formatDate(first.date, locale) })}` : ""}
@@ -107,7 +111,6 @@ function GoldRates() {
 
 function CurrencyRates() {
   const { t, locale } = useI18n();
-  const { colors } = useTheme();
   const res = useResource("markets.fx.pkr", async () => {
     const { data, meta } = await api().call(fxPkr, { query: {} });
     return { rates: data, attribution: readAttribution(meta) };
@@ -122,40 +125,37 @@ function CurrencyRates() {
     <>
       {res.stale && res.error ? <StaleNotice savedAt={res.savedAt} /> : null}
       <Card title={t("rates.currencyTitle")} padded={false}>
-        <View style={[styles.headRow, { borderBottomColor: colors.border }]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <Text variant="caption" tone="textMuted" style={styles.colLabel}>
+        <View className={HEAD} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <Text variant="caption" tone="textMuted" className={COL_LABEL}>
             {t("rates.currencyCol")}
           </Text>
-          <Text variant="caption" tone="textMuted" style={styles.colValue}>
+          <Text variant="caption" tone="textMuted" className={COL_VALUE}>
             {t("rates.openMarket")}
           </Text>
-          <Text variant="caption" tone="textMuted" style={styles.colValue}>
+          <Text variant="caption" tone="textMuted" className={COL_VALUE}>
             {t("rates.interbank")}
           </Text>
         </View>
-        {rows.map((r, i) => {
-          const open = r.openMarket ? `${groupDigits(r.openMarket.buy, 2)} / ${groupDigits(r.openMarket.sell, 2)}` : "-";
-          const inter = r.interbank ? groupDigits((r.interbank.buy + r.interbank.sell) / 2, 2) : "-";
-          return (
-            <View
-              key={r.currency}
-              accessible
-              accessibilityLabel={t("rates.fxA11y", { currency: r.currency, open, inter })}
-              style={[styles.row, i < rows.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }]}
-            >
-              <Num variant="label" style={styles.colLabel}>
-                {r.currency}
-              </Num>
-              <Num variant="body" style={styles.colValue}>
-                {open}
-              </Num>
-              <Num variant="body" style={styles.colValue}>
-                {inter}
-              </Num>
-            </View>
-          );
-        })}
-        <View style={{ padding: 16, gap: 4 }}>
+        <Rows>
+          {rows.map((r) => {
+            const open = r.openMarket ? `${groupDigits(r.openMarket.buy, 2)} / ${groupDigits(r.openMarket.sell, 2)}` : "-";
+            const inter = r.interbank ? groupDigits((r.interbank.buy + r.interbank.sell) / 2, 2) : "-";
+            return (
+              <RowItem key={r.currency} accessible accessibilityLabel={t("rates.fxA11y", { currency: r.currency, open, inter })}>
+                <Num variant="label" className={COL_LABEL}>
+                  {r.currency}
+                </Num>
+                <Num variant="body" className={COL_VALUE}>
+                  {open}
+                </Num>
+                <Num variant="body" className={COL_VALUE}>
+                  {inter}
+                </Num>
+              </RowItem>
+            );
+          })}
+        </Rows>
+        <View className="gap-1 p-4">
           <Text variant="caption" tone="textMuted">
             {t("rates.fxNote")}
           </Text>
@@ -175,7 +175,7 @@ function Attribution({ items }: { items: { name: string; text: string }[] }) {
   const { t } = useI18n();
   if (items.length === 0) return null;
   return (
-    <View style={{ gap: 4, paddingHorizontal: 4 }}>
+    <View className="gap-1 px-1">
       <Text variant="caption" tone="textMuted">
         {t("rates.sources")}
       </Text>
@@ -188,9 +188,3 @@ function Attribution({ items }: { items: { name: string; text: string }[] }) {
   );
 }
 
-const styles = StyleSheet.create({
-  headRow: { flexDirection: "row", paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, gap: 8 },
-  row: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12, gap: 8, minHeight: 60 },
-  colLabel: { flex: 1.2 },
-  colValue: { flex: 1, textAlign: "right" },
-});
