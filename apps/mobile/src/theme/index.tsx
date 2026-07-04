@@ -1,4 +1,5 @@
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { colorScheme as nativewindScheme } from "nativewind";
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
 import { useColorScheme } from "react-native";
 import { dark, light, type Palette } from "./colors";
 import type { AppLocale } from "@/i18n/types";
@@ -46,6 +47,8 @@ export function ThemeProvider({
   const system = useColorScheme();
   const scheme = preference === "system" ? (system === "dark" ? "dark" : "light") : preference;
   const theme = useMemo(() => buildTheme(scheme, locale), [scheme, locale]);
+  // NativeWind's `dark:` classes and the global.css variables follow the same choice as `useTheme`.
+  useEffect(() => nativewindScheme.set(scheme), [scheme]);
   return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
 }
 

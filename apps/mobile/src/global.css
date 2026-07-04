@@ -1,0 +1,56 @@
+/*
+ * Theme variables for NativeWind and React Native Reusables, as "R G B" channels so opacity
+ * modifiers work (bg-primary/90). Generated from src/theme/colors.ts, the single source of the
+ * palette and its contrast checks; src/theme/__tests__/global-css.test.ts fails if they drift.
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 244 247 245;
+  --surface: 255 255 255;
+  --surface-muted: 234 240 236;
+  --border: 201 212 205;
+  --text: 15 27 21;
+  --text-muted: 74 91 82;
+  --primary: 11 107 75;
+  --on-primary: 255 255 255;
+  --primary-container: 205 235 221;
+  --on-primary-container: 6 53 31;
+  --success: 10 107 61;
+  --success-container: 211 240 223;
+  --warning: 122 75 0;
+  --warning-container: 252 232 195;
+  --danger: 161 27 27;
+  --danger-container: 251 218 218;
+  --info: 11 79 138;
+  --info-container: 215 232 248;
+  --gold: 122 90 0;
+  --gold-container: 248 235 196;
+  --focus: 11 107 75;
+}
+
+.dark:root {
+  --background: 13 21 18;
+  --surface: 22 32 27;
+  --surface-muted: 30 42 36;
+  --border: 51 68 59;
+  --text: 232 240 235;
+  --text-muted: 169 186 176;
+  --primary: 95 211 163;
+  --on-primary: 0 40 26;
+  --primary-container: 15 74 52;
+  --on-primary-container: 198 241 220;
+  --success: 111 220 160;
+  --success-container: 18 61 39;
+  --warning: 242 196 107;
+  --warning-container: 63 46 10;
+  --danger: 255 156 148;
+  --danger-container: 74 21 21;
+  --info: 142 195 245;
+  --info-container: 18 46 72;
+  --gold: 233 199 102;
+  --gold-container: 58 47 14;
+  --focus: 95 211 163;
+}

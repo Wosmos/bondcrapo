@@ -1,3 +1,4 @@
+import "../global.css";
 import "@/lib/background";
 import * as Notifications from "expo-notifications";
 import { router, Stack } from "expo-router";
@@ -6,6 +7,7 @@ import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
 import { useEffect, useRef, useState } from "react";
 import { AppState } from "react-native";
+import { PortalHost } from "@rn-primitives/portal";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { applyLayoutDirection, I18nProvider, useI18n } from "@/i18n";
 import { notifyNewWins, syncDrawReminders } from "@/lib/notifications";
@@ -124,6 +126,8 @@ function Navigator() {
         <Stack.Screen name="wallet/created" options={{ title: t("walletCreated.title"), headerBackVisible: false, gestureEnabled: false }} />
         <Stack.Screen name="update" options={{ title: t("update.title"), presentation: "modal" }} />
       </Stack>
+      {/* Popovers, menus and dialogs from React Native Reusables render here, above every screen. */}
+      <PortalHost />
     </>
   );
 }
