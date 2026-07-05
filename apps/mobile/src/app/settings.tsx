@@ -167,7 +167,7 @@ export default function SettingsScreen() {
 
       {wallet.state.status === "ready" ? (
         <Card title={t("settings.wallet")}>
-          <View style={{ gap: 12 }}>
+          <View className="gap-3">
             <Text variant="label">{t("settings.syncCode")}</Text>
             <Num variant="heading" mono selectable>
               {wallet.state.syncCode ? formatSyncCode(wallet.state.syncCode) : t("settings.syncCodeUnknown")}

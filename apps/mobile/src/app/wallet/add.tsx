@@ -64,7 +64,7 @@ export default function AddBonds() {
   return (
     <Screen>
       <Card>
-        <View style={{ gap: 16 }}>
+        <View className="gap-4">
           <Text tone="textMuted">{t("walletAdd.intro")}</Text>
           <ChipGroup label={t("check.denominationLabel")} options={options} value={denomination} onChange={setDenomination} />
           <Field

@@ -53,7 +53,7 @@ export default function HomeScreen() {
     <Screen onRefresh={refresh} refreshing={refreshing}>
       {update.state.kind === "optional" && !update.dismissed ? (
         <Card tone="primary">
-          <View style={{ gap: 8 }} accessibilityLiveRegion="polite">
+          <View className="gap-2" accessibilityLiveRegion="polite">
             <Text variant="heading" tone="onPrimaryContainer">
               {t("update.availableTitle", { version: update.state.manifest.version })}
             </Text>
@@ -67,7 +67,7 @@ export default function HomeScreen() {
       ) : null}
 
       <Card>
-        <View style={{ gap: 12 }}>
+        <View className="gap-3">
           <Text variant="title" accessibilityRole="header">
             {t("home.heroTitle")}
           </Text>
@@ -119,7 +119,7 @@ export default function HomeScreen() {
         ) : schedule.status === "error" ? (
           <ErrorView compact error={schedule.error} onRetry={schedule.refresh} />
         ) : upcoming.length === 0 ? (
-          <View style={{ padding: 16 }}>
+          <View className="p-4">
             <Text tone="textMuted">{t("home.noUpcoming")}</Text>
           </View>
         ) : (
@@ -146,13 +146,14 @@ export default function HomeScreen() {
         )}
       </Card>
 
-      <Card title={t("home.latestResults")} padded={false} action={
-        <View style={{ paddingHorizontal: 16 }}>
-          <Button label={t("home.allResults")} variant="ghost" onPress={() => router.push("/draws")} />
-        </View>
-      }>
+      <Card
+        title={t("home.latestResults")}
+        padded={false}
+        // The card header already pads 16 on each side; extra padding here pushed the button out of line.
+        action={<Button label={t("home.allResults")} variant="ghost" onPress={() => router.push("/draws")} />}
+      >
         {latest.stale && latest.error ? (
-          <View style={{ paddingHorizontal: 16 }}>
+          <View className="px-4">
             <StaleNotice savedAt={latest.savedAt} />
           </View>
         ) : null}
@@ -161,7 +162,7 @@ export default function HomeScreen() {
         ) : latest.status === "error" ? (
           <ErrorView compact error={latest.error} onRetry={latest.refresh} />
         ) : (latest.data ?? []).length === 0 ? (
-          <View style={{ padding: 16 }}>
+          <View className="p-4">
             <Text tone="textMuted">{t("home.noResults")}</Text>
           </View>
         ) : (

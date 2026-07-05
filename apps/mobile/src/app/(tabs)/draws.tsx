@@ -48,7 +48,7 @@ export default function DrawsScreen() {
           })}
         </Card>
       ))}
-      <View style={{ paddingHorizontal: 4 }}>
+      <View className="px-1">
         <Text variant="caption" tone="textMuted">
           {t("draws.sourceNote")}
         </Text>

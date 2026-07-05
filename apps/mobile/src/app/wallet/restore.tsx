@@ -42,7 +42,7 @@ export default function RestoreWallet() {
   return (
     <Screen>
       <Card>
-        <View style={{ gap: 16 }}>
+        <View className="gap-4">
           <Text tone="textMuted">{t("walletRestore.intro")}</Text>
           <Field
             label={t("walletRestore.codeLabel")}

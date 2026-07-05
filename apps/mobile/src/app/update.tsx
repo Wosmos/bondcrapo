@@ -8,7 +8,7 @@ import { formatBytes, formatDate } from "@/lib/format";
 import { isTrustedDownloadUrl, resolveDownloadUrl } from "@/lib/update";
 import { useUpdate } from "@/lib/update-context";
 import { useTheme } from "@/theme";
-import { Button, Card, Num, Row, Screen, Text } from "@/ui";
+import { Button, Card, Num, Panel, Row, Screen, Text } from "@/ui";
 
 export default function UpdateScreen() {
   const { t, locale } = useI18n();
@@ -27,7 +27,7 @@ export default function UpdateScreen() {
     return (
       <Screen>
         <Card>
-          <View style={{ gap: 12 }}>
+          <View className="gap-3">
             <Text variant="heading">{t("settings.upToDate")}</Text>
             <Button label={t("common.actions.close")} onPress={() => router.back()} />
           </View>
@@ -45,10 +45,10 @@ export default function UpdateScreen() {
     <Screen>
       <Stack.Screen options={{ headerBackVisible: !required, gestureEnabled: !required }} />
       <Card>
-        <View style={{ gap: 14 }}>
+        <View className="gap-4">
           <Row gap={12}>
             <Ionicons name={required ? "alert-circle" : "sparkles"} size={30} color={required ? colors.warning : colors.primary} />
-            <Text variant="title" accessibilityRole="header" style={{ flex: 1 }}>
+            <Text variant="title" accessibilityRole="header" className="flex-1">
               {required ? t("update.requiredTitle") : t("update.availableTitle", { version: manifest.version })}
             </Text>
           </Row>
@@ -59,10 +59,10 @@ export default function UpdateScreen() {
             {manifest.publishedAt ? <Text tone="textMuted">· {formatDate(manifest.publishedAt.slice(0, 10), locale)}</Text> : null}
           </Row>
           {manifest.notes ? (
-            <View style={{ backgroundColor: colors.surfaceMuted, borderRadius: 12, padding: 12, gap: 4 }}>
+            <Panel>
               <Text variant="label">{t("update.notes")}</Text>
               <Text variant="caption">{manifest.notes}</Text>
-            </View>
+            </Panel>
           ) : null}
           <Text variant="caption" tone="textMuted">
             {t("update.howTo")}

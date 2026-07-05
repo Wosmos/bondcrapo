@@ -123,7 +123,7 @@ export default function DenominationDraws() {
         </Card>
       )}
       {cursor ? (
-        <View style={{ alignItems: "center" }}>
+        <View className="items-center">
           <Button label={t("draws.loadMore")} variant="secondary" loading={more} onPress={() => void loadMore()} />
         </View>
       ) : null}

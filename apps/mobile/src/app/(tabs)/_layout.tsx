@@ -26,8 +26,8 @@ export default function TabsLayout() {
       accessibilityRole="button"
       accessibilityLabel={t("settings.title")}
       hitSlop={12}
-      android_ripple={{ color: colors.ripple, borderless: true, radius: 22 }}
-      style={{ width: 44, height: 44, alignItems: "center", justifyContent: "center", marginHorizontal: 8 }}
+      android_ripple={{ color: colors.ripple, borderless: true, radius: 24 }}
+      className="mx-2 size-12 items-center justify-center"
     >
       <Ionicons name="settings-outline" size={22} color={colors.text} />
     </Pressable>

@@ -10,14 +10,12 @@ import { denominationLabel } from "@/lib/denominations";
 import { formatDate, formatPkr, groupDigits } from "@/lib/format";
 import { scanBondNumbers, type ScanResult } from "@/lib/scan";
 import { useWallet } from "@/lib/wallet";
-import { useTheme } from "@/theme";
-import { Badge, Button, Card, ChipGroup, ErrorView, Field, Num, Row, Screen, Text } from "@/ui";
+import { Badge, Button, Card, ChipGroup, ErrorView, Field, Num, Panel, Row, Screen, Text } from "@/ui";
 
 type CheckResult = { checked: number; wins: { bondNumber: string; denominationCode: string; drawId: number; drawNumber: number | null; drawDate: string; tier: number; amountPkr: number }[] };
 
 export default function CheckScreen() {
   const { t, locale } = useI18n();
-  const { colors } = useTheme();
   const wallet = useWallet();
   const params = useLocalSearchParams<{ scan?: string }>();
   const [text, setText] = useState("");
@@ -126,7 +124,7 @@ export default function CheckScreen() {
   return (
     <Screen>
       <Card>
-        <View style={{ gap: 16 }}>
+        <View className="gap-4">
           <Text variant="title" accessibilityRole="header">
             {t("check.title")}
           </Text>
@@ -148,7 +146,7 @@ export default function CheckScreen() {
             <Button label={t("check.fromPhoto")} icon="image-outline" variant="secondary" onPress={() => void scan("library")} />
           </Row>
           {scanNote ? (
-            <View style={{ gap: 8 }} accessibilityLiveRegion="polite">
+            <View className="gap-2" accessibilityLiveRegion="polite">
               <Badge tone={scanNote.tone} icon={scanNote.tone === "info" ? "scan-outline" : "alert-circle-outline"} label={scanNote.text} />
               {scanNote.settings ? (
                 <Button label={t("check.openSettings")} variant="ghost" onPress={() => void Linking.openSettings()} />
@@ -179,16 +177,8 @@ export default function CheckScreen() {
 
       {result ? (
         <Card title={t("check.resultsTitle")}>
-          <View style={{ gap: 12 }}>
-            <View
-              accessibilityLiveRegion="polite"
-              style={{
-                padding: 14,
-                borderRadius: 14,
-                backgroundColor: result.wins.length > 0 ? colors.goldContainer : colors.surfaceMuted,
-                gap: 4,
-              }}
-            >
+          <View className="gap-3">
+            <Panel accessibilityLiveRegion="polite" className={result.wins.length > 0 ? "bg-gold-container" : undefined}>
               <Text variant="heading" tone={result.wins.length > 0 ? "gold" : "text"}>
                 {result.wins.length > 0
                   ? t("check.summaryWins", { count: result.wins.length, checked: result.checked })
@@ -197,7 +187,7 @@ export default function CheckScreen() {
               <Text variant="caption" tone="textMuted">
                 {t("check.coverageNote")}
               </Text>
-            </View>
+            </Panel>
             {result.wins.map((w) => (
               <View
                 key={`${w.drawId}-${w.bondNumber}`}
@@ -208,14 +198,14 @@ export default function CheckScreen() {
                   amount: formatPkr(w.amountPkr, locale),
                   date: formatDate(w.drawDate, locale),
                 })}
-                style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: 14, gap: 6 }}
+                className="gap-1.5 rounded-md border border-border p-3"
               >
-                <Row gap={8} style={{ justifyContent: "space-between" }}>
+                <View className="flex-row items-center justify-between gap-2">
                   <Num variant="title" mono>
                     {w.bondNumber}
                   </Num>
                   <Badge tone="gold" icon="trophy" label={t(`tier.${w.tier}`)} />
-                </Row>
+                </View>
                 <Text variant="label" tone="success">
                   {formatPkr(w.amountPkr, locale)}
                 </Text>
