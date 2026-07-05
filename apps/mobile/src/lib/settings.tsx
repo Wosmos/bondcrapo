@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLocales } from "expo-localization";
+import { Appearance } from "react-native";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { z } from "zod";
 import type { AppLocale } from "@/i18n/types";
@@ -8,7 +9,8 @@ const KEY = "bondcheck.settings.v1";
 
 export const settingsSchema = z.object({
   locale: z.enum(["en", "ur"]),
-  theme: z.enum(["system", "light", "dark"]),
+  /** Light or dark; the first run starts from the phone's setting, then the choice is kept. */
+  theme: z.enum(["light", "dark"]),
   /** Local reminders on the morning of each draw for denominations in the wallet. */
   drawReminders: z.boolean(),
   /** Background check for new wins (local notification when one is found). */
@@ -16,10 +18,10 @@ export const settingsSchema = z.object({
 });
 export type Settings = z.infer<typeof settingsSchema>;
 
-export function defaultSettings(deviceLanguage?: string | null): Settings {
+export function defaultSettings(deviceLanguage?: string | null, deviceScheme?: string | null): Settings {
   return {
     locale: deviceLanguage === "ur" ? "ur" : "en",
-    theme: "system",
+    theme: deviceScheme === "dark" ? "dark" : "light",
     drawReminders: false,
     winAlerts: false,
   };
@@ -27,11 +29,14 @@ export function defaultSettings(deviceLanguage?: string | null): Settings {
 
 /** Reads stored settings; anything missing or malformed falls back to defaults. */
 export async function loadSettings(): Promise<Settings> {
-  const fallback = defaultSettings(getLocales()[0]?.languageCode);
+  const fallback = defaultSettings(getLocales()[0]?.languageCode, Appearance.getColorScheme());
   try {
     const raw = await AsyncStorage.getItem(KEY);
     if (!raw) return fallback;
-    const parsed = settingsSchema.partial().safeParse(JSON.parse(raw));
+    const stored = JSON.parse(raw) as Record<string, unknown>;
+    // Earlier versions offered "system"; it becomes whatever the phone shows now.
+    if (stored.theme === "system") stored.theme = fallback.theme;
+    const parsed = settingsSchema.partial().safeParse(stored);
     return parsed.success ? { ...fallback, ...parsed.data } : fallback;
   } catch {
     return fallback;

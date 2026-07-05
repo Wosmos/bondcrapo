@@ -24,7 +24,6 @@
     "home": "Home"
   },
   "theme": {
-    "system": "System",
     "light": "Light",
     "dark": "Dark",
     "button": "Theme: {mode}. Activate to change."

@@ -20,7 +20,6 @@ export async function SiteHeader({ locale, items }: { locale: string; items: She
           <LanguageSwitcher label={t("languageSwitch.toLabel")} text={t("languageSwitch.to")} />
           <ThemeToggle
             labels={{
-              system: t("theme.system"),
               light: t("theme.light"),
               dark: t("theme.dark"),
               button: t.raw("theme.button") as string,

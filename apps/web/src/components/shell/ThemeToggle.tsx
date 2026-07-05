@@ -1,31 +1,35 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useLocale } from "next-intl";
+import { useLayoutEffect, useSyncExternalStore } from "react";
 import { Icon } from "./icons";
 import { THEME_STORAGE_KEY as KEY } from "./theme-script";
 
-type Mode = "system" | "light" | "dark";
-const ORDER: Mode[] = ["system", "light", "dark"];
+type Mode = "light" | "dark";
 const listeners = new Set<() => void>();
 
+/** The stored choice, else the device setting (only until the visitor picks one). */
 function read(): Mode {
   try {
     const v = localStorage.getItem(KEY);
-    return v === "light" || v === "dark" ? v : "system";
+    if (v === "light" || v === "dark") return v;
   } catch {
-    return "system";
+    // Private mode: fall through to the device setting.
   }
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function apply(mode: Mode) {
+  document.documentElement.dataset.theme = mode;
 }
 
 function write(mode: Mode) {
   try {
-    if (mode === "system") localStorage.removeItem(KEY);
-    else localStorage.setItem(KEY, mode);
+    localStorage.setItem(KEY, mode);
   } catch {
     // Private mode: the choice lasts for this page only.
   }
-  if (mode === "system") delete document.documentElement.dataset.theme;
-  else document.documentElement.dataset.theme = mode;
+  apply(mode);
   listeners.forEach((l) => l());
 }
 
@@ -38,12 +42,24 @@ function subscribe(listener: () => void) {
   };
 }
 
-const ICON: Record<Mode, string> = { system: "system", light: "sun", dark: "moon" };
-
-/** Cycles System, Light and Dark. The inline script in the layout applies the choice before paint. */
+/**
+ * Switches between Light and Dark. The inline script in the layout applies a stored choice before
+ * the first paint. Changing language re-renders the root layout, and React 19 resets the <html>
+ * attributes it does not own (data-theme among them), so the choice is applied again before paint
+ * on every locale.
+ */
 export function ThemeToggle({ labels }: { labels: Record<Mode, string> & { button: string } }) {
-  const mode = useSyncExternalStore(subscribe, read, () => "system" as Mode);
-  const next = ORDER[(ORDER.indexOf(mode) + 1) % ORDER.length];
+  const locale = useLocale();
+  const mode = useSyncExternalStore(subscribe, read, () => "light" as Mode);
+  useLayoutEffect(() => {
+    try {
+      const v = localStorage.getItem(KEY);
+      if (v === "light" || v === "dark") apply(v);
+    } catch {
+      // Nothing stored: the device setting applies through CSS.
+    }
+  }, [locale]);
+  const next: Mode = mode === "dark" ? "light" : "dark";
   return (
     <button
       type="button"
@@ -52,8 +68,7 @@ export function ThemeToggle({ labels }: { labels: Record<Mode, string> & { butto
       title={labels[mode]}
       className="inline-flex size-11 items-center justify-center rounded-full border border-line text-ink hover:border-line-strong hover:bg-surface-2"
     >
-      <Icon name={ICON[mode]} className="size-5" />
+      <Icon name={mode === "dark" ? "moon" : "sun"} className="size-5" />
     </button>
   );
 }
-

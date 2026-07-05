@@ -57,17 +57,22 @@ test("the home board shows live data with labels, and a retry path when the API 
   await expect(page.getByRole("button", { name: "Try again" }).first()).toBeVisible();
 });
 
-test("theme toggle cycles and survives a reload", async ({ page }) => {
+test("theme toggle switches light and dark and survives a reload and a language change", async ({ page }) => {
   await page.goto("/en/about");
   const toggle = page.getByRole("button", { name: /^Theme:/ });
-  await expect(toggle).toHaveAccessibleName(/System/);
-  await toggle.click();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  // Nothing chosen yet: the device setting (light in the test browser).
+  await expect(toggle).toHaveAccessibleName(/Light/);
   await toggle.click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(page.getByRole("button", { name: /^Theme: Dark/ })).toBeVisible();
+  // Switching language re-renders the root layout; the choice must stay.
+  await page.getByRole("link", { name: /read this page in Urdu/ }).click();
+  await expect(page).toHaveURL(/\/ur\/about$/);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.getByRole("button", { name: /^تھیم:/ }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
 test("language switcher keeps the page and flips direction", async ({ page }) => {
