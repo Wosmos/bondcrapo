@@ -4,8 +4,8 @@
 @custom-variant ur (&:lang(ur));
 
 /*
- * BondCheck design tokens. The palette borrows from Pakistani banknotes and prize bond
- * certificates: cream paper, deep ledger green, a thin line of gold foil. Every text pair is
+ * BondCheck design tokens. The palette is indigo for actions on neutral grey surfaces,
+ * with gold kept for wins and green kept for success. Every text pair is
  * checked for WCAG 2.2 AA contrast by `src/styles/tokens.test.ts`, which parses this file.
  *
  * Theme: `:root` is light, `[data-theme="dark"]` is dark, and with no stored choice the system
@@ -15,22 +15,22 @@
 
 :root {
   color-scheme: light;
-  --paper: #f5f1e6;
-  --surface: #fffdf7;
-  --surface-2: #ece6d6;
-  --ink: #10231b;
-  --ink-2: #44554c;
-  --line: #ddd5c2;
-  --line-strong: #857d68;
-  --brand: #0a6b47;
-  --brand-strong: #064d33;
+  --paper: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #efeff2;
+  --ink: #18181b;
+  --ink-2: #52525b;
+  --line: #e4e4e7;
+  --line-strong: #71717a;
+  --brand: #4338ca;
+  --brand-strong: #312e81;
   --on-brand: #ffffff;
   --gold: #b88a1b;
   --gold-ink: #7a5507;
   --success: #0a6b47;
   --warning: #8a5a00;
   --danger: #b42318;
-  --info: #1d5e8c;
+  --info: #0369a1;
   --focus: #0b57d0;
   --shadow: 0 1px 2px rgb(16 35 27 / 0.06), 0 8px 24px -12px rgb(16 35 27 / 0.18);
 }
@@ -38,46 +38,46 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --paper: #0b1511;
-    --surface: #12201a;
-    --surface-2: #1a2b23;
-    --ink: #eef4ef;
-    --ink-2: #a9bab0;
-    --line: #253a30;
-    --line-strong: #6f8a7c;
-    --brand: #46c08b;
-    --brand-strong: #7ad9ad;
-    --on-brand: #062016;
+    --paper: #0c0c0f;
+    --surface: #16161b;
+    --surface-2: #212128;
+    --ink: #f4f4f5;
+    --ink-2: #a1a1aa;
+    --line: #2a2a32;
+    --line-strong: #71717a;
+    --brand: #a5b4fc;
+    --brand-strong: #c7d2fe;
+    --on-brand: #0c0c0f;
     --gold: #e2b553;
     --gold-ink: #e9c46a;
     --success: #46c08b;
     --warning: #f0b44c;
     --danger: #ff8a7a;
-    --info: #7cc0f0;
-    --focus: #8ab4f8;
+    --info: #7cc4f0;
+    --focus: #93c5fd;
     --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px -12px rgb(0 0 0 / 0.6);
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper: #0b1511;
-  --surface: #12201a;
-  --surface-2: #1a2b23;
-  --ink: #eef4ef;
-  --ink-2: #a9bab0;
-  --line: #253a30;
-  --line-strong: #6f8a7c;
-  --brand: #46c08b;
-  --brand-strong: #7ad9ad;
-  --on-brand: #062016;
+  --paper: #0c0c0f;
+  --surface: #16161b;
+  --surface-2: #212128;
+  --ink: #f4f4f5;
+  --ink-2: #a1a1aa;
+  --line: #2a2a32;
+  --line-strong: #71717a;
+  --brand: #a5b4fc;
+  --brand-strong: #c7d2fe;
+  --on-brand: #0c0c0f;
   --gold: #e2b553;
   --gold-ink: #e9c46a;
   --success: #46c08b;
   --warning: #f0b44c;
   --danger: #ff8a7a;
-  --info: #7cc0f0;
-  --focus: #8ab4f8;
+  --info: #7cc4f0;
+  --focus: #93c5fd;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px -12px rgb(0 0 0 / 0.6);
 }
 

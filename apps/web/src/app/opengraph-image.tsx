@@ -17,8 +17,8 @@ export default function OpenGraphImage() {
           width: "100%",
           height: "100%",
           display: "flex",
-          background: "#f5f1e6",
-          color: "#10231b",
+          background: "#f7f7f8",
+          color: "#18181b",
           padding: 72,
           position: "relative",
           fontFamily: "sans-serif",
@@ -30,7 +30,7 @@ export default function OpenGraphImage() {
           viewBox="0 0 200 200"
           style={{ position: "absolute", right: -120, top: -60 }}
           fill="none"
-          stroke="#0a6b47"
+          stroke="#4338ca"
           strokeOpacity="0.35"
           strokeWidth="0.5"
         >
@@ -45,7 +45,7 @@ export default function OpenGraphImage() {
                 width: 72,
                 height: 72,
                 borderRadius: 20,
-                background: "#0a6b47",
+                background: "#4338ca",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -65,7 +65,7 @@ export default function OpenGraphImage() {
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: 84, fontWeight: 700, lineHeight: 1.05, letterSpacing: -2 }}>Every draw.</div>
             <div style={{ fontSize: 84, fontWeight: 700, lineHeight: 1.05, letterSpacing: -2 }}>Every bond.</div>
-            <div style={{ fontSize: 84, fontWeight: 700, lineHeight: 1.05, letterSpacing: -2, color: "#0a6b47" }}>
+            <div style={{ fontSize: 84, fontWeight: 700, lineHeight: 1.05, letterSpacing: -2, color: "#4338ca" }}>
               One check.
             </div>
           </div>

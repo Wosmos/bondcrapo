@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
-    "backgroundColor": "#F4F7F5",
+    "backgroundColor": "#F7F7F8",
     "platforms": [
       "android"
     ],
@@ -20,7 +20,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "monochromeImage": "./assets/images/adaptive-icon-monochrome.png",
-        "backgroundColor": "#0B6B4B"
+        "backgroundColor": "#4338CA"
       },
       "allowBackup": false,
       "permissions": [
@@ -47,10 +47,10 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 160,
           "resizeMode": "contain",
-          "backgroundColor": "#F4F7F5",
+          "backgroundColor": "#F7F7F8",
           "dark": {
             "image": "./assets/images/splash-icon.png",
-            "backgroundColor": "#0D1512"
+            "backgroundColor": "#0C0C0F"
           }
         }
       ],
@@ -58,7 +58,7 @@
         "expo-notifications",
         {
           "icon": "./assets/images/notification-icon.png",
-          "color": "#0B6B4B",
+          "color": "#4338CA",
           "defaultChannel": "draws"
         }
       ],

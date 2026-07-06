@@ -176,14 +176,14 @@ export default async function Home({ params }: Props) {
           {t("features.title")}
         </h2>
         <div className="mt-8 grid gap-4 md:grid-cols-6">
-          <article className="relative overflow-hidden rounded-3xl bg-[#0e2a1f] p-7 text-[#f5f1e6] ring-1 ring-line md:col-span-3 md:row-span-2">
+          <article className="relative overflow-hidden rounded-3xl bg-[#1e1b4b] p-7 text-[#eef2f8] ring-1 ring-line md:col-span-3 md:row-span-2">
             <Icon name="shield" className="size-8 text-[#e2b553]" />
             <h3 className="mt-5 text-2xl font-semibold">{t("features.wallet.title")}</h3>
-            <p className="mt-3 max-w-md text-[#f5f1e6]/85">{t("features.wallet.body")}</p>
+            <p className="mt-3 max-w-md text-[#eef2f8]/85">{t("features.wallet.body")}</p>
             <p aria-hidden="true" dir="ltr" className="mt-8 font-mono text-lg tracking-[0.3em] text-[#e2b553]">
               ABCD-EFGH-JKMN
             </p>
-            <Rosette className="absolute -end-20 -bottom-24 size-80 text-[#f5f1e6]/10" strokeWidth={0.6} layers={["outer", "core"]} />
+            <Rosette className="absolute -end-20 -bottom-24 size-80 text-[#eef2f8]/10" strokeWidth={0.6} layers={["outer", "core"]} />
           </article>
 
           <article className="rounded-3xl border border-line bg-surface p-7 md:col-span-3">
