@@ -9,7 +9,7 @@ import { ThemeToggle } from "./ThemeToggle";
 export async function SiteHeader({ locale, items }: { locale: string; items: ShellNavItem[] }) {
   const t = await getTranslations({ locale, namespace: "common" });
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-paper/95">
+    <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link href="/" aria-label={t("a11y.homeLink")} className="flex shrink-0 items-center gap-2.5 rounded-lg">
           <LogoMark className="size-9" />

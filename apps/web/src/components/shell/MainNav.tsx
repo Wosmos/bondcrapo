@@ -9,12 +9,16 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-/** Desktop navigation in the header. */
+/**
+ * Desktop navigation in the header. Links fill the header's height; the current page has an indigo
+ * underline on the header's bottom edge and hover previews it in grey. The underline is a second
+ * cue next to aria-current and the darker text, never colour alone.
+ */
 export function MainNav({ items, label }: { items: ShellNavItem[]; label: string }) {
   const pathname = usePathname();
   return (
-    <nav aria-label={label} className="hidden md:block">
-      <ul className="flex items-center gap-1">
+    <nav aria-label={label} className="hidden self-stretch md:block">
+      <ul className="flex h-full items-stretch gap-1">
         {items.map((item) => {
           const active = isActive(pathname, item.href);
           return (
@@ -22,8 +26,8 @@ export function MainNav({ items, label }: { items: ShellNavItem[]; label: string
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`inline-flex min-h-11 items-center rounded-full px-3.5 text-sm font-medium transition-colors ${
-                  active ? "bg-ink text-paper" : "text-ink-2 hover:bg-surface-2 hover:text-ink"
+                className={`relative inline-flex h-full items-center px-3 text-sm font-medium transition-colors after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 after:rounded-full after:transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus ${
+                  active ? "text-ink after:bg-brand" : "text-ink-2 after:bg-transparent hover:text-ink hover:after:bg-line-strong"
                 }`}
               >
                 {item.label}
@@ -52,8 +56,8 @@ export function TabBar({ items, label }: { items: ShellNavItem[]; label: string 
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-16 flex-col items-center justify-center gap-0.5 px-1 text-[0.6875rem] leading-tight font-medium ${
-                  active ? "text-brand" : "text-ink-2"
+                className={`relative flex min-h-16 flex-col items-center justify-center gap-0.5 px-1 text-[0.6875rem] leading-tight font-medium before:absolute before:inset-x-4 before:top-0 before:h-0.5 before:rounded-full ${
+                  active ? "text-brand before:bg-brand" : "text-ink-2 before:bg-transparent"
                 }`}
               >
                 <span
