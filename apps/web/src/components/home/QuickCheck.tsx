@@ -1,4 +1,5 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
+import { SelectField } from "@/components/ui/SelectField";
 import { DENOMINATIONS } from "@bondcheck/shared/constants";
 import { formatAmount } from "@/i18n/format";
 import { localePath } from "@/i18n/seo";
@@ -59,19 +60,17 @@ export function QuickCheck({ locale, labels }: { locale: string; labels: QuickCh
             <label htmlFor="quick-check-denomination" className="mb-1 block text-xs font-medium text-ink-2">
               {labels.denomination}
             </label>
-            <select
+            {/* "any" is not a code, so the checker falls back to all denominations. */}
+            <SelectField
               id="quick-check-denomination"
               name="denomination"
-              defaultValue=""
-              className="h-14 w-full rounded-2xl border border-line-strong bg-paper px-3 text-base font-medium text-ink focus:border-brand sm:w-48"
-            >
-              <option value="">{labels.any}</option>
-              {DENOMINATIONS.map((d) => (
-                <option key={d.code} value={d.code}>
-                  {fill(d.kind === "premium_registered" ? labels.premium : labels.rs, d.faceValue)}
-                </option>
-              ))}
-            </select>
+              defaultValue="any"
+              className="h-14 rounded-2xl bg-paper font-medium data-[size=default]:h-14 sm:w-48"
+              options={[
+                { value: "any", label: labels.any },
+                ...DENOMINATIONS.map((d) => ({ value: d.code, label: fill(d.kind === "premium_registered" ? labels.premium : labels.rs, d.faceValue) })),
+              ]}
+            />
           </div>
         </div>
         <button

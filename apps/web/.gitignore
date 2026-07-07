@@ -52,3 +52,7 @@ next-env.d.ts
 # OpenNext and Wrangler output
 /.open-next/
 /.wrangler/
+
+# Visual baselines are recorded on the Linux CI image only
+/e2e/visual.spec.ts-snapshots/*-darwin.png
+/e2e/visual.spec.ts-snapshots/*-win32.png

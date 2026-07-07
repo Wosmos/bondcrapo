@@ -2,7 +2,7 @@
 
 import { useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Badge, Button, EmptyState, PageHeader, Skeleton } from "@/components/ui";
+import { Badge, Button, EmptyState, PageHeader, SelectField, Skeleton } from "@/components/ui";
 import { useWallet, WalletActionError } from "../client/WalletProvider";
 import { useWalletFormat } from "../client/format";
 import type { WalletBond } from "../client/types";
@@ -104,22 +104,16 @@ function BondList() {
               <label htmlFor={`${ids}-d`} className="text-sm font-medium">
                 {t("filter")}
               </label>
-              <select
+              <SelectField
                 id={`${ids}-d`}
-                className={`${inputClass} w-44`}
+                className="w-48"
                 value={denom}
-                onChange={(e) => {
-                  setDenom(e.target.value);
+                onValueChange={(v) => {
+                  setDenom(v);
                   setPage(1);
                 }}
-              >
-                <option value="all">{t("all")}</option>
-                {denominations.map((d) => (
-                  <option key={d} value={d}>
-                    {f.denomination(d)}
-                  </option>
-                ))}
-              </select>
+                options={[{ value: "all", label: t("all") }, ...denominations.map((d) => ({ value: d, label: f.denomination(d) }))]}
+              />
             </div>
           ) : null}
         </div>

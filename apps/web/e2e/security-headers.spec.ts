@@ -28,17 +28,23 @@ test("the CSP names no third-party host and forbids framing and plugins", () => 
   expect(csp).not.toContain("'unsafe-eval'");
 });
 
-test("pages run without CSP violations", async ({ page }) => {
-  const violations: string[] = [];
-  page.on("console", (msg) => {
-    if (/Content Security Policy/i.test(msg.text())) violations.push(msg.text());
+test.describe("with the board mocked", () => {
+  // page.route cannot see requests made by a service worker; once the worker activates, the mocked
+  // board API would be bypassed and the board never loads. The PWA spec covers the worker.
+  test.use({ serviceWorkers: "block" });
+
+  test("pages run without CSP violations", async ({ page }) => {
+    const violations: string[] = [];
+    page.on("console", (msg) => {
+      if (/Content Security Policy/i.test(msg.text())) violations.push(msg.text());
+    });
+    await mockBoard(page);
+    await page.goto("/en");
+    await showBoard(page);
+    await page.goto("/en/prize-bonds/check");
+    await page.waitForLoadState("networkidle");
+    expect(violations).toEqual([]);
   });
-  await mockBoard(page);
-  await page.goto("/en");
-  await showBoard(page);
-  await page.goto("/en/prize-bonds/check");
-  await page.waitForLoadState("networkidle");
-  expect(violations).toEqual([]);
 });
 
 test("self-hosted scanner assets are served from this origin", async ({ request }) => {

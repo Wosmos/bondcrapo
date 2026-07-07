@@ -2,11 +2,11 @@
 
 import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui";
+import { Button, SelectField } from "@/components/ui";
 import { useWallet } from "../client/WalletProvider";
 import { markLegacyHistoryHandled, readLegacyBonds, type LegacyBond } from "../client/legacy-history";
 import { ACTIVE_DENOMINATIONS, ALL_DENOMINATIONS, useWalletFormat } from "../client/format";
-import { Notice, inputClass } from "./bits";
+import { Notice } from "./bits";
 
 /**
  * Offers, once, to move bond numbers from the previous app's local history into the wallet.
@@ -85,13 +85,12 @@ export function LegacyHistoryBanner() {
           <label htmlFor={selectId} className="font-medium">
             {t("pickDenomination", { count: unknown })}
           </label>
-          <select id={selectId} className={inputClass} value={denomination} onChange={(e) => setDenomination(e.target.value)}>
-            {ALL_DENOMINATIONS.map((code) => (
-              <option key={code} value={code}>
-                {f.denomination(code)}
-              </option>
-            ))}
-          </select>
+          <SelectField
+            id={selectId}
+            value={denomination}
+            onValueChange={setDenomination}
+            options={ALL_DENOMINATIONS.map((code) => ({ value: code, label: f.denomination(code) }))}
+          />
         </div>
       ) : null}
       {state === "error" ? (

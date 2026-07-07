@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { MAX_CHECK_NUMBERS, type DenominationCode } from "@bondcheck/shared";
 import type { CheckResponseExtra } from "@bondcheck/shared/api/bonds-extra";
-import { Button } from "@/components/ui";
+import { Button, SelectField } from "@/components/ui";
 import { Link } from "@/i18n/navigation";
 import { formatDrawDate, formatNumber } from "../format";
 import { DISPLAY_ORDER, denominationSlug } from "../labels";
@@ -210,14 +210,16 @@ export function Checker() {
           <label htmlFor={ids.denom} className="font-medium text-ink">
             {t("check.denominationLabel")}
           </label>
-          <select id={ids.denom} value={denomination} onChange={(e) => setDenomination(e.target.value)} className={`${inputClass} font-sans`}>
-            <option value="">{t("check.denominationAll")}</option>
-            {DISPLAY_ORDER.map((c: DenominationCode) => (
-              <option key={c} value={c}>
-                {t(`common.denomination.${c}`)}
-              </option>
-            ))}
-          </select>
+          <SelectField
+            id={ids.denom}
+            className="sm:w-64"
+            value={denomination || "all"}
+            onValueChange={(v) => setDenomination(v === "all" ? "" : v)}
+            options={[
+              { value: "all", label: t("check.denominationAll") },
+              ...DISPLAY_ORDER.map((c: DenominationCode) => ({ value: c, label: t(`common.denomination.${c}`) })),
+            ]}
+          />
         </div>
 
         <div className="flex flex-col gap-2 rounded-md border border-dashed border-line-strong p-3">

@@ -3,7 +3,7 @@
 import { useId, useMemo, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { parseBondList, MAX_BONDS_PER_ADD, type SheetBond } from "@bondcheck/shared/wallet/parse";
-import { Button } from "@/components/ui";
+import { Button, SelectField } from "@/components/ui";
 import { useWallet, WalletActionError, type AddResult } from "../client/WalletProvider";
 import { ALL_DENOMINATIONS, useWalletFormat } from "../client/format";
 import { FileTooLargeError, SCAN_ACCEPT, SHEET_ACCEPT, readSheetFile, scanFile } from "../client/files";
@@ -230,18 +230,12 @@ export function AddBonds() {
         <fieldset className="grid gap-4 sm:grid-cols-2" disabled={readOnly}>
           <legend className="sr-only">{t("detailsLegend")}</legend>
           <Field id={`${ids}-denom`} label={mode === "file" ? t("denominationFallback") : t("denomination")}>
-            <select
+            <SelectField
               id={`${ids}-denom`}
-              className={inputClass}
               value={denomination}
-              onChange={(e) => chooseDenomination(e.target.value)}
-            >
-              {ALL_DENOMINATIONS.map((code) => (
-                <option key={code} value={code}>
-                  {f.denomination(code)}
-                </option>
-              ))}
-            </select>
+              onValueChange={chooseDenomination}
+              options={ALL_DENOMINATIONS.map((code) => ({ value: code, label: f.denomination(code) }))}
+            />
           </Field>
 
           {mode === "single" ? (

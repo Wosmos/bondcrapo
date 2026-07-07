@@ -92,5 +92,5 @@ test("quick check submits to the checker with the number", async ({ page }) => {
   await expect(page).toHaveURL(/\/en$/);
   await page.getByLabel("Bond number").fill("123456");
   await page.getByRole("button", { name: "Check now" }).click();
-  await expect(page).toHaveURL(/\/en\/prize-bonds\/check\?numbers=123456&denomination=$/);
+  await expect(page).toHaveURL(/\/en\/prize-bonds\/check\?numbers=123456&denomination=any$/);
 });

@@ -3,11 +3,16 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+/**
+ * `regionLabel` makes the scroll container a labelled, focusable region, so keyboard users can
+ * scroll a table that is wider than a phone screen (WCAG 2.1.1, axe scrollable-region-focusable).
+ */
+function Table({ className, regionLabel, ...props }: React.ComponentProps<"table"> & { regionLabel?: string }) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      className="relative w-full overflow-x-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus"
+      {...(regionLabel ? { role: "region", "aria-label": regionLabel, tabIndex: 0 } : {})}
     >
       <table
         data-slot="table"

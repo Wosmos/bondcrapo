@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useMemo, useState } from "react";
+import { SelectField } from "@/components/ui/SelectField";
 import { fill } from "./chart-math";
 import { formatDate, formatNumber } from "../lib/format";
 
@@ -57,24 +58,10 @@ export function Converter({ locale, rates, date, initialFrom, initialTo, popular
   const result = value !== null && rate !== null ? value * rate : null;
   const Heading = `h${headingLevel}` as "h2" | "h3";
 
-  const options = (
-    <>
-      <optgroup label={labels.popular}>
-        {popular.filter((c) => rates[c]).map((c) => (
-          <option key={c} value={c}>
-            {c} · {name(c)}
-          </option>
-        ))}
-      </optgroup>
-      <optgroup label={labels.all}>
-        {others.map((c) => (
-          <option key={c} value={c}>
-            {c} · {name(c)}
-          </option>
-        ))}
-      </optgroup>
-    </>
-  );
+  const options = [
+    { label: labels.popular, options: popular.filter((c) => rates[c]).map((c) => ({ value: c, label: `${c} · ${name(c)}` })) },
+    { label: labels.all, options: others.map((c) => ({ value: c, label: `${c} · ${name(c)}` })) },
+  ];
 
   const field = "min-h-11 w-full rounded-lg border border-line-strong bg-surface px-3 text-base text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus";
 
@@ -104,9 +91,7 @@ export function Converter({ locale, rates, date, initialFrom, initialTo, popular
           <label htmlFor={`${id}-from`} className="mb-1 block text-sm font-medium text-ink-2">
             {labels.from}
           </label>
-          <select id={`${id}-from`} value={from} onChange={(e) => setFrom(e.target.value)} className={field}>
-            {options}
-          </select>
+          <SelectField id={`${id}-from`} value={from} onValueChange={setFrom} options={options} />
         </div>
         <button
           type="button"
@@ -123,9 +108,7 @@ export function Converter({ locale, rates, date, initialFrom, initialTo, popular
           <label htmlFor={`${id}-to`} className="mb-1 block text-sm font-medium text-ink-2">
             {labels.to}
           </label>
-          <select id={`${id}-to`} value={to} onChange={(e) => setTo(e.target.value)} className={field}>
-            {options}
-          </select>
+          <SelectField id={`${id}-to`} value={to} onValueChange={setTo} options={options} />
         </div>
       </form>
       {value === null ? (
