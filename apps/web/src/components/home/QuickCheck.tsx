@@ -1,3 +1,4 @@
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
 import { DENOMINATIONS } from "@bondcheck/shared/constants";
 import { formatAmount } from "@/i18n/format";
 import { localePath } from "@/i18n/seo";
@@ -77,10 +78,7 @@ export function QuickCheck({ locale, labels }: { locale: string; labels: QuickCh
           type="submit"
           className="mt-4 inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-6 text-base font-semibold text-on-brand shadow-sm transition-colors hover:bg-brand-strong"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <circle cx="11" cy="11" r="6.5" />
-            <path d="m16 16 4 4" />
-          </svg>
+          <MagnifyingGlassIcon aria-hidden="true" className="size-5" />
           {labels.submit}
         </button>
       </fieldset>

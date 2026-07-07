@@ -17,7 +17,8 @@ for (const locale of ["en", "ur"]) {
       await expect(page.locator("h1")).toHaveCount(1);
       if (path === "/") await showBoard(page);
       for (const scheme of ["light", "dark"] as const) {
-        await page.emulateMedia({ colorScheme: scheme });
+        // Reduced motion turns colour transitions off, so axe measures the settled colours, not a frame mid-switch.
+        await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
         const results = await new AxeBuilder({ page }).withTags(TAGS).analyze();
         const blocking = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
         expect(blocking.map((v) => `${scheme} ${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);

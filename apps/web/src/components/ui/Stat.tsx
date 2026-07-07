@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Card as ShadcnCard } from "@/components/shadcn/card";
 
 export interface StatProps {
   label: ReactNode;
@@ -14,7 +15,7 @@ const TONE = { up: "text-success", down: "text-danger", flat: "text-ink-2" } as 
 
 export function Stat({ label, value, change, hint }: StatProps) {
   return (
-    <div className="rounded-2xl border border-line bg-surface p-4 shadow-card">
+    <ShadcnCard className="gap-0 p-4">
       <dl>
         <dt className="text-sm text-ink-2">{label}</dt>
         <dd className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-ink">{value}</dd>
@@ -26,6 +27,6 @@ export function Stat({ label, value, change, hint }: StatProps) {
         </p>
       ) : null}
       {hint ? <p className="mt-1 text-xs text-ink-2">{hint}</p> : null}
-    </div>
+    </ShadcnCard>
   );
 }

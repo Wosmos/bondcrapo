@@ -1,3 +1,6 @@
+import { Skeleton as ShadcnSkeleton } from "@/components/shadcn/skeleton";
+import { cn } from "@/lib/utils";
+
 export interface SkeletonProps {
   /** Accessible label announced instead of the empty box. */
   label?: string;
@@ -5,14 +8,11 @@ export interface SkeletonProps {
   size?: string;
 }
 
+/** A loading placeholder: shadcn/ui Skeleton, announced to screen readers. */
 export function Skeleton({ label = "Loading", size = "h-4 w-full" }: SkeletonProps) {
   return (
-    <div
-      role="status"
-      aria-label={label}
-      className={`animate-pulse rounded-md bg-surface-2 motion-reduce:animate-none ${size}`}
-    >
+    <ShadcnSkeleton role="status" aria-label={label} className={cn("motion-reduce:animate-none", size)}>
       <span className="sr-only">{label}</span>
-    </div>
+    </ShadcnSkeleton>
   );
 }

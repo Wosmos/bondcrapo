@@ -3,6 +3,18 @@
 /* `ur:` applies only on Urdu pages (Nastaliq needs smaller sizes and taller lines). */
 @custom-variant ur (&:lang(ur));
 
+/* `dark:` follows the in-page theme toggle (data-theme), and the device setting until one is chosen. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme]), :root:not([data-theme]) *) {
+      @slot;
+    }
+  }
+}
+
 /*
  * BondCheck design tokens. The palette is indigo for actions on neutral grey surfaces,
  * with gold kept for wins and green kept for success. Every text pair is

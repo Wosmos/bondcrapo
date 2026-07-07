@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 
 /** Copies `value` to the clipboard and announces the result politely. */
@@ -20,9 +21,7 @@ export function CopyButton({ value, label, copiedLabel }: { value: string; label
         }}
         className="inline-flex min-h-11 items-center gap-2 rounded-md border border-line-strong bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
-        <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2">
-          {copied ? <path d="M5 13l4 4L19 7" /> : <path d="M8 8h11v11H8zM5 16H4V5h11v1" />}
-        </svg>
+        {copied ? <CheckIcon aria-hidden="true" className="size-4" /> : <CopyIcon aria-hidden="true" className="size-4" />}
         {copied ? copiedLabel : label}
       </button>
       <span role="status" aria-live="polite" className="sr-only">

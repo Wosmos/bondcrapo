@@ -1,3 +1,4 @@
+import { AndroidLogoIcon, TicketIcon } from "@phosphor-icons/react/dist/ssr";
 import type { AppManifest } from "@bondcheck/shared";
 import { Badge, Card } from "@/components/ui";
 import { CopyButton } from "./CopyButton";
@@ -37,11 +38,7 @@ function formatDay(iso: string | null, locale: string): string | null {
   }).format(d);
 }
 
-const ANDROID_ICON = (
-  <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="currentColor">
-    <path d="M7 9h10v8a1 1 0 0 1-1 1h-1v3h-2v-3h-2v3H9v-3H8a1 1 0 0 1-1-1zm-3 0h2v6H4zm14 0h2v6h-2zM8.2 4.3l-1-1.6.9-.5 1 1.7A6 6 0 0 1 12 3.3c1 0 2 .2 2.9.6l1-1.7.9.5-1 1.6A5 5 0 0 1 17 8H7a5 5 0 0 1 1.2-3.7zM10 6a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5zm4 0a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5z" />
-  </svg>
-);
+const ANDROID_ICON = <AndroidLogoIcon aria-hidden="true" weight="fill" className="size-5" />;
 
 /**
  * The /download page body. Pure (no data fetching) so it renders the same on the server and in
@@ -71,9 +68,7 @@ export function DownloadView({
           <div className="flex max-w-xl flex-col gap-4">
             <div className="flex items-center gap-3">
               <span aria-hidden="true" className="grid size-12 place-items-center rounded-2xl bg-white/15">
-                <svg viewBox="0 0 24 24" className="size-7" fill="currentColor">
-                  <path fillRule="evenodd" d="M6.5 6.9h11a.6.6 0 0 1 .6.6v1.7a1.2 1.2 0 0 0 0 2.4v1.7a.6.6 0 0 1-.6.6h-11a.6.6 0 0 1-.6-.6v-1.7a1.2 1.2 0 0 0 0-2.4V7.5a.6.6 0 0 1 .6-.6zm3.4 3.7-.8.8 1.6 1.6 3-3-.8-.8-2.2 2.2z" />
-                </svg>
+                <TicketIcon weight="fill" className="size-7" />
               </span>
               {state.status === "ok" ? (
                 <span className="rounded-full bg-white/15 px-3 py-1 text-sm font-medium">

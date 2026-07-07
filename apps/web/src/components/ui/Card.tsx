@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Card as ShadcnCard, CardAction, CardContent, CardHeader } from "@/components/shadcn/card";
 
 export interface CardProps {
   /** Optional heading rendered at `headingLevel`. */
@@ -9,17 +10,24 @@ export interface CardProps {
   children: ReactNode;
 }
 
+/** The app's card: shadcn/ui Card with a real heading element for the title. */
 export function Card({ title, headingLevel = 2, actions, children }: CardProps) {
   const Heading = `h${headingLevel}` as "h2" | "h3" | "h4";
   return (
-    <section className="rounded-2xl border border-line bg-surface p-5 shadow-card">
-      {(title || actions) && (
-        <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          {title ? <Heading className="text-base font-semibold text-ink">{title}</Heading> : <span />}
-          {actions}
-        </header>
-      )}
-      {children}
-    </section>
+    <ShadcnCard className="gap-4 py-5">
+      {title || actions ? (
+        <CardHeader className="items-center px-5">
+          {title ? (
+            <Heading data-slot="card-title" className="text-base leading-snug font-semibold text-ink">
+              {title}
+            </Heading>
+          ) : (
+            <span />
+          )}
+          {actions ? <CardAction className="self-center">{actions}</CardAction> : null}
+        </CardHeader>
+      ) : null}
+      <CardContent className="px-5">{children}</CardContent>
+    </ShadcnCard>
   );
 }

@@ -1,4 +1,7 @@
+import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { Button as ShadcnButton } from "@/components/shadcn/button";
+import { cn } from "@/lib/utils";
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
@@ -8,44 +11,24 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   children: ReactNode;
 }
 
-const VARIANT: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  primary: "bg-brand text-on-brand shadow-sm hover:bg-brand-strong",
-  secondary: "border border-line-strong bg-surface text-ink hover:bg-surface-2",
-  ghost: "text-ink hover:bg-surface-2",
-  danger: "bg-danger text-surface hover:opacity-90",
-};
-// Minimum 44 px targets from md upward (WCAG 2.5.8 needs 24, 44 is the mobile recommendation).
-const SIZE: Record<NonNullable<ButtonProps["size"]>, string> = {
-  sm: "min-h-9 px-3 text-sm",
-  md: "min-h-11 px-4 text-sm",
-  lg: "min-h-13 px-6 text-base",
-};
+const VARIANT = { primary: "default", secondary: "outline", ghost: "ghost", danger: "destructive" } as const;
+// shadcn sizes, raised to 44 px targets for md and lg (WCAG 2.5.8 needs 24; 44 is the touch recommendation).
+const SIZE = { sm: { size: "sm", extra: "" }, md: { size: "default", extra: "h-11 px-4" }, lg: { size: "lg", extra: "h-13 px-6 text-base" } } as const;
 
-/** Props are frozen after M1; Lane D may restyle the internals. */
-export function Button({
-  variant = "primary",
-  size = "md",
-  loading = false,
-  disabled,
-  type = "button",
-  children,
-  ...rest
-}: ButtonProps) {
+/** The app's button: shadcn/ui underneath, with a busy state. */
+export function Button({ variant = "primary", size = "md", loading = false, disabled, type = "button", children, ...rest }: ButtonProps) {
   return (
-    <button
+    <ShadcnButton
       type={type}
+      variant={VARIANT[variant]}
+      size={SIZE[size].size}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={`inline-flex select-none items-center justify-center gap-2 rounded-xl font-semibold transition-[background-color,transform,opacity] duration-150 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-55 ${VARIANT[variant]} ${SIZE[size]}`}
+      className={cn("font-semibold", SIZE[size].extra)}
       {...rest}
     >
-      {loading ? (
-        <span
-          aria-hidden="true"
-          className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-none"
-        />
-      ) : null}
+      {loading ? <CircleNotchIcon aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> : null}
       {children}
-    </button>
+    </ShadcnButton>
   );
 }

@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
+import { cn } from "@/lib/utils";
 
 export interface DataTableColumn<Row> {
   key: string;
@@ -19,48 +21,49 @@ export interface DataTableProps<Row> {
   empty?: ReactNode;
 }
 
-/** Server component friendly table with caption and `scope` headers. Large lists must be paginated by the caller. */
+/**
+ * shadcn/ui Table with a caption on top and `scope` headers; server component friendly. The
+ * table scrolls sideways inside its rounded frame on narrow screens. Large lists must be
+ * paginated by the caller.
+ */
 export function DataTable<Row>({ caption, columns, rows, getRowKey, empty }: DataTableProps<Row>) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-line bg-surface">
-      <table className="w-full border-collapse text-sm">
-        <caption className="px-4 pt-3 pb-2 text-start text-sm font-semibold text-ink">{caption}</caption>
-        <thead>
-          <tr className="border-b border-line bg-surface-2/60">
+    <div className="overflow-hidden rounded-xl border border-line bg-surface">
+      <Table>
+        <TableCaption className="mt-0 caption-top px-4 pt-3 pb-2 text-start text-sm font-semibold text-ink">{caption}</TableCaption>
+        <TableHeader className="bg-surface-2/60">
+          <TableRow className="hover:bg-transparent">
             {columns.map((c) => (
-              <th
+              <TableHead
                 key={c.key}
                 scope="col"
-                className={`px-4 py-2.5 text-xs font-semibold tracking-wide text-ink-2 uppercase ${c.numeric ? "text-end" : "text-start"}`}
+                className={cn("h-10 px-4 text-xs font-semibold tracking-wide text-ink-2 uppercase", c.numeric ? "text-end" : "text-start")}
               >
                 {c.header}
-              </th>
+              </TableHead>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {rows.length === 0 && empty ? (
-            <tr>
-              <td colSpan={columns.length} className="px-4 py-8 text-center text-ink-2">
+            <TableRow className="hover:bg-transparent">
+              <TableCell colSpan={columns.length} className="px-4 py-8 text-center whitespace-normal text-ink-2">
                 {empty}
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ) : (
             rows.map((row) => (
-              <tr key={getRowKey(row)} className="border-b border-line last:border-b-0 hover:bg-surface-2/40">
+              <TableRow key={getRowKey(row)} className="hover:bg-surface-2/40">
                 {columns.map((c) => (
-                  <td
-                    key={c.key}
-                    className={`px-4 py-2.5 text-ink ${c.numeric ? "text-end tabular-nums" : "text-start"}`}
-                  >
+                  <TableCell key={c.key} className={cn("px-4 py-2.5 text-ink", c.numeric ? "text-end tabular-nums" : "text-start")}>
                     {c.cell ? c.cell(row) : String((row as Record<string, unknown>)[c.key] ?? "")}
-                  </td>
+                  </TableCell>
                 ))}
-              </tr>
+              </TableRow>
             ))
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

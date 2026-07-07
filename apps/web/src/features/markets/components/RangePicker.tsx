@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
-import { CalendarRangeIcon } from "lucide-react";
+import { CalendarDotsIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/shadcn/button";
 import { Calendar } from "@/components/shadcn/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn/popover";
@@ -66,7 +66,7 @@ export function RangePicker(props: {
             props.pressed ? "bg-brand text-on-brand" : "bg-surface-2 text-ink-2 hover:bg-line",
           )}
         >
-          <CalendarRangeIcon aria-hidden="true" className="size-4" />
+          <CalendarDotsIcon aria-hidden="true" className="size-4" />
           <span className="tabular-nums">{text}</span>
         </button>
       </PopoverTrigger>
