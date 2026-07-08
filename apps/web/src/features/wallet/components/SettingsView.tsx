@@ -1,5 +1,6 @@
 "use client";
 
+import { Checkbox } from "@/components/shadcn/checkbox";
 import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Card, PageHeader } from "@/components/ui";
@@ -262,7 +263,7 @@ function DeleteSection() {
       >
         <p>{t("deleteConfirmBody")}</p>
         <label htmlFor={checkId} className="mt-3 flex min-h-11 items-center gap-2 font-medium text-ink">
-          <input id={checkId} type="checkbox" className="size-5" checked={sure} onChange={(e) => setSure(e.target.checked)} />
+          <Checkbox id={checkId} className="size-5" checked={sure} onCheckedChange={(v) => setSure(v === true)} />
           {t("deleteCheckbox")}
         </label>
         {error ? (

@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@/components/shadcn/input";
 import { useId, useMemo, useState } from "react";
 import { SelectField } from "@/components/ui/SelectField";
 import { fill } from "./chart-math";
@@ -63,7 +64,6 @@ export function Converter({ locale, rates, date, initialFrom, initialTo, popular
     { label: labels.all, options: others.map((c) => ({ value: c, label: `${c} · ${name(c)}` })) },
   ];
 
-  const field = "min-h-11 w-full rounded-lg border border-line-strong bg-surface px-3 text-base text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus";
 
   return (
     <section aria-labelledby={`${id}-title`} className="rounded-xl border border-line bg-surface p-4 shadow-sm sm:p-6">
@@ -75,8 +75,9 @@ export function Converter({ locale, rates, date, initialFrom, initialTo, popular
           <label htmlFor={`${id}-amount`} className="mb-1 block text-sm font-medium text-ink-2">
             {labels.amount}
           </label>
-          <input
+          <Input
             id={`${id}-amount`}
+            placeholder="100"
             dir="ltr"
             inputMode="decimal"
             autoComplete="off"
@@ -84,7 +85,7 @@ export function Converter({ locale, rates, date, initialFrom, initialTo, popular
             onChange={(e) => setAmount(e.target.value)}
             aria-invalid={value === null || undefined}
             aria-describedby={value === null ? `${id}-err` : undefined}
-            className={`${field} tabular-nums`}
+            className="h-11 bg-surface text-base tabular-nums"
           />
         </div>
         <div>

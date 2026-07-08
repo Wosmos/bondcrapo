@@ -1,5 +1,6 @@
 "use client";
 
+import { Textarea } from "@/components/shadcn/textarea";
 import { useId, useMemo, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { parseBondList, MAX_BONDS_PER_ADD, type SheetBond } from "@bondcheck/shared/wallet/parse";
@@ -8,7 +9,7 @@ import { useWallet, WalletActionError, type AddResult } from "../client/WalletPr
 import { ALL_DENOMINATIONS, useWalletFormat } from "../client/format";
 import { FileTooLargeError, SCAN_ACCEPT, SHEET_ACCEPT, readSheetFile, scanFile } from "../client/files";
 import type { ImportSource, WalletBondInput } from "../client/types";
-import { Field, FieldInput, LinkButton, Notice, inputClass } from "./bits";
+import { Field, FieldInput, LinkButton, Notice } from "./bits";
 
 type Mode = "single" | "range" | "paste" | "file" | "scan";
 const MODES: Mode[] = ["single", "range", "paste", "file", "scan"];
@@ -294,12 +295,13 @@ export function AddBonds() {
           {mode === "paste" ? (
             <div className="sm:col-span-2">
               <Field id={`${ids}-paste`} label={t("paste")} hint={t("pasteHint")}>
-                <textarea
+                <Textarea
                   id={`${ids}-paste`}
+                  placeholder={"123456\n654321\n100100-100150"}
                   aria-describedby={`${ids}-paste-hint`}
                   rows={6}
                   dir="ltr"
-                  className={`${inputClass} min-h-32 py-2 font-mono`}
+                  className="min-h-32 bg-surface font-mono"
                   value={paste}
                   onChange={(e) => setPaste(e.target.value)}
                   data-testid="add-paste"
@@ -354,12 +356,12 @@ export function AddBonds() {
               ) : null}
               {scanState.phase === "done" || scanText ? (
                 <Field id={`${ids}-scan-review`} label={t("scanReview")} hint={t("scanReviewHint")}>
-                  <textarea
+                  <Textarea
                     id={`${ids}-scan-review`}
                     aria-describedby={`${ids}-scan-review-hint`}
                     rows={5}
                     dir="ltr"
-                    className={`${inputClass} min-h-28 py-2 font-mono`}
+                    className="min-h-28 bg-surface font-mono"
                     value={scanText}
                     onChange={(e) => setScanText(e.target.value)}
                   />

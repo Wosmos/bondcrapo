@@ -1,4 +1,5 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
+import { Input } from "@/components/shadcn/input";
 import { SelectField } from "@/components/ui/SelectField";
 import { DENOMINATIONS } from "@bondcheck/shared/constants";
 import { formatAmount } from "@/i18n/format";
@@ -36,7 +37,7 @@ export function QuickCheck({ locale, labels }: { locale: string; labels: QuickCh
             <label htmlFor="quick-check-number" className="mb-1 block text-xs font-medium text-ink-2">
               {labels.number}
             </label>
-            <input
+            <Input
               id="quick-check-number"
               name="numbers"
               type="text"
@@ -50,7 +51,7 @@ export function QuickCheck({ locale, labels }: { locale: string; labels: QuickCh
               placeholder="000000"
               dir="ltr"
               aria-describedby={hintId}
-              className="h-14 w-full rounded-2xl border border-line-strong bg-paper px-4 font-mono text-2xl font-semibold tracking-[0.35em] text-ink placeholder:text-ink-2/50 focus:border-brand"
+              className="h-14 rounded-2xl bg-paper px-4 font-mono text-2xl font-semibold tracking-[0.35em] md:text-2xl"
             />
             <p id={hintId} className="mt-1.5 text-xs text-ink-2">
               {labels.numberHint}

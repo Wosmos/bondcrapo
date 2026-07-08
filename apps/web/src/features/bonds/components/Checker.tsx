@@ -1,5 +1,7 @@
 "use client";
 
+import { Input } from "@/components/shadcn/input";
+import { Textarea } from "@/components/shadcn/textarea";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -125,8 +127,7 @@ export function Checker() {
     }
   }
 
-  const inputClass =
-    "min-h-11 rounded-md border border-line-strong bg-surface px-3 font-mono focus:border-brand focus:outline-2 focus:outline-focus";
+  const inputClass = "h-11 bg-surface font-mono";
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -145,8 +146,9 @@ export function Checker() {
           <p id={ids.textHint} className="text-sm text-ink-2">
             {t("check.numbersHint")}
           </p>
-          <textarea
+          <Textarea
             id={ids.text}
+            placeholder={"123456\n654321, 100100-100150"}
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={6}
@@ -155,7 +157,7 @@ export function Checker() {
             autoComplete="off"
             spellCheck={false}
             aria-describedby={`${ids.textHint} ${ids.text}-count`}
-            className={`${inputClass} py-2 text-base leading-relaxed`}
+            className="min-h-36 bg-surface font-mono text-base leading-relaxed"
           />
           <p id={`${ids.text}-count`} className="text-sm text-ink-2" aria-live="polite">
             {t("check.found", { count: numbers.length })}
@@ -170,13 +172,13 @@ export function Checker() {
               <label htmlFor={ids.from} className="text-sm text-ink">
                 {t("check.rangeFrom")}
               </label>
-              <input id={ids.from} value={from} onChange={(e) => setFrom(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" dir="ltr" autoComplete="off" aria-invalid={rangeError ? true : undefined} aria-describedby={rangeError ? ids.rangeErr : undefined} className={`${inputClass} w-32`} />
+              <Input id={ids.from} placeholder="100100" value={from} onChange={(e) => setFrom(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" dir="ltr" autoComplete="off" aria-invalid={rangeError ? true : undefined} aria-describedby={rangeError ? ids.rangeErr : undefined} className={`${inputClass} w-32`} />
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor={ids.to} className="text-sm text-ink">
                 {t("check.rangeTo")}
               </label>
-              <input id={ids.to} value={to} onChange={(e) => setTo(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" dir="ltr" autoComplete="off" aria-invalid={rangeError ? true : undefined} aria-describedby={rangeError ? ids.rangeErr : undefined} className={`${inputClass} w-32`} />
+              <Input id={ids.to} placeholder="100150" value={to} onChange={(e) => setTo(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" dir="ltr" autoComplete="off" aria-invalid={rangeError ? true : undefined} aria-describedby={rangeError ? ids.rangeErr : undefined} className={`${inputClass} w-32`} />
             </div>
             <Button variant="secondary" size="lg" onClick={addRange}>
               {t("check.rangeAdd")}

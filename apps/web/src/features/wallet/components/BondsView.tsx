@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@/components/shadcn/input";
 import { useId, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Badge, Button, EmptyState, PageHeader, SelectField, Skeleton } from "@/components/ui";
@@ -7,7 +8,7 @@ import { useWallet, WalletActionError } from "../client/WalletProvider";
 import { useWalletFormat } from "../client/format";
 import type { WalletBond } from "../client/types";
 import { AddBonds } from "./AddBonds";
-import { BondNumber, Notice, inputClass } from "./bits";
+import { BondNumber, Notice } from "./bits";
 
 const PAGE_SIZE = 50;
 
@@ -88,10 +89,12 @@ function BondList() {
             <label htmlFor={`${ids}-q`} className="text-sm font-medium">
               {t("search")}
             </label>
-            <input
+            <Input
               id={`${ids}-q`}
               type="search"
-              className={`${inputClass} w-56`}
+              inputMode="numeric"
+              placeholder="123456"
+              className="h-11 w-56 bg-surface"
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);

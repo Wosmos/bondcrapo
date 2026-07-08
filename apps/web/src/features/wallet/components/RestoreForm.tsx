@@ -1,5 +1,6 @@
 "use client";
 
+import { Checkbox } from "@/components/shadcn/checkbox";
 import { useId, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { formatSyncCode, normalizeSyncCode } from "@bondcheck/shared/wallet/secrets";
@@ -80,12 +81,7 @@ export function RestoreForm({ initialCode = "", headingLevel = 2 }: { initialCod
           <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm text-warning">
             <p>{t("switchWarning")}</p>
             <label className="mt-2 flex min-h-11 items-center gap-2 font-medium">
-              <input
-                type="checkbox"
-                className="size-5"
-                checked={confirmSwitch}
-                onChange={(e) => setConfirmSwitch(e.target.checked)}
-              />
+              <Checkbox className="size-5" checked={confirmSwitch} onCheckedChange={(v) => setConfirmSwitch(v === true)} />
               {t("switchConfirm")}
             </label>
           </div>

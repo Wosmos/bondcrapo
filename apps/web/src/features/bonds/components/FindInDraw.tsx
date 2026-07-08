@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@/components/shadcn/input";
 import { useId, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui";
@@ -93,8 +94,9 @@ export function FindInDraw({ listUrl, amounts }: Props) {
           <label htmlFor={inputId} className="text-sm font-medium text-ink">
             {t("draw.findLabel")}
           </label>
-          <input
+          <Input
             id={inputId}
+            placeholder="123456"
             value={value}
             onChange={(e) => setValue(e.target.value)}
             inputMode="numeric"
@@ -103,7 +105,7 @@ export function FindInDraw({ listUrl, amounts }: Props) {
             dir="ltr"
             aria-describedby={hintId}
             aria-invalid={outcome?.kind === "invalid" || undefined}
-            className="min-h-11 w-40 rounded-md border border-line-strong px-3 font-mono text-lg tracking-widest focus:border-brand focus:outline-2 focus:outline-focus"
+            className="h-11 w-40 bg-surface font-mono text-lg tracking-widest"
           />
         </div>
         <Button type="submit" loading={busy} size="lg">

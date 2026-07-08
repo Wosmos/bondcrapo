@@ -1,3 +1,4 @@
+import { Input } from "@/components/shadcn/input";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
@@ -17,15 +18,16 @@ export function QuickCheck({ action }: { action: string }) {
           <label htmlFor="quick-numbers" className="text-sm font-medium text-ink">
             {t("quickCheckLabel")}
           </label>
-          <input
+          <Input
             id="quick-numbers"
+            placeholder="123456 654321"
             name="numbers"
             inputMode="numeric"
             autoComplete="off"
             dir="ltr"
             required
             aria-describedby="quick-numbers-hint"
-            className="min-h-11 rounded-md border border-line-strong px-3 font-mono text-lg focus:border-brand focus:outline-2 focus:outline-focus"
+            className="h-11 bg-surface font-mono text-lg"
           />
           <p id="quick-numbers-hint" className="text-sm text-ink-2">
             {t("quickCheckHint")}

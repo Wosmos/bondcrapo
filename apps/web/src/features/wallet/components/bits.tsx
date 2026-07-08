@@ -1,5 +1,7 @@
 "use client";
 
+import { Input } from "@/components/shadcn/input";
+import { cn } from "@/lib/utils";
 import { useEffect, useId, useRef, type ComponentProps, type InputHTMLAttributes, type ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 
@@ -76,8 +78,8 @@ export function Notice({
   );
 }
 
-export const inputClass =
-  "block w-full min-h-11 rounded-md border border-line-strong bg-surface px-3 text-base text-ink placeholder:text-ink-2 aria-[invalid=true]:border-danger focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus";
+/** Extra classes on shadcn inputs here: 44 px touch height on the surface colour. */
+export const inputClass = "h-11 bg-surface";
 
 export function Field({
   label,
@@ -122,11 +124,11 @@ export function FieldInput({
 }: InputHTMLAttributes<HTMLInputElement> & { id: string; hasHint?: boolean; error?: boolean }) {
   const describedBy = [hasHint ? `${id}-hint` : null, error ? `${id}-error` : null].filter(Boolean).join(" ");
   return (
-    <input
+    <Input
       id={id}
       aria-invalid={error || undefined}
       aria-describedby={describedBy || undefined}
-      className={`${inputClass} ${className}`}
+      className={cn(inputClass, className)}
       {...rest}
     />
   );
