@@ -53,13 +53,19 @@ jobs:
           APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           JOB: ${{ steps.pick.outputs.job }}
+          EVENT: ${{ github.event_name }}
         run: |
           if [ -z "$APP_BASE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            # Until the site is deployed and the secrets are set, scheduled runs skip instead of failing.
+            if [ "$EVENT" = "schedule" ]; then
+              echo "::warning title=Ingest not configured::Set the APP_BASE_URL and CRON_SECRET repository secrets (docs/OWNER_SETUP.md section 3). Skipping this run."
+              exit 0
+            fi
             echo "APP_BASE_URL and CRON_SECRET secrets are required" >&2
             exit 1
           fi
           # Chunked jobs answer done=false; call again (resuming from the saved cursor), at most 20 times.
-          for attempt in $(seq 1 20); do
+          for _ in $(seq 1 20); do
             body=$(curl -sS --fail-with-body --max-time 70 -X POST \
               -H "Authorization: Bearer $CRON_SECRET" \
               -H "x-trigger: gha" \

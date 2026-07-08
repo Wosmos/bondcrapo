@@ -61,6 +61,10 @@ jobs:
           java-version: "17"
 
       - uses: android-actions/setup-android@v3
+        with:
+          # The default list includes the retired "tools" package, which newer cmdline-tools no longer
+          # ship, so sdkmanager fails; Gradle installs the platforms and build tools it needs.
+          packages: platform-tools
 
       - uses: gradle/actions/setup-gradle@v4
         with:

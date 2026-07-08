@@ -53,9 +53,18 @@ jobs:
           APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           JOB: ${{ steps.pick.outputs.job }}
+          EVENT: ${{ github.event_name }}
         run: |
-          test -n "$APP_BASE_URL" && test -n "$CRON_SECRET" || { echo "APP_BASE_URL and CRON_SECRET secrets are required"; exit 1; }
-          for i in 1 2 3 4 5 6; do
+          if [ -z "$APP_BASE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            # Until the site is deployed and the secrets are set, scheduled runs skip instead of failing.
+            if [ "$EVENT" = "schedule" ]; then
+              echo "::warning title=Ingest not configured::Set the APP_BASE_URL and CRON_SECRET repository secrets (docs/OWNER_SETUP.md section 3). Skipping this run."
+              exit 0
+            fi
+            echo "APP_BASE_URL and CRON_SECRET secrets are required" >&2
+            exit 1
+          fi
+          for _ in 1 2 3 4 5 6; do
             body=$(curl -fsS --retry 2 --max-time 70 -X POST \
               -H "Authorization: Bearer $CRON_SECRET" -H "x-trigger: gha" \
               "$APP_BASE_URL/api/v1/cron/$JOB")
