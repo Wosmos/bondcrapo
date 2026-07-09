@@ -61,6 +61,7 @@ export default async function DownloadPage({ params }: Props) {
         state={state}
         locale={locale}
         pageUrl={origin ? `${origin}/${locale}/download` : null}
+        qrUrl={origin ? `${origin}/api/v1/releases/apk` : null}
         t={(key, values) => t(key as never, values as never)}
       />
     </div>

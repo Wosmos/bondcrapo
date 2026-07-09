@@ -49,12 +49,15 @@ export function DownloadView({
   t,
   locale,
   pageUrl,
+  qrUrl = null,
 }: {
   state: DownloadState;
   t: Translate;
   locale: string;
   /** Absolute URL of this page for the QR code; omitted when the site origin is unknown. */
   pageUrl: string | null;
+  /** What the QR code encodes: the direct download, so scanning saves the file. Defaults to the page. */
+  qrUrl?: string | null;
 }) {
   const apk = state.status === "ok" ? state.downloads.find((d) => d.platform === "android") ?? null : null;
   const others = state.status === "ok" ? state.downloads.filter((d) => d !== apk) : [];
@@ -111,7 +114,7 @@ export function DownloadView({
           </div>
           {pageUrl ? (
             <div className="hidden flex-col items-center gap-3 rounded-2xl bg-surface p-5 text-center text-ink md:flex">
-              <QrCode value={pageUrl} label={t("qr.alt", { url: pageUrl })} />
+              <QrCode value={qrUrl ?? pageUrl} label={t("qr.alt", { url: pageUrl })} />
               <div className="max-w-48">
                 <p className="text-sm font-semibold">{t("qr.title")}</p>
                 <p className="text-xs text-ink-2">{t("qr.body")}</p>

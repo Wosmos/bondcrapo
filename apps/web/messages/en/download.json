@@ -40,7 +40,7 @@
   },
   "qr": {
     "title": "On a computer?",
-    "body": "Scan this code with your phone's camera to open this page on your phone.",
+    "body": "Scan this code with your phone's camera to download the Android app.",
     "alt": "QR code linking to {url}"
   },
   "notes": {
