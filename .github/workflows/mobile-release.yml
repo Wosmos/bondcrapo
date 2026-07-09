@@ -127,9 +127,24 @@ jobs:
               echo "BONDCHECK_KEY_PASSWORD=${KEY_PASSWORD:-$KEYSTORE_PASSWORD}"
             } >> "$GITHUB_ENV"
             echo "signed=true" >> "$GITHUB_OUTPUT"
+          elif [ "$DRY_RUN" = "true" ]; then
+            # A throwaway key makes the dry-run APK installable on a phone for testing. It is
+            # generated here, never stored, and the build is labelled "test"; it cannot update a
+            # release install (different key) and is never published.
+            ks="$RUNNER_TEMP/bondcheck-test.keystore"
+            keytool -genkeypair -keystore "$ks" -alias test -keyalg RSA -keysize 2048 -validity 30 \
+              -storepass bondchecktest -keypass bondchecktest -dname "CN=BondCheck test build"
+            {
+              echo "BONDCHECK_KEYSTORE_PATH=$ks"
+              echo "BONDCHECK_KEYSTORE_PASSWORD=bondchecktest"
+              echo "BONDCHECK_KEY_ALIAS=test"
+              echo "BONDCHECK_KEY_PASSWORD=bondchecktest"
+            } >> "$GITHUB_ENV"
+            echo "signed=test" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Test build::Signed with a throwaway key so it installs for testing. Not a release."
           else
             echo "signed=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Unsigned APK::No release keystore (or dry run). The APK is unsigned, cannot be installed as is, and is published only as a prerelease."
+            echo "::warning title=Unsigned APK::No release keystore. The APK is unsigned, cannot be installed as is, and is published only as a prerelease."
           fi
 
       - name: Build release APK
@@ -147,9 +162,10 @@ jobs:
           set -euo pipefail
           outputs="apps/mobile/android/app/build/outputs/apk/release"
           mkdir -p out
-          if [ "$SIGNED" = "true" ]; then
+          if [ "$SIGNED" = "true" ] || [ "$SIGNED" = "test" ]; then
             src="$outputs/app-release.apk"
             name="bondcheck-${VERSION}.apk"
+            [ "$SIGNED" = "test" ] && name="bondcheck-${VERSION}-test.apk"
             bt="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
             "$bt/apksigner" verify --print-certs "$src"
           else
@@ -162,7 +178,10 @@ jobs:
           {
             echo "BondCheck ${VERSION} for Android."
             echo
-            if [ "$SIGNED" != "true" ]; then
+            if [ "$SIGNED" = "test" ]; then
+              echo "TEST BUILD signed with a throwaway key: installs on a phone for testing, is not a release,"
+              echo "and cannot update a release install."
+            elif [ "$SIGNED" != "true" ]; then
               echo "This build is UNSIGNED. Android will not install it until it is signed with the release key."
               echo "It is published as a prerelease, so the website and the in-app updater ignore it."
             else
