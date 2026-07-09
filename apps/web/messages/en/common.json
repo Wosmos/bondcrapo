@@ -36,6 +36,12 @@
   "money": {
     "rs": "Rs {value}"
   },
+  "appBanner": {
+    "title": "Get the BondCheck app",
+    "body": "Free for Android. Scan bonds and get win alerts.",
+    "cta": "Download",
+    "close": "Close this notice"
+  },
   "footer": {
     "blurb": "Prize bond results checked against official files, your bonds kept without an account, and gold and rupee rates with their sources shown.",
     "explore": "Explore",

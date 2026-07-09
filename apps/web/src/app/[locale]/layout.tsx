@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import {
+  AppBanner,
   ServiceWorkerRegistrar,
   shellNavItems,
   SiteFooter,
@@ -103,6 +104,9 @@ export default async function RootLayout({
           {t("a11y.skipToContent")}
         </a>
         <NextIntlClientProvider messages={messages}>
+          <AppBanner
+            labels={{ title: t("appBanner.title"), body: t("appBanner.body"), cta: t("appBanner.cta"), close: t("appBanner.close") }}
+          />
           <SiteHeader locale={locale} items={items} />
           <main id="main" tabIndex={-1} className="outline-none">
             {children}

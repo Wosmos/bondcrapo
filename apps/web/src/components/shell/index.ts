@@ -6,3 +6,4 @@ export { LogoMark } from "./Logo";
 export { Icon } from "./icons";
 export { shellNavItems, type ShellNavItem } from "./nav-items";
 export { THEME_SCRIPT } from "./theme-script";
+export { AppBanner } from "./AppBanner";
