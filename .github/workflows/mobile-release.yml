@@ -228,7 +228,11 @@ jobs:
           set -euo pipefail
           prerelease=""
           if [ "$SIGNED" != "true" ]; then prerelease="--prerelease"; fi
-          files=("out/$APK" out/SHA256SUMS.txt out/latest.json)
+          # Found by pattern, not passed as a job output: GitHub drops outputs that contain a secret's
+          # value, and the key alias secret ("bondcheck") is part of the APK's file name.
+          apk="$(find out -maxdepth 1 -name "*.apk" | head -1)"
+          test -f "$apk"
+          files=("$apk" out/SHA256SUMS.txt out/latest.json)
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
             gh release upload "$TAG" "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
           else
