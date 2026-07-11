@@ -21,8 +21,8 @@ describe("GET /api/v1/app/latest", () => {
     });
   });
 
-  it("answers unavailable without a token and not_found before the first release", async () => {
-    setReleaseSource(createReleaseSource({ repo: "Wosmos/bondcrapo" }));
+  it("answers unavailable when GitHub cannot be reached and not_found before the first release", async () => {
+    setReleaseSource(createReleaseSource({ repo: "Wosmos/bondcrapo", fetch: (async () => { throw new Error("offline"); }) as unknown as typeof fetch }));
     let res = await GET();
     expect(res.status).toBe(503);
     expect(apiErrorSchema.parse(await res.json()).error.code).toBe("unavailable");

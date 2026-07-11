@@ -5,11 +5,18 @@ import { fakeGitHub, RELEASE_JSON, SIGNED_URL } from "./__fixtures__/github";
 afterEach(() => clearSignedUrlCache());
 
 describe("GitHub release source", () => {
-  it("is unavailable (unconfigured) without a token and makes no request", async () => {
-    let called = false;
-    const source = createReleaseSource({ repo: "Wosmos/bondcrapo", fetch: (async () => ((called = true), new Response())) as unknown as typeof fetch });
-    expect(await source.latest()).toEqual({ status: "unavailable", reason: "unconfigured" });
-    expect(called).toBe(false);
+  it("reads a public repository without a token and sends no Authorization header", async () => {
+    const seen: Record<string, string>[] = [];
+    const source = createReleaseSource({
+      repo: "Wosmos/bondcrapo",
+      fetch: (async (_url: string, init?: RequestInit) => {
+        seen.push((init?.headers ?? {}) as Record<string, string>);
+        return new Response("{}", { status: 404 });
+      }) as unknown as typeof fetch,
+    });
+    expect(await source.latest()).toEqual({ status: "none" });
+    expect(seen).toHaveLength(1);
+    expect(seen[0]).not.toHaveProperty("Authorization");
   });
 
   it("reads the latest release, its checksums and its manifest with the token", async () => {

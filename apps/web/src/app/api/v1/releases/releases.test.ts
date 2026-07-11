@@ -31,11 +31,11 @@ describe("GET /api/v1/releases/latest", () => {
     });
   });
 
-  it("answers 503 unconfigured when the token is missing", async () => {
-    setReleaseSource(createReleaseSource({ repo: "Wosmos/bondcrapo" }));
+  it("answers 503 when GitHub cannot be reached", async () => {
+    setReleaseSource(createReleaseSource({ repo: "Wosmos/bondcrapo", fetch: (async () => { throw new Error("offline"); }) as unknown as typeof fetch }));
     const res = await latest();
     expect(res.status).toBe(503);
-    expect(releaseSchema.parse(await res.json())).toEqual({ status: "unavailable", reason: "unconfigured" });
+    expect(releaseSchema.parse(await res.json())).toEqual({ status: "unavailable", reason: "error" });
   });
 
   it("answers 404 none before the first release", async () => {

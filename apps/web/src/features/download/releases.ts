@@ -12,9 +12,10 @@ import {
 } from "./release-assets";
 
 /**
- * Reads the latest GitHub Release of this private repository server side. Every call carries
- * GITHUB_RELEASES_TOKEN (fine-grained, read-only Contents on this repo); the token never leaves
- * this module and no GitHub URL is ever returned to clients (ADR 0006).
+ * Reads the latest GitHub Release of this repository server side. The repository is public, so no
+ * token is needed; when GITHUB_RELEASES_TOKEN is set (a private fork, or to avoid GitHub's limit
+ * of 60 anonymous requests an hour per address) every call carries it. Responses are cached for
+ * five minutes, so the limit is never close. The token never leaves this module (ADR 0006).
  */
 
 export const RELEASE_REVALIDATE_SECONDS = 300;
@@ -76,7 +77,6 @@ export function createReleaseSource({ token, repo, fetch: doFetch = globalThis.f
   }
 
   async function latest(): Promise<ReleaseLookup> {
-    if (!token) return { status: "unavailable", reason: "unconfigured" };
     try {
       const res = await get(`${API}/repos/${repo}/releases/latest`, {
         headers: headers(),

@@ -66,7 +66,7 @@ export function DownloadView({
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
-      <header className="overflow-hidden rounded-2xl bg-linear-to-br from-emerald-800 to-emerald-950 px-6 py-8 text-white shadow-sm sm:px-10 sm:py-12">
+      <header className="overflow-hidden rounded-2xl bg-linear-to-br from-brand-strong to-ink px-6 py-8 text-white shadow-sm sm:px-10 sm:py-12">
         <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
           <div className="flex max-w-xl flex-col gap-4">
             <div className="flex items-center gap-3">
@@ -80,24 +80,24 @@ export function DownloadView({
               ) : null}
             </div>
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("hero.title")}</h1>
-            <p className="text-base leading-relaxed text-emerald-50">{t("hero.subtitle")}</p>
+            <p className="text-base leading-relaxed text-white/90">{t("hero.subtitle")}</p>
             {apk && state.status === "ok" ? (
               <div className="flex flex-col gap-2">
                 <a
                   href={apk.url}
                   download={apk.name}
                   aria-label={t("cta.downloadA11y", { version: state.version, size: size ?? "" })}
-                  className="inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-white px-6 text-base font-semibold text-emerald-900 shadow-sm transition hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white motion-reduce:transition-none"
+                  className="inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-white px-6 text-base font-semibold text-brand-strong shadow-sm transition hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white motion-reduce:transition-none"
                 >
                   {ANDROID_ICON}
                   {t("cta.download")}
                   {size ? (
-                    <span className="text-sm font-medium text-emerald-800">
+                    <span className="text-sm font-medium text-brand-strong">
                       <bdi dir="ltr">{size}</bdi>
                     </span>
                   ) : null}
                 </a>
-                <p className="text-sm text-emerald-100">{t("cta.direct")}</p>
+                <p className="text-sm text-white/80">{t("cta.direct")}</p>
               </div>
             ) : (
               <p role="status" className="rounded-lg bg-white/10 px-4 py-3 text-base">
