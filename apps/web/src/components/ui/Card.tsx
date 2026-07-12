@@ -14,7 +14,7 @@ export interface CardProps {
 export function Card({ title, headingLevel = 2, actions, children }: CardProps) {
   const Heading = `h${headingLevel}` as "h2" | "h3" | "h4";
   return (
-    <ShadcnCard className="gap-4 py-5">
+    <ShadcnCard className="h-full gap-4 py-5">
       {title || actions ? (
         <CardHeader className="items-center px-5">
           {title ? (

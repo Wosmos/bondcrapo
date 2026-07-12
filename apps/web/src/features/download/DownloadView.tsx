@@ -87,7 +87,7 @@ export function DownloadView({
                   href={apk.url}
                   download={apk.name}
                   aria-label={t("cta.downloadA11y", { version: state.version, size: size ?? "" })}
-                  className="inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-white px-6 text-base font-semibold text-brand-strong shadow-sm transition hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white motion-reduce:transition-none"
+                  className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-white px-6 text-base font-semibold whitespace-nowrap text-brand-strong sm:w-fit shadow-sm transition hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white motion-reduce:transition-none"
                 >
                   {ANDROID_ICON}
                   {t("cta.download")}
@@ -125,45 +125,44 @@ export function DownloadView({
       </header>
 
       {state.status === "ok" && apk ? (
-        <div className="grid gap-6 lg:grid-cols-3">
-          <Card title={t("facts.label")}>
-            <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-              <dt className="text-ink-2">{t("facts.version")}</dt>
-              <dd className="font-medium text-ink">
-                <bdi dir="ltr">{state.version}</bdi>
-              </dd>
-              <dt className="text-ink-2">{t("facts.released")}</dt>
-              <dd className="font-medium text-ink">{released ?? t("facts.unknown")}</dd>
-              <dt className="text-ink-2">{t("facts.size")}</dt>
-              <dd className="font-medium text-ink">{size ? <bdi dir="ltr">{size}</bdi> : t("facts.unknown")}</dd>
-              <dt className="text-ink-2">{t("facts.requires")}</dt>
-              <dd className="font-medium text-ink">{t("facts.requiresValue")}</dd>
-            </dl>
+        <>
+          {/* Four equal facts in one row, then the checksum across the full width. */}
+          <dl aria-label={t("facts.label")} className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {[
+              { k: t("facts.version"), v: <bdi dir="ltr">{state.version}</bdi> },
+              { k: t("facts.released"), v: released ?? t("facts.unknown") },
+              { k: t("facts.size"), v: size ? <bdi dir="ltr">{size}</bdi> : t("facts.unknown") },
+              { k: t("facts.requires"), v: t("facts.requiresValue") },
+            ].map((f) => (
+              <div key={f.k} className="flex flex-col gap-1 rounded-xl border border-line bg-surface p-4">
+                <dt className="text-sm text-ink-2">{f.k}</dt>
+                <dd className="text-lg font-semibold text-ink">{f.v}</dd>
+              </div>
+            ))}
+          </dl>
+          <Card title={t("checksum.title")}>
+            <p className="mb-3 text-sm text-ink-2">{t("checksum.body")}</p>
+            {apk.sha256 ? (
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <code dir="ltr" className="block flex-1 rounded-md bg-surface-2 px-3 py-2 font-mono text-xs break-all text-ink">
+                  {apk.sha256}
+                </code>
+                <CopyButton value={apk.sha256} label={t("checksum.copy")} copiedLabel={t("checksum.copied")} />
+              </div>
+            ) : (
+              <p className="text-sm text-ink-2">{t("checksum.missing")}</p>
+            )}
           </Card>
-          <div className="lg:col-span-2">
-            <Card title={t("checksum.title")}>
-              <p className="mb-3 text-sm text-ink-2">{t("checksum.body")}</p>
-              {apk.sha256 ? (
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <code dir="ltr" className="block flex-1 break-all rounded-md bg-surface-2 px-3 py-2 font-mono text-xs text-ink">
-                    {apk.sha256}
-                  </code>
-                  <CopyButton value={apk.sha256} label={t("checksum.copy")} copiedLabel={t("checksum.copied")} />
-                </div>
-              ) : (
-                <p className="text-sm text-ink-2">{t("checksum.missing")}</p>
-              )}
-            </Card>
-          </div>
-        </div>
+        </>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* Two columns of equal height: how to install, and the two reassurance cards stacked. */}
+      <div className="grid items-stretch gap-6 lg:grid-cols-2">
         <Card title={t("steps.title")}>
           <ol className="flex flex-col gap-4">
             {(["one", "two", "three", "four"] as const).map((step, i) => (
               <li key={step} className="flex gap-3">
-                <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full bg-success/15 text-sm font-semibold text-success">
+                <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full bg-brand/15 text-sm font-semibold text-brand">
                   {i + 1}
                 </span>
                 <span className="pt-0.5 text-sm leading-relaxed text-ink">{t(`steps.${step}`)}</span>
@@ -171,7 +170,7 @@ export function DownloadView({
             ))}
           </ol>
         </Card>
-        <div className="flex flex-col gap-6">
+        <div className="grid grid-rows-2 gap-6">
           <Card title={t("safety.title")}>
             <p className="text-sm leading-relaxed text-ink-2">{t("safety.body")}</p>
           </Card>
