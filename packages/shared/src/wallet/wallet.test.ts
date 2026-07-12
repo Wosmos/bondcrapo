@@ -251,6 +251,17 @@ describe("bond list parsing", () => {
     ]);
   });
 
+  it("joins digits written in groups into one number, one per line", () => {
+    expect(extractBondNumbers("85 40 56\n478 805\n4 7 8 8 5 3\n854063 854056\n12 34\n000 000")).toEqual([
+      "854056",
+      "478805",
+      "478853",
+      "854063",
+    ]);
+    // groups that add up to more or fewer than six digits are not guessed at
+    expect(extractBondNumbers("12 345 6789\n12 34")).toEqual([]);
+  });
+
   it("normalises denominations", () => {
     expect(normalizeDenomination("Rs. 750/-")).toBe("750");
     expect(normalizeDenomination("1,500")).toBe("1500");

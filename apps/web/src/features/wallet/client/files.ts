@@ -1,7 +1,8 @@
 "use client";
 
 import { extractBondNumbers, parseCsv, parseSheetRows, type ParsedSheet } from "@bondcheck/shared/wallet/parse";
-import { PDF_WORKER_SRC, TESSERACT_PATHS } from "@/lib/vendor-assets";
+import { PDF_WORKER_SRC } from "@/lib/vendor-assets";
+import { recognizeDigits } from "@/lib/ocr-digits";
 
 /**
  * File readers for the bond importer. Every heavy library (xlsx, pdf.js, tesseract) is loaded on
@@ -46,20 +47,7 @@ export async function scanFile(file: File, onProgress: (percent: number) => void
       onProgress(Math.round((i / pdf.numPages) * 100));
     }
   } else {
-    const Tesseract = await import("tesseract.js");
-    const worker = await Tesseract.createWorker("eng", undefined, {
-      ...TESSERACT_PATHS,
-      logger: (m: { status: string; progress: number }) => {
-        if (m.status === "recognizing text") onProgress(Math.round(m.progress * 100));
-      },
-    });
-    try {
-      await worker.setParameters({ tessedit_char_whitelist: "0123456789 " });
-      const result = await worker.recognize(file);
-      text = result.data.text;
-    } finally {
-      await worker.terminate();
-    }
+    text = await recognizeDigits(file, onProgress);
   }
   return extractBondNumbers(text);
 }

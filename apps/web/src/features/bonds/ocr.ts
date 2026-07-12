@@ -5,13 +5,11 @@
  * tesseract.js and pdf.js are loaded only when a file is chosen (PLAN section 7).
  * Both libraries load their workers and data from this origin (see `@/lib/vendor-assets`).
  */
-import { PDF_WORKER_SRC, TESSERACT_PATHS } from "@/lib/vendor-assets";
+import { extractBondNumbers } from "@bondcheck/shared/wallet/parse";
+import { recognizeDigits } from "@/lib/ocr-digits";
+import { PDF_WORKER_SRC } from "@/lib/vendor-assets";
 
-export function extractBondNumbers(text: string): string[] {
-  const out = new Set<string>();
-  for (const m of text.matchAll(/(?<!\d)\d{6}(?!\d)/g)) if (m[0] !== "000000") out.add(m[0]);
-  return [...out];
-}
+export { extractBondNumbers };
 
 export async function numbersFromFile(file: File, onProgress: (percent: number) => void): Promise<string[]> {
   const name = file.name.toLowerCase();
@@ -32,18 +30,5 @@ export async function numbersFromFile(file: File, onProgress: (percent: number) 
     await doc.destroy();
     return extractBondNumbers(text);
   }
-  const Tesseract = await import("tesseract.js");
-  const worker = await Tesseract.createWorker("eng", undefined, {
-    ...TESSERACT_PATHS,
-    logger: (m: { status: string; progress: number }) => {
-      if (m.status === "recognizing text") onProgress(Math.round(m.progress * 100));
-    },
-  });
-  try {
-    await worker.setParameters({ tessedit_char_whitelist: "0123456789 " });
-    const result = await worker.recognize(file);
-    return extractBondNumbers(result.data.text);
-  } finally {
-    await worker.terminate();
-  }
+  return extractBondNumbers(await recognizeDigits(file, onProgress));
 }

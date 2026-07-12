@@ -75,10 +75,23 @@ export function parseBondList(text: string, limit: number = MAX_BONDS_PER_ADD): 
   return { numbers, duplicates, invalid, truncated };
 }
 
-/** Every distinct six digit run in OCR or PDF text, ignoring longer digit runs (dates, phone numbers). */
+/**
+ * Every distinct bond number in OCR, PDF or pasted text: six digit runs, ignoring longer digit runs
+ * (dates, phone numbers). People often write numbers in groups ("85 40 56", "854 056"), and OCR
+ * keeps those gaps, so digit groups separated only by spaces on one line count as one number when
+ * together they are exactly six digits. 000000 is never a bond number.
+ */
 export function extractBondNumbers(text: string): string[] {
   const out = new Set<string>();
-  for (const m of text.matchAll(/(?<!\d)\d{6}(?!\d)/g)) out.add(m[0]);
+  for (const line of text.split(/\r?\n/)) {
+    for (const m of line.matchAll(/(?<![\d-])\d[\d ]*\d(?![\d-])|(?<![\d-])\d(?![\d-])/g)) {
+      const parts = m[0].split(/ +/);
+      const whole = parts.filter((p) => p.length === 6);
+      if (whole.length > 0) whole.forEach((p) => out.add(p));
+      else if (parts.join("").length === 6) out.add(parts.join(""));
+    }
+  }
+  out.delete("000000");
   return [...out];
 }
 
