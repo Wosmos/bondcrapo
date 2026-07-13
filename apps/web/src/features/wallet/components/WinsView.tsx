@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
-import { Badge, Button, Card, EmptyState, PageHeader, Skeleton, Stat } from "@/components/ui";
+import { Badge, Button, Card, DataTable, EmptyState, PageHeader, Skeleton, Stat } from "@/components/ui";
 import { useWallet } from "../client/WalletProvider";
 import { useWalletFormat } from "../client/format";
 import { isClaimed, readClaimed, subscribeClaimed, toggleClaimed } from "../client/claimed";
@@ -54,53 +54,61 @@ export function WinsView() {
             <Stat label={t("count")} value={f.number(matches.length)} />
             <Stat label={t("total")} value={f.rupees(total)} hint={t("beforeTax")} />
           </div>
-          <div className="overflow-x-auto rounded-lg border border-line bg-surface">
-            <table className="w-full text-sm">
-              <caption className="px-3 py-2 text-start text-sm font-medium text-ink-2">{t("caption")}</caption>
-              <thead className="bg-surface-2 text-ink-2">
-                <tr>
-                  <th scope="col" className="px-3 py-2 text-start font-semibold">{t("drawDate")}</th>
-                  <th scope="col" className="px-3 py-2 text-start font-semibold">{t("bond")}</th>
-                  <th scope="col" className="px-3 py-2 text-start font-semibold">{t("prize")}</th>
-                  <th scope="col" className="px-3 py-2 text-end font-semibold">{t("amount")}</th>
-                  <th scope="col" className="px-3 py-2 text-end font-semibold">{t("claimed")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {matches.map((m) => {
+          <DataTable
+            caption={t("caption")}
+            rows={matches}
+            getRowKey={(m) => `${m.drawId}:${m.bondNumber}`}
+            fileName="bondcheck-my-wins.csv"
+            columns={[
+              {
+                key: "bond",
+                header: t("bond"),
+                value: (m) => m.bondNumber,
+                cell: (m) => (
+                  <>
+                    <BondNumber value={m.bondNumber} className="text-base" />
+                    {m.seenAt === null || visitNew?.has(`${m.drawId}:${m.bondNumber}`) ? (
+                      <span className="ms-2">
+                        <Badge tone="success">{t("new")}</Badge>
+                      </span>
+                    ) : null}
+                  </>
+                ),
+              },
+              {
+                key: "drawDate",
+                header: t("drawDate"),
+                value: (m) => m.drawDate,
+                cell: (m) => (
+                  <>
+                    <span className="block whitespace-nowrap">{f.date(m.drawDate)}</span>
+                    <span className="block text-xs text-ink-2">
+                      {f.denomination(m.denominationCode)}
+                      {m.drawNumber ? ` · ${t("drawNo", { number: m.drawNumber })}` : ""}
+                    </span>
+                  </>
+                ),
+              },
+              { key: "prize", header: t("prize"), filter: "select", cell: (m) => f.tier(m.tier) },
+              { key: "amount", header: t("amount"), numeric: true, value: (m) => m.amountPkr, cell: (m) => <span className="font-semibold">{f.rupees(m.amountPkr)}</span> },
+              {
+                key: "claimed",
+                header: t("claimed"),
+                filter: "select",
+                value: (m) => (isClaimed(claimed, m) ? "☑" : "☐"),
+                cell: (m) => {
                   const done = isClaimed(claimed, m);
                   return (
-                    <tr key={`${m.drawId}:${m.bondNumber}`} className="border-t border-line align-top">
-                      <td className="px-3 py-3">
-                        <span className="block">{f.date(m.drawDate)}</span>
-                        <span className="block text-xs text-ink-2">
-                          {f.denomination(m.denominationCode)}
-                          {m.drawNumber ? ` · ${t("drawNo", { number: m.drawNumber })}` : ""}
-                        </span>
-                      </td>
-                      <th scope="row" className="px-3 py-3 text-start font-normal">
-                        <BondNumber value={m.bondNumber} className="text-base" />
-                        {m.seenAt === null || visitNew?.has(`${m.drawId}:${m.bondNumber}`) ? (
-                          <span className="ms-2">
-                            <Badge tone="success">{t("new")}</Badge>
-                          </span>
-                        ) : null}
-                      </th>
-                      <td className="px-3 py-3">{f.tier(m.tier)}</td>
-                      <td className="px-3 py-3 text-end font-semibold tabular-nums">{f.rupees(m.amountPkr)}</td>
-                      <td className="px-3 py-3 text-end">
-                        <Button size="sm" variant={done ? "primary" : "secondary"} aria-pressed={done} onClick={() => toggleClaimed(m)}>
-                          <span aria-hidden="true">{done ? "☑" : "☐"}</span>
-                          {t("claimedToggle")}
-                          <span className="sr-only">{t("claimedFor", { number: m.bondNumber })}</span>
-                        </Button>
-                      </td>
-                    </tr>
+                    <Button size="sm" variant={done ? "primary" : "secondary"} aria-pressed={done} onClick={() => toggleClaimed(m)}>
+                      <span aria-hidden="true">{done ? "☑" : "☐"}</span>
+                      {t("claimedToggle")}
+                      <span className="sr-only">{t("claimedFor", { number: m.bondNumber })}</span>
+                    </Button>
                   );
-                })}
-              </tbody>
-            </table>
-          </div>
+                },
+              },
+            ]}
+          />
           <p className="text-xs text-ink-2">{t("claimedNote")}</p>
         </>
       )}

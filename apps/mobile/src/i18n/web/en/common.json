@@ -42,6 +42,27 @@
     "cta": "Download",
     "close": "Close this notice"
   },
+  "grid": {
+    "rowsPerPage": "Rows per page",
+    "page": "Page {page} of {pages}",
+    "showing": "{from}–{to} of {total}",
+    "first": "First page",
+    "previous": "Previous page",
+    "next": "Next page",
+    "last": "Last page",
+    "filter": "Filter {column}",
+    "all": "All",
+    "search": "Search",
+    "filters": "Filter",
+    "clearFilters": "Clear filters",
+    "exportCsv": "Download CSV",
+    "maximize": "Full screen",
+    "restore": "Exit full screen",
+    "noMatches": "No rows match these filters.",
+    "sortBy": "Sort by {column}",
+    "min": "Min",
+    "max": "Max"
+  },
   "footer": {
     "blurb": "Prize bond results checked against official files, your bonds kept without an account, and gold and rupee rates with their sources shown.",
     "explore": "Explore",

@@ -21,6 +21,7 @@
     "@bondcheck/shared": "workspace:*",
     "@neondatabase/serverless": "1.0.2",
     "@phosphor-icons/react": "2.1.10",
+    "@tanstack/react-table": "8.21.3",
     "@vercel/analytics": "2.0.1",
     "@vercel/speed-insights": "2.0.0",
     "class-variance-authority": "0.7.1",

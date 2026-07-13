@@ -9,6 +9,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { MAX_CHECK_NUMBERS, type DenominationCode } from "@bondcheck/shared";
 import type { CheckResponseExtra } from "@bondcheck/shared/api/bonds-extra";
 import { Button, SelectField } from "@/components/ui";
+import { DataGrid, type GridColumn } from "@/components/ui/DataGrid";
 import { Link } from "@/i18n/navigation";
 import { formatDrawDate, formatNumber } from "../format";
 import { DISPLAY_ORDER, denominationSlug } from "../labels";
@@ -329,9 +330,78 @@ export function Checker() {
   );
 }
 
+type Win = CheckResponseExtra["wins"][number];
+
 function Results({ result }: { result: CheckResponseExtra }) {
   const t = useTranslations("bonds");
   const locale = useLocale();
+  const columns = useMemo<GridColumn<Win>[]>(
+    () => [
+      {
+        id: "number",
+        accessorKey: "bondNumber",
+        header: t("check.columns.number"),
+        cell: ({ row }) => <BondNumber value={row.original.bondNumber} emphasis />,
+      },
+      {
+        id: "bond",
+        accessorKey: "denominationCode",
+        header: t("check.columns.bond"),
+        meta: { filter: "select", text: (v) => t(`common.denomination.${v as DenominationCode}`) },
+        cell: ({ row }) => t(`common.denomination.${row.original.denominationCode}`),
+      },
+      {
+        id: "draw",
+        accessorFn: (w) => w.drawNumber ?? 0,
+        header: t("check.columns.draw"),
+        meta: { filter: "range" },
+        cell: ({ row }) => {
+          const w = row.original;
+          return (
+            <>
+              {w.drawNumber ? (
+                <Link href={`/prize-bonds/${denominationSlug(w.denominationCode)}/${w.drawNumber}`} className="underline underline-offset-4">
+                  {t("common.drawNumber", { number: w.drawNumber })}
+                </Link>
+              ) : (
+                t("common.drawNumberUnknown")
+              )}
+              {w.status === "disputed" ? <span className="mt-1 block text-xs text-warning">! {t("check.disputedWin")}</span> : null}
+            </>
+          );
+        },
+      },
+      {
+        id: "date",
+        accessorKey: "drawDate",
+        header: t("check.columns.date"),
+        meta: { text: (v) => formatDrawDate(String(v), locale, "short") },
+        cell: ({ row }) => (
+          <time dateTime={row.original.drawDate} className="whitespace-nowrap">
+            {formatDrawDate(row.original.drawDate, locale, "short")}
+          </time>
+        ),
+      },
+      {
+        id: "prize",
+        accessorKey: "tier",
+        header: t("check.columns.prize"),
+        meta: { filter: "select", text: (v) => t(`common.tier.${v as Win["tier"]}`) },
+        cell: ({ row }) => t(`common.tier.${row.original.tier}`),
+      },
+      {
+        id: "amount",
+        accessorFn: (w) => (w.amountKnown ? w.amountPkr : 0),
+        header: t("check.columns.amount"),
+        meta: { numeric: true },
+        cell: ({ row }) => {
+          const w = row.original;
+          return w.amountKnown ? <bdi>{t("common.rs", { amount: formatNumber(w.amountPkr, locale) })}</bdi> : t("check.amountUnknown");
+        },
+      },
+    ],
+    [t, locale],
+  );
   if (!result.wins.length) {
     return (
       <p className="flex items-start gap-2 rounded-md border border-line-strong bg-surface-2 p-3 text-ink">
@@ -346,47 +416,7 @@ function Results({ result }: { result: CheckResponseExtra }) {
         <span aria-hidden="true">✓</span>
         {t("check.summaryWins", { wins: result.wins.length, checked: result.checked })}
       </p>
-      <div tabIndex={0} role="region" aria-label={t("check.winsCaption")} className="overflow-x-auto rounded-lg border border-line bg-surface focus-visible:outline-2 focus-visible:outline-focus">
-        <table className="w-full border-collapse text-sm">
-          <caption className="sr-only">{t("check.winsCaption")}</caption>
-          <thead>
-            <tr className="border-b border-line bg-surface-2">
-              {(["number", "bond", "draw", "date", "prize", "amount"] as const).map((k) => (
-                <th key={k} scope="col" className={`px-3 py-2 font-semibold text-ink-2 ${k === "amount" ? "text-end" : "text-start"}`}>
-                  {t(`check.columns.${k}`)}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {result.wins.map((w) => (
-              <tr key={`${w.drawId}-${w.bondNumber}`} className="border-b border-line">
-                <th scope="row" className="px-3 py-2 text-start font-normal">
-                  <BondNumber value={w.bondNumber} emphasis />
-                </th>
-                <td className="px-3 py-2">{t(`common.denomination.${w.denominationCode}`)}</td>
-                <td className="px-3 py-2">
-                  {w.drawNumber ? (
-                    <Link href={`/prize-bonds/${denominationSlug(w.denominationCode)}/${w.drawNumber}`} className="underline underline-offset-4">
-                      {t("common.drawNumber", { number: w.drawNumber })}
-                    </Link>
-                  ) : (
-                    t("common.drawNumberUnknown")
-                  )}
-                  {w.status === "disputed" ? <span className="mt-1 block text-xs text-warning">! {t("check.disputedWin")}</span> : null}
-                </td>
-                <td className="px-3 py-2 whitespace-nowrap">
-                  <time dateTime={w.drawDate}>{formatDrawDate(w.drawDate, locale, "short")}</time>
-                </td>
-                <td className="px-3 py-2">{t(`common.tier.${w.tier}`)}</td>
-                <td className="px-3 py-2 text-end tabular-nums whitespace-nowrap">
-                  {w.amountKnown ? <bdi>{t("common.rs", { amount: formatNumber(w.amountPkr, locale) })}</bdi> : t("check.amountUnknown")}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataGrid columns={columns} data={result.wins} caption={t("check.winsCaption")} fileName="bondcheck-wins.csv" />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { DENOMINATION_CODES } from "@bondcheck/shared";
-import { Card, PageHeader } from "@/components/ui";
+import { Card, DataTable, PageHeader } from "@/components/ui";
 import { Link } from "@/i18n/navigation";
 import { BondNumber } from "@/features/bonds/components/BondNumber";
 import { Breadcrumbs } from "@/features/bonds/components/Breadcrumbs";
@@ -48,7 +48,6 @@ export default async function DenominationPage({ params }: Props) {
   const [info, data] = await Promise.all([attempt(() => loadDenominations()), attempt(() => loadDenomination(code, today))]);
   const denom = info.ok ? info.value.find((d) => d.code === code) : undefined;
   const notes = denom ? (locale === "ur" ? denom.notesUr : denom.notesEn) : null;
-  const years = data.ok ? [...new Set(data.value.draws.map((d) => d.drawDate.slice(0, 4)))] : [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -98,75 +97,59 @@ export default async function DenominationPage({ params }: Props) {
             {data.value.draws.length === 0 ? (
               <p className="text-ink-2">{t("denomination.noDraws")}</p>
             ) : (
-              <>
-                {years.length > 4 ? (
-                  <nav aria-label={t("denomination.jumpToYear")} className="mb-3">
-                    <ul className="flex flex-wrap gap-1">
-                      {years.map((y) => (
-                        <li key={y}>
-                          <a href={`#y${y}`} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-2 text-sm tabular-nums text-ink underline-offset-4 hover:bg-surface-2 hover:underline focus-visible:outline-2 focus-visible:outline-focus">
-                            {y}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </nav>
-                ) : null}
-                <div tabIndex={0} role="region" aria-label={t("denomination.drawsCaption", { bond })} className="overflow-x-auto rounded-lg border border-line bg-surface focus-visible:outline-2 focus-visible:outline-focus">
-                  <table className="w-full border-collapse text-sm">
-                    <caption className="p-3 text-start text-sm font-medium text-ink-2">{t("denomination.drawsCaption", { bond })}</caption>
-                    <thead>
-                      <tr className="border-y border-line bg-surface-2">
-                        {(["draw", "date", "city", "firstPrize", "results", "status"] as const).map((k) => (
-                          <th key={k} scope="col" className="px-3 py-2 text-start font-semibold text-ink-2">
-                            {t(`denomination.columns.${k}`)}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.value.draws.map((d, i, all) => {
-                        const firstOfYear = i === 0 || all[i - 1]!.drawDate.slice(0, 4) !== d.drawDate.slice(0, 4);
-                        const link = d.drawNumber && d.completeness !== "none";
-                        return (
-                          <tr key={d.id} id={firstOfYear ? `y${d.drawDate.slice(0, 4)}` : undefined} className="scroll-mt-24 border-b border-line">
-                            <th scope="row" className="px-3 py-2 text-start font-medium tabular-nums">
-                              {link ? (
-                                <Link href={`/prize-bonds/${slug}/${d.drawNumber}`} className="underline underline-offset-4 hover:no-underline">
-                                  {t("common.drawNumber", { number: d.drawNumber! })}
-                                </Link>
-                              ) : d.drawNumber ? (
-                                t("common.drawNumber", { number: d.drawNumber })
-                              ) : (
-                                <span className="font-normal text-ink-2">{t("common.drawNumberUnknown")}</span>
-                              )}
-                            </th>
-                            <td className="px-3 py-2 whitespace-nowrap">
-                              <time dateTime={d.drawDate}>{formatDrawDate(d.drawDate, locale, "short")}</time>
-                            </td>
-                            <td className="px-3 py-2">{d.city ?? "–"}</td>
-                            <td className="px-3 py-2">
-                              {d.firstPrizes.length ? (
-                                <span className="flex flex-wrap gap-x-2">
-                                  {d.firstPrizes.map((n) => (
-                                    <BondNumber key={n} value={n} />
-                                  ))}
-                                </span>
-                              ) : (
-                                "–"
-                              )}
-                            </td>
-                            <td className="px-3 py-2 whitespace-nowrap text-ink-2">{t(`common.completeness.${d.completeness}`)}</td>
-                            <td className="px-3 py-2">
-                              <StatusBadge status={d.status} />
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </>
+              <DataTable
+                caption={t("denomination.drawsCaption", { bond })}
+                rows={data.value.draws}
+                getRowKey={(d) => d.id}
+                fileName={`bondcheck-${slug}-draws.csv`}
+                columns={[
+                  {
+                    key: "draw",
+                    header: t("denomination.columns.draw"),
+                    value: (d) => d.drawNumber ?? null,
+                    filter: "range",
+                    cell: (d) =>
+                      d.drawNumber && d.completeness !== "none" ? (
+                        <Link href={`/prize-bonds/${slug}/${d.drawNumber}`} className="font-medium underline underline-offset-4 hover:no-underline">
+                          {t("common.drawNumber", { number: d.drawNumber })}
+                        </Link>
+                      ) : d.drawNumber ? (
+                        t("common.drawNumber", { number: d.drawNumber })
+                      ) : (
+                        <span className="text-ink-2">{t("common.drawNumberUnknown")}</span>
+                      ),
+                  },
+                  {
+                    key: "date",
+                    header: t("denomination.columns.date"),
+                    value: (d) => d.drawDate,
+                    filter: "text",
+                    cell: (d) => (
+                      <time dateTime={d.drawDate} className="whitespace-nowrap">
+                        {formatDrawDate(d.drawDate, locale, "short")}
+                      </time>
+                    ),
+                  },
+                  { key: "city", header: t("denomination.columns.city"), cell: (d) => d.city ?? "–" },
+                  {
+                    key: "firstPrize",
+                    header: t("denomination.columns.firstPrize"),
+                    value: (d) => d.firstPrizes.join(" "),
+                    cell: (d) =>
+                      d.firstPrizes.length ? (
+                        <span className="flex flex-wrap gap-x-2">
+                          {d.firstPrizes.map((n) => (
+                            <BondNumber key={n} value={n} />
+                          ))}
+                        </span>
+                      ) : (
+                        "–"
+                      ),
+                  },
+                  { key: "results", header: t("denomination.columns.results"), filter: "select", cell: (d) => <span className="whitespace-nowrap text-ink-2">{t(`common.completeness.${d.completeness}`)}</span> },
+                  { key: "status", header: t("denomination.columns.status"), filter: "select", value: (d) => d.status, cell: (d) => <StatusBadge status={d.status} /> },
+                ]}
+              />
             )}
           </section>
         </>

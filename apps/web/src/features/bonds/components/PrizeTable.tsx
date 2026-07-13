@@ -1,4 +1,5 @@
 import { useLocale, useTranslations } from "next-intl";
+import { DataTable } from "@/components/ui";
 import { formatNumber } from "../format";
 
 export interface PrizeRow {
@@ -15,30 +16,28 @@ export function PrizeTable({ prizes, caption }: { prizes: PrizeRow[]; caption: s
   const anyInferred = prizes.some((p) => p.inferred);
   return (
     <div>
-      <div tabIndex={0} role="region" aria-label={caption} className="overflow-x-auto focus-visible:outline-2 focus-visible:outline-focus">
-        <table className="w-full border-collapse text-sm">
-          <caption className="pb-2 text-start text-sm font-medium text-ink-2">{caption}</caption>
-          <thead>
-            <tr className="border-b border-line">
-              <th scope="col" className="px-3 py-2 text-start font-semibold text-ink-2">{t("draw.prizeColumns.tier")}</th>
-              <th scope="col" className="px-3 py-2 text-end font-semibold text-ink-2">{t("draw.prizeColumns.amount")}</th>
-              <th scope="col" className="px-3 py-2 text-end font-semibold text-ink-2">{t("draw.prizeColumns.winners")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {prizes.map((p) => (
-              <tr key={p.tier} className="border-b border-line">
-                <th scope="row" className="px-3 py-2 text-start font-medium text-ink">{t(`common.tier.${p.tier}`)}</th>
-                <td className="px-3 py-2 text-end tabular-nums">
-                  <bdi>{t("common.rs", { amount: formatNumber(p.amountPkr, locale) })}</bdi>
-                  {p.inferred ? <span className="ms-1 text-xs text-ink-2">({t("draw.reference")})</span> : null}
-                </td>
-                <td className="px-3 py-2 text-end tabular-nums">{formatNumber(p.winnersCount, locale)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        caption={caption}
+        rows={prizes}
+        getRowKey={(p) => p.tier}
+        fileName="bondcheck-prizes.csv"
+        columns={[
+          { key: "tier", header: t("draw.prizeColumns.tier"), cell: (p) => <span className="font-medium">{t(`common.tier.${p.tier}`)}</span> },
+          {
+            key: "amount",
+            header: t("draw.prizeColumns.amount"),
+            numeric: true,
+            value: (p) => p.amountPkr,
+            cell: (p) => (
+              <>
+                <bdi>{t("common.rs", { amount: formatNumber(p.amountPkr, locale) })}</bdi>
+                {p.inferred ? <span className="ms-1 text-xs text-ink-2">({t("draw.reference")})</span> : null}
+              </>
+            ),
+          },
+          { key: "winners", header: t("draw.prizeColumns.winners"), numeric: true, value: (p) => p.winnersCount, cell: (p) => formatNumber(p.winnersCount, locale) },
+        ]}
+      />
       {anyInferred ? <p className="mt-2 text-xs text-ink-2">{t("common.estimatedNote")}</p> : null}
     </div>
   );

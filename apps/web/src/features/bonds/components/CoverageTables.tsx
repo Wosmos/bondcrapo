@@ -1,5 +1,6 @@
 import { useLocale, useTranslations } from "next-intl";
 import type { CoverageRow } from "@bondcheck/db/queries/bonds";
+import { DataTable } from "@/components/ui";
 import { formatNumber } from "../format";
 import { DISPLAY_ORDER } from "../labels";
 
@@ -10,7 +11,6 @@ export function CoverageTables({ rows }: { rows: CoverageRow[] }) {
   const locale = useLocale();
   const codes = DISPLAY_ORDER.filter((c) => rows.some((r) => r.denominationCode === c));
   const n = (v: number) => formatNumber(v, locale);
-  const th = "px-3 py-2 font-semibold text-ink-2";
 
   return (
     <div className="flex flex-col gap-8">
@@ -18,38 +18,30 @@ export function CoverageTables({ rows }: { rows: CoverageRow[] }) {
         <h2 id="coverage-summary" className="mb-2 text-lg font-semibold text-ink">
           {t("coverage.summaryTitle")}
         </h2>
-        <div tabIndex={0} role="region" aria-label={t("coverage.summaryCaption")} className="overflow-x-auto rounded-lg border border-line bg-surface focus-visible:outline-2 focus-visible:outline-focus">
-          <table className="w-full border-collapse text-sm">
-            <caption className="p-3 text-start text-sm font-medium text-ink-2">{t("coverage.summaryCaption")}</caption>
-            <thead>
-              <tr className="border-y border-line bg-surface-2">
-                <th scope="col" className={`${th} text-start`}>{t("coverage.columns.denomination")}</th>
-                <th scope="col" className={`${th} text-start`}>{t("coverage.columns.years")}</th>
-                {KEYS.map((k) => (
-                  <th key={k} scope="col" className={`${th} text-end`}>{t(`coverage.columns.${k}`)}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {codes.map((code) => {
-                const mine = rows.filter((r) => r.denominationCode === code);
-                const active = mine.filter((r) => r.expected > 0);
-                const sum = (k: (typeof KEYS)[number]) => mine.reduce((a, r) => a + r[k], 0);
-                return (
-                  <tr key={code} className="border-b border-line">
-                    <th scope="row" className="px-3 py-2 text-start font-medium">{t(`common.denomination.${code}`)}</th>
-                    <td className="px-3 py-2 whitespace-nowrap tabular-nums">
-                      {active.length ? <bdi dir="ltr">{`${active[0]!.year}–${active[active.length - 1]!.year}`}</bdi> : t("coverage.noDraws")}
-                    </td>
-                    {KEYS.map((k) => (
-                      <td key={k} className="px-3 py-2 text-end tabular-nums">{n(sum(k))}</td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          caption={t("coverage.summaryCaption")}
+          rows={codes}
+          getRowKey={(code) => code}
+          fileName="bondcheck-coverage.csv"
+          columns={[
+            { key: "denomination", header: t("coverage.columns.denomination"), cell: (code) => <span className="font-medium">{t(`common.denomination.${code}`)}</span> },
+            {
+              key: "years",
+              header: t("coverage.columns.years"),
+              cell: (code) => {
+                const active = rows.filter((r) => r.denominationCode === code && r.expected > 0);
+                return active.length ? <bdi dir="ltr" className="whitespace-nowrap">{`${active[0]!.year}–${active[active.length - 1]!.year}`}</bdi> : t("coverage.noDraws");
+              },
+            },
+            ...KEYS.map((k) => ({
+              key: k,
+              header: t(`coverage.columns.${k}`),
+              numeric: true,
+              value: (code: string) => rows.filter((r) => r.denominationCode === code).reduce((a, r) => a + r[k], 0),
+              cell: (code: string) => n(rows.filter((r) => r.denominationCode === code).reduce((a, r) => a + r[k], 0)),
+            })),
+          ]}
+        />
       </section>
 
       <section aria-labelledby="coverage-detail">
@@ -66,28 +58,17 @@ export function CoverageTables({ rows }: { rows: CoverageRow[] }) {
                 <summary className="min-h-11 cursor-pointer px-4 py-3 font-medium text-ink focus-visible:outline-2 focus-visible:outline-focus">
                   {bond}
                 </summary>
-                <div tabIndex={0} role="region" aria-label={t("coverage.detailCaption", { bond })} className="overflow-x-auto border-t border-line focus-visible:outline-2 focus-visible:outline-focus">
-                  <table className="w-full border-collapse text-sm">
-                    <caption className="sr-only">{t("coverage.detailCaption", { bond })}</caption>
-                    <thead>
-                      <tr className="border-b border-line bg-surface-2">
-                        <th scope="col" className={`${th} text-start`}>{t("coverage.columns.year")}</th>
-                        {KEYS.map((k) => (
-                          <th key={k} scope="col" className={`${th} text-end`}>{t(`coverage.columns.${k}`)}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {mine.map((r) => (
-                        <tr key={r.year} className="border-b border-line">
-                          <th scope="row" className="px-3 py-1.5 text-start font-normal tabular-nums">{r.year}</th>
-                          {KEYS.map((k) => (
-                            <td key={k} className="px-3 py-1.5 text-end tabular-nums">{n(r[k])}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="border-t border-line p-3">
+                  <DataTable
+                    caption={t("coverage.detailCaption", { bond })}
+                    rows={mine}
+                    getRowKey={(r) => r.year}
+                    fileName={`bondcheck-coverage-${code}.csv`}
+                    columns={[
+                      { key: "year", header: t("coverage.columns.year"), value: (r) => r.year, cell: (r) => <span className="tabular-nums">{r.year}</span> },
+                      ...KEYS.map((k) => ({ key: k, header: t(`coverage.columns.${k}`), numeric: true, value: (r: CoverageRow) => r[k], cell: (r: CoverageRow) => n(r[k]) })),
+                    ]}
+                  />
                 </div>
               </details>
             );
