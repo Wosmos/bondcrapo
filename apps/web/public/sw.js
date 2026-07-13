@@ -3,13 +3,13 @@
  * Vercel and on Cloudflare. Strategies:
  *   - shell assets (/_next/static, /icons, fonts): cache first, they are content hashed
  *   - draw result pages: stale while revalidate (results are immutable once published)
- *   - other pages: network first with a timeout, then cache, then the offline page
+ *   - other pages: network first (a timeout only when offline), then cache, then the offline page
  *   - public bond and market JSON: stale while revalidate
  *   - wallet API, RSC payloads, POST requests, other origins: never touched
  * Push handlers live in /sw-push.js (wallet lane) and are imported when present.
  */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const STATIC_CACHE = `bc-static-${VERSION}`;
 const PAGE_CACHE = `bc-pages-${VERSION}`;
 const DATA_CACHE = `bc-data-${VERSION}`;
@@ -24,7 +24,9 @@ const PRECACHE = [
   "/icons/icon-512.png",
 ];
 const LIMITS = { [STATIC_CACHE]: 250, [PAGE_CACHE]: 80, [DATA_CACHE]: 60 };
-const NETWORK_TIMEOUT_MS = 4000;
+// Only used when the device reports it is offline-ish; online, pages always wait for the network,
+// because a cached page from an older deploy can point at code that no longer exists.
+const NETWORK_TIMEOUT_MS = 8000;
 
 // Tells the wallet's push script that the shell worker owns install, activate and fetch.
 self.BONDCHECK_SHELL_SW = true;
@@ -101,14 +103,15 @@ async function staleWhileRevalidate(event, cacheName, fallback) {
 }
 
 async function networkFirst(event, cacheName, fallback) {
-  const timeout = new Promise((resolve) => setTimeout(() => resolve(null), NETWORK_TIMEOUT_MS));
   const network = fetch(event.request)
     .then((response) => {
       event.waitUntil(put(cacheName, event.request, response.clone()));
       return response;
     })
     .catch(() => null);
-  const first = await Promise.race([network, timeout]);
+  const online = self.navigator ? self.navigator.onLine !== false : true;
+  const timeout = new Promise((resolve) => setTimeout(() => resolve(null), NETWORK_TIMEOUT_MS));
+  const first = online ? await network : await Promise.race([network, timeout]);
   if (first) return first;
   const cached = await caches.match(event.request, { ignoreVary: true, ignoreSearch: cacheName === PAGE_CACHE });
   if (cached) return cached;

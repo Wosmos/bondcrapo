@@ -5,6 +5,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import {
   AppBanner,
+  DeployRecovery,
   ServiceWorkerRegistrar,
   shellNavItems,
   SiteFooter,
@@ -117,6 +118,7 @@ export default async function RootLayout({
           <TabBar items={items} label={t("a11y.tabNav")} />
         </NextIntlClientProvider>
         <ServiceWorkerRegistrar />
+        <DeployRecovery />
         <AnalyticsProvider />
       </body>
     </html>
