@@ -89,7 +89,8 @@
             "buildArchs": [
               "arm64-v8a",
               "armeabi-v7a"
-            ]
+            ],
+            "extraProguardRules": "# WorkManager (used by expo-background-task) creates its Room database by reflection at startup;\n# R8 removed the generated class and the release app crashed on launch.\n-keep class * extends androidx.room.RoomDatabase { <init>(); }\n-keep class androidx.work.impl.WorkDatabase_Impl { *; }"
           }
         }
       ],

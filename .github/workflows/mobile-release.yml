@@ -103,6 +103,15 @@ jobs:
           fi
           echo "EXPO_PUBLIC_API_BASE_URL=$SITE_URL" >> "$GITHUB_ENV"
 
+      # Test builds also include x86_64 so the launch check's emulator can run them; release
+      # APKs stay ARM only (every phone the app supports).
+      - name: Add the emulator architecture to test builds
+        if: env.DRY_RUN == 'true'
+        working-directory: apps/mobile
+        run: |
+          jq '(.expo.plugins[] | select(type == "array" and .[0] == "expo-build-properties") | .[1].android.buildArchs) += ["x86_64"]' app.json > app.tmp.json
+          mv app.tmp.json app.json
+
       - name: Generate the Android project
         working-directory: apps/mobile
         run: bunx expo prebuild --platform android --no-install --clean
@@ -208,7 +217,9 @@ jobs:
   launch-check:
     name: Open the app on an emulator
     needs: build
-    if: needs.build.outputs.signed == 'true' || needs.build.outputs.signed == 'test'
+    # Test builds only: they carry the x86_64 code the emulator needs. Run a manual dry run
+    # before tagging a release.
+    if: needs.build.outputs.signed == 'test'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
