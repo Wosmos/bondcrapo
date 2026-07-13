@@ -1,20 +1,21 @@
 # BondCheck bond list. Write a denomination once; it applies to every number below it.
 # Ranges like 100100-100150 add the whole series. "Owner:" labels the numbers that follow.
+# The numbers below are made-up examples: replace them with your own.
 
 Rs 100
-Owner: Ammad
-055684, 055686, 094587-094590
-Owner: Aysha
-055682-055683, 055685
+Owner: Ali
+111111, 111112, 111120-111125
+Owner: Sara
+222201-222203, 222210
 
 Rs 750
 Owner:
-041733, 098148-098149, 280321
-280353-280354
+333301, 333305-333309, 333350
+333400-333405
 
 Rs 1500
-160213-160228
-203301-203400
+444401-444410
+444500-444520
 
 Rs 40000 Premium
-342709-342713
+555501-555505
