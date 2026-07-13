@@ -128,7 +128,7 @@ const LABEL_HEADERS = /^(label|note|notes|owner|owner or note|name|comment|holde
 
 /** One bond number or a range (`100100-100150`, `100100 to 100150`, `100100..100150`). */
 const ENTRY = /(?<!\d)(\d{6})(?:\s*(?:-|–|\.\.|to|TO|To)\s*(\d{6}))?(?!\d)/g;
-/** "Owner: Aysha", "Name - Ammad": sets the owner for the lines that follow. */
+/** "Owner: Sara", "Name - Ali": sets the owner for the lines that follow. */
 const OWNER_LINE = /^\s*(?:owner|name|holder|label)\s*[:-]\s*(.*?)\s*$/i;
 
 /**
@@ -196,14 +196,14 @@ export interface ParsedHoldings {
  * Reads a written list of bonds (pasted text, a .txt file, text pulled from a PDF), the way people
  * keep them: a denomination on its own line applies to every number below it until the next one,
  * "Owner: name" does the same for the owner, and a line may hold several numbers and ranges
- * ("280321, 280324, 280353-280354"). "750: 123456, 654321" sets the denomination and lists numbers
+ * ("333350, 333351, 333360-333361"). "750: 123456, 654321" sets the denomination and lists numbers
  * on one line. Anything after "#" on a line is a comment.
  *
  *   Rs 750
- *   041733, 098148-098149
- *   Owner: Aysha
+ *   333301, 333306-333307
+ *   Owner: Sara
  *   Rs 1500
- *   160213-160228
+ *   444401-444416
  */
 export function parseBondHoldings(text: string, limit: number = MAX_BONDS_PER_ADD): ParsedHoldings {
   const out = new Holdings(limit);
@@ -238,7 +238,7 @@ export function parseBondHoldings(text: string, limit: number = MAX_BONDS_PER_AD
  * Rows from CSV or XLSX. With a header row (bond number, denomination, owner), a blank denomination
  * or owner cell repeats the one above it, as people fill sheets in Excel; a row holding only a
  * denomination starts a new section; and a bond cell may hold several numbers and ranges
- * ("280321, 280353-280354"). Excel drops leading zeros (55684 for 055684), so short numbers in the
+ * ("333350, 333360-333361"). Excel drops leading zeros (11111 for 111111), so short numbers in the
  * bond column are padded back to six digits. Without a header the rows are read like a written
  * list (`parseBondHoldings`).
  */
@@ -268,7 +268,7 @@ export function parseSheetRows(rows: readonly (readonly unknown[])[], limit: num
       else invalidRows++;
       continue;
     }
-    // Excel stores 055684 as the number 55684.
+    // Excel stores 111111 as the number 11111.
     const fixed = /^\d{1,5}$/.test(bondCell) ? bondCell.padStart(6, "0") : bondCell;
     if (out.addEntries(fixed, denom, label) === 0) invalidRows++;
   }

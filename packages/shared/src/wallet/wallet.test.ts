@@ -253,11 +253,11 @@ describe("bond list parsing", () => {
   });
 
   it("joins digits written in groups into one number, one per line", () => {
-    expect(extractBondNumbers("85 40 56\n478 805\n4 7 8 8 5 3\n854063 854056\n12 34\n000 000")).toEqual([
+    expect(extractBondNumbers("85 40 56\n478 805\n4 7 8 8 5 3\n333370 854056\n12 34\n000 000")).toEqual([
       "854056",
       "478805",
       "478853",
-      "854063",
+      "333370",
     ]);
     // groups that add up to more or fewer than six digits are not guessed at
     expect(extractBondNumbers("12 345 6789\n12 34")).toEqual([]);
@@ -286,27 +286,27 @@ describe("bond list parsing", () => {
     const parsed = parseBondHoldings(
       [
         "Rs 750",
-        "041733, 098148-098149   # bought 2019",
-        "Owner: Aysha",
-        "280321 280324",
+        "333301, 333306-333307   # bought 2019",
+        "Owner: Sara",
+        "333350 333351",
         "1500:",
-        "160213-160215",
-        "40000 Premium: 342709",
+        "444401-444403",
+        "40000 Premium: 555501",
         "Owner:",
-        "854063",
+        "333370",
       ].join("\n"),
     );
     expect(parsed.bonds).toEqual([
-      { denominationCode: "750", bondNumber: "041733" },
-      { denominationCode: "750", bondNumber: "098148" },
-      { denominationCode: "750", bondNumber: "098149" },
-      { denominationCode: "750", bondNumber: "280321", label: "Aysha" },
-      { denominationCode: "750", bondNumber: "280324", label: "Aysha" },
-      { denominationCode: "1500", bondNumber: "160213", label: "Aysha" },
-      { denominationCode: "1500", bondNumber: "160214", label: "Aysha" },
-      { denominationCode: "1500", bondNumber: "160215", label: "Aysha" },
-      { denominationCode: "40000P", bondNumber: "342709", label: "Aysha" },
-      { denominationCode: "40000P", bondNumber: "854063" },
+      { denominationCode: "750", bondNumber: "333301" },
+      { denominationCode: "750", bondNumber: "333306" },
+      { denominationCode: "750", bondNumber: "333307" },
+      { denominationCode: "750", bondNumber: "333350", label: "Sara" },
+      { denominationCode: "750", bondNumber: "333351", label: "Sara" },
+      { denominationCode: "1500", bondNumber: "444401", label: "Sara" },
+      { denominationCode: "1500", bondNumber: "444402", label: "Sara" },
+      { denominationCode: "1500", bondNumber: "444403", label: "Sara" },
+      { denominationCode: "40000P", bondNumber: "555501", label: "Sara" },
+      { denominationCode: "40000P", bondNumber: "333370" },
     ]);
   });
 
@@ -314,19 +314,19 @@ describe("bond list parsing", () => {
     const sheet = parseSheetRows([
       ["Denomination", "Bond numbers", "Owner"],
       ["Rs 750", "", ""],
-      ["", "41733", "Ammad"],
-      ["", "098148-098149, 280321", ""],
-      ["1500", "160213-160214", "NA"],
-      ["", "381911", ""],
+      ["", "33301", "Ali"],
+      ["", "333306-333307, 333350", ""],
+      ["1500", "444401-444402", "NA"],
+      ["", "444500", ""],
     ]);
     expect(sheet.bonds).toEqual([
-      { denominationCode: "750", bondNumber: "041733", label: "Ammad" },
-      { denominationCode: "750", bondNumber: "098148", label: "Ammad" },
-      { denominationCode: "750", bondNumber: "098149", label: "Ammad" },
-      { denominationCode: "750", bondNumber: "280321", label: "Ammad" },
-      { denominationCode: "1500", bondNumber: "160213", label: "NA" },
-      { denominationCode: "1500", bondNumber: "160214", label: "NA" },
-      { denominationCode: "1500", bondNumber: "381911", label: "NA" },
+      { denominationCode: "750", bondNumber: "333301", label: "Ali" },
+      { denominationCode: "750", bondNumber: "333306", label: "Ali" },
+      { denominationCode: "750", bondNumber: "333307", label: "Ali" },
+      { denominationCode: "750", bondNumber: "333350", label: "Ali" },
+      { denominationCode: "1500", bondNumber: "444401", label: "NA" },
+      { denominationCode: "1500", bondNumber: "444402", label: "NA" },
+      { denominationCode: "1500", bondNumber: "444500", label: "NA" },
     ]);
     expect(sheet.invalidRows).toBe(0);
   });
