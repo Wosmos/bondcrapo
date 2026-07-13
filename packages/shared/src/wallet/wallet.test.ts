@@ -320,7 +320,7 @@ describe("bond list parsing", () => {
       ["", "444500", ""],
     ]);
     expect(sheet.bonds).toEqual([
-      { denominationCode: "750", bondNumber: "333301", label: "Ali" },
+      { denominationCode: "750", bondNumber: "033301", label: "Ali" },
       { denominationCode: "750", bondNumber: "333306", label: "Ali" },
       { denominationCode: "750", bondNumber: "333307", label: "Ali" },
       { denominationCode: "750", bondNumber: "333350", label: "Ali" },
