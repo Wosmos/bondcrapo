@@ -203,10 +203,52 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  # Installs the APK on an Android emulator and opens it. A release that crashes on launch fails
+  # here, before it is published, and the device log is kept as an artifact either way.
+  launch-check:
+    name: Open the app on an emulator
+    needs: build
+    if: needs.build.outputs.signed == 'true' || needs.build.outputs.signed == 'test'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-release
+          path: out
+
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install, open and watch the app
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash -c 'set -u; apk=$(find out -maxdepth 1 -name "*.apk" | head -1); adb install -r "$apk"; adb logcat -c; adb shell monkey -p pk.bondcheck.app -c android.intent.category.LAUNCHER 1; sleep 25; adb logcat -d > out/logcat.txt; pid=$(adb shell pidof pk.bondcheck.app | tr -d "\r"); grep -n -A40 "FATAL EXCEPTION" out/logcat.txt | head -120 || true; if [ -z "$pid" ] || grep -q "FATAL EXCEPTION" out/logcat.txt; then echo "::error title=App crashed on launch::See the logcat artifact (lines after FATAL EXCEPTION)."; exit 1; fi; echo "App is running (pid $pid)."'
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: launch-logcat
+          path: out/logcat.txt
+          if-no-files-found: warn
+          retention-days: 14
+
   publish:
     name: Publish GitHub Release
-    needs: build
-    if: github.event_name == 'push' && github.ref_type == 'tag'
+    needs: [build, launch-check]
+    # An unsigned build cannot be installed, so its launch check is skipped rather than failed.
+    if: >-
+      always() && github.event_name == 'push' && github.ref_type == 'tag' &&
+      needs.build.result == 'success' &&
+      (needs.launch-check.result == 'success' || needs.launch-check.result == 'skipped')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
