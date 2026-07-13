@@ -8,7 +8,8 @@ const TABS = [
   { href: "/my/bonds", key: "mine" },
   { href: "/my/wins", key: "wins" },
   { href: "/prize-bonds", key: "results" },
-  { href: "/prize-bonds/schedule", key: "schedule" },
+  // Straight to this year's page, skipping the redirect at /prize-bonds/schedule.
+  { href: `/prize-bonds/schedule/${new Date().getFullYear()}`, key: "schedule" },
   { href: "/my/settings", key: "settings" },
 ] as const;
 
