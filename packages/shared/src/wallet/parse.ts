@@ -129,7 +129,7 @@ const LABEL_HEADERS = /^(label|note|notes|owner|owner or note|name|comment|holde
 /** One bond number or a range (`100100-100150`, `100100 to 100150`, `100100..100150`). */
 const ENTRY = /(?<!\d)(\d{6})(?:\s*(?:-|–|\.\.|to|TO|To)\s*(\d{6}))?(?!\d)/g;
 /** "Owner: Aysha", "Name - Ammad": sets the owner for the lines that follow. */
-const OWNER_LINE = /^\s*(?:owner|name|holder|label)\s*[:\-]\s*(.*?)\s*$/i;
+const OWNER_LINE = /^\s*(?:owner|name|holder|label)\s*[:-]\s*(.*?)\s*$/i;
 
 /**
  * Collects bonds with their denomination and owner, dropping duplicates and stopping at `limit`.
