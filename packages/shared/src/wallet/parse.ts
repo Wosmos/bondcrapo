@@ -110,6 +110,9 @@ export function normalizeDenomination(input: string | number | null | undefined)
   return (DENOMINATION_CODES as readonly string[]).includes(code) ? code : null;
 }
 
+/** A range written in one cell: `100100-100150`, `100100 to 100150`, `100100..100150`. */
+const RANGE_CELL = /^(\d{6})\s*(?:-|–|\.\.|to|TO|To)\s*(\d{6})$/;
+
 export interface SheetBond {
   denominationCode: string | null;
   bondNumber: string;
@@ -129,6 +132,8 @@ const LABEL_HEADERS = /^(label|note|notes|owner|name|comment)$/i;
 /**
  * Rows from CSV or XLSX (first row may be a header). Without a header, the first cell holding a
  * six digit number is the bond and a cell that normalises to a denomination is the denomination.
+ * A bond cell may also hold a range (`100100-100150`), which expands to every number in it, so one
+ * file can list a whole series of every denomination at once.
  */
 export function parseSheetRows(rows: readonly (readonly unknown[])[], limit: number = MAX_BONDS_PER_ADD): ParsedSheet {
   const cells = rows.map((r) => r.map((c) => (c === null || c === undefined ? "" : String(c).trim())));
@@ -153,6 +158,27 @@ export function parseSheetRows(rows: readonly (readonly unknown[])[], limit: num
     if (row.every((c) => c === "")) continue;
     let num: string | undefined;
     let denom: string | null = null;
+    const rangeCell = (numberCol >= 0 ? [row[numberCol] ?? ""] : row).map((c) => RANGE_CELL.exec(c)).find(Boolean);
+    if (rangeCell) {
+      const [, a, b] = rangeCell;
+      if (Number(b) < Number(a)) {
+        invalidRows++;
+        continue;
+      }
+      denom = numberCol >= 0 ? (denomCol >= 0 ? normalizeDenomination(row[denomCol]) : null) : (row.map((c) => (RANGE_CELL.test(c) ? null : normalizeDenomination(c))).find((d) => d !== null) ?? null);
+      const label = labelCol >= 0 ? row[labelCol]?.slice(0, 80) : undefined;
+      for (let n = Number(a); n <= Number(b) && bonds.length < limit; n++) {
+        const bondNumber = String(n).padStart(6, "0");
+        const key = `${denom ?? "?"}:${bondNumber}`;
+        if (seen.has(key)) {
+          duplicates++;
+          continue;
+        }
+        seen.add(key);
+        bonds.push({ denominationCode: denom, bondNumber, ...(label ? { label } : {}) });
+      }
+      continue;
+    }
     if (numberCol >= 0) {
       const v = (row[numberCol] ?? "").replace(/\D/g, "");
       num = v.length > 0 && v.length <= 6 && /^\d+$/.test(row[numberCol] ?? "") ? v.padStart(6, "0") : v;

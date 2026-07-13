@@ -262,6 +262,25 @@ describe("bond list parsing", () => {
     expect(extractBondNumbers("12 345 6789\n12 34")).toEqual([]);
   });
 
+  it("expands a range written in one spreadsheet cell, keeping each row's denomination and label", () => {
+    const sheet = parseSheetRows([
+      ["Denomination", "Bond number", "Owner"],
+      ["750", "123456", "Me"],
+      ["1500", "100100-100103", "Mom"],
+      ["Rs 25,000 Premium", "654321", ""],
+      ["200", "200005-200001", ""],
+    ]);
+    expect(sheet.bonds).toEqual([
+      { denominationCode: "750", bondNumber: "123456", label: "Me" },
+      { denominationCode: "1500", bondNumber: "100100", label: "Mom" },
+      { denominationCode: "1500", bondNumber: "100101", label: "Mom" },
+      { denominationCode: "1500", bondNumber: "100102", label: "Mom" },
+      { denominationCode: "1500", bondNumber: "100103", label: "Mom" },
+      { denominationCode: "25000P", bondNumber: "654321" },
+    ]);
+    expect(sheet.invalidRows).toBe(1);
+  });
+
   it("normalises denominations", () => {
     expect(normalizeDenomination("Rs. 750/-")).toBe("750");
     expect(normalizeDenomination("1,500")).toBe("1500");

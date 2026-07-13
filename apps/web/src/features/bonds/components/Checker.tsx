@@ -1,5 +1,6 @@
 "use client";
 
+import { readSheetFile } from "@/features/wallet/client/files";
 import { Input } from "@/components/shadcn/input";
 import { Textarea } from "@/components/shadcn/textarea";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
@@ -69,10 +70,14 @@ export function Checker() {
       setFormError(t("check.tooMany", { count: formatNumber(count, locale), max: formatNumber(MAX_CHECK_NUMBERS, locale) }));
       return;
     }
+    const d = denomination || undefined;
+    await sendCheck([...nums.map((number) => ({ number, denomination: d })), ...rs.map((r) => ({ from: r.from, to: r.to, denomination: d }))]);
+  }
+
+  /** Sends the items (each may carry its own denomination, as rows of a spreadsheet do). */
+  async function sendCheck(items: { number?: string; from?: string; to?: string; denomination?: string }[]) {
     setFormError(null);
     setState({ kind: "checking" });
-    const d = denomination || undefined;
-    const items = [...nums.map((number) => ({ number, denomination: d })), ...rs.map((r) => ({ from: r.from, to: r.to, denomination: d }))];
     try {
       const res = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items }) });
       if (res.status === 429) {
@@ -117,6 +122,27 @@ export function Checker() {
   async function onFile(file: File | undefined) {
     if (!file) return;
     setScan({ kind: "working", progress: 0 });
+    const name = file.name.toLowerCase();
+    if (/\.(csv|xlsx|xls|tsv)$/.test(name)) {
+      try {
+        const { sheet } = await readSheetFile(file);
+        if (sheet.bonds.length === 0) {
+          setScan({ kind: "error" });
+          return;
+        }
+        if (sheet.bonds.length > MAX_CHECK_NUMBERS) {
+          setScan({ kind: "idle" });
+          setFormError(t("check.tooMany", { count: formatNumber(sheet.bonds.length, locale), max: formatNumber(MAX_CHECK_NUMBERS, locale) }));
+          return;
+        }
+        setScan({ kind: "done", count: sheet.bonds.length });
+        // One request for the whole file; each row keeps its own denomination.
+        await sendCheck(sheet.bonds.map((b) => ({ number: b.bondNumber, denomination: b.denominationCode ?? undefined })));
+      } catch {
+        setScan({ kind: "error" });
+      }
+      return;
+    }
     try {
       const found = await numbersFromFile(file, (progress) => setScan({ kind: "working", progress }));
       const fresh = found.filter((n) => !numbers.includes(n));
@@ -228,9 +254,12 @@ export function Checker() {
           <p className="font-medium text-ink">{t("check.scanTitle")}</p>
           <label htmlFor={ids.file} className="inline-flex min-h-11 w-fit cursor-pointer items-center rounded-md border border-line-strong bg-surface px-4 text-sm font-medium text-ink focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-focus hover:bg-surface-2">
             {t("check.scanButton")}
-            <input id={ids.file} type="file" accept="image/*,.pdf,.txt,.csv" className="sr-only" onChange={(e) => void onFile(e.target.files?.[0])} />
+            <input id={ids.file} type="file" accept="image/*,.pdf,.txt,.csv,.tsv,.xlsx,.xls" className="sr-only" onChange={(e) => void onFile(e.target.files?.[0])} />
           </label>
           <p className="text-sm text-ink-2">{t("check.scanHint")}</p>
+          <a href="/templates/bondcheck-bonds-template.csv" download className="w-fit text-sm font-medium text-brand underline underline-offset-4">
+            {t("check.template")}
+          </a>
           <p className="text-sm text-ink" aria-live="polite">
             {scan.kind === "working" ? t("check.scanWorking", { progress: scan.progress }) : null}
             {scan.kind === "done" ? t("check.scanDone", { count: scan.count }) : null}

@@ -312,7 +312,18 @@ export function AddBonds() {
 
           {mode === "file" ? (
             <div className="sm:col-span-2">
-              <Field id={`${ids}-file`} label={t("file")} hint={t("fileHint")}>
+              <Field
+                id={`${ids}-file`}
+                label={t("file")}
+                hint={
+                  <>
+                    {t("fileHint")}{" "}
+                    <a href="/templates/bondcheck-bonds-template.csv" download className="font-medium text-brand underline underline-offset-4">
+                      {t("fileTemplate")}
+                    </a>
+                  </>
+                }
+              >
                 <input
                   ref={fileRef}
                   id={`${ids}-file`}
