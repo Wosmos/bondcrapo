@@ -30,8 +30,9 @@ function subscribe(listener: () => void) {
 
 /**
  * Invites visitors on an Android phone to get the app. It shows only in the browser (not in the
- * installed app or PWA), never on the download page itself, and stays away once dismissed. It sits
- * above the header in the normal page flow, so it covers nothing and needs no layout shift fix.
+ * installed app or PWA), never on the download page itself, and stays away once dismissed. It
+ * floats above the bottom tab bar instead of sitting in the page flow: it appears after the page
+ * has loaded, and pushing the page down then would make everything jump (layout shift).
  */
 export function AppBanner({ labels }: { labels: { title: string; body: string; cta: string; close: string } }) {
   const pathname = usePathname();
@@ -41,7 +42,7 @@ export function AppBanner({ labels }: { labels: { title: string; body: string; c
   if (!show || pathname.startsWith("/download")) return null;
 
   return (
-    <aside aria-label={labels.title} className="flex items-center gap-3 border-b border-line bg-surface-2 px-4 py-2.5 md:hidden">
+    <aside aria-label={labels.title} className="fixed inset-x-3 bottom-20 z-40 flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-2.5 shadow-lg md:hidden">
       <DeviceMobileIcon aria-hidden="true" className="size-6 shrink-0 text-brand" />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-ink">{labels.title}</p>

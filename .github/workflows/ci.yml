@@ -88,7 +88,10 @@ jobs:
         with:
           node-version-file: .nvmrc
       - run: bun install --frozen-lockfile
+      # Canonical and hreflang links must point at the server Lighthouse tests (port 3104).
       - run: bun run --cwd apps/web build
+        env:
+          APP_BASE_URL: http://localhost:3104
       - name: Lighthouse CI (mobile profile)
         working-directory: apps/web
         run: bunx @lhci/cli@0.15.1 autorun --config=lighthouserc.json

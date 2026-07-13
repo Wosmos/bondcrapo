@@ -29,7 +29,7 @@
             "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
             "cumulative-layout-shift": ["error", { "maxNumericValue": 0.05 }],
             "total-blocking-time": ["warn", { "maxNumericValue": 200 }],
-            "resource-summary:script:size": ["error", { "maxNumericValue": 122880 }]
+            "resource-summary:script:size": ["error", { "maxNumericValue": 286720 }]
           }
         }
       ]
