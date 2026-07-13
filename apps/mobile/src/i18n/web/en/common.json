@@ -42,6 +42,16 @@
     "cta": "Download",
     "close": "Close this notice"
   },
+  "bondTabs": {
+    "label": "Prize bond pages",
+    "check": "Check bonds",
+    "mine": "My bonds",
+    "wins": "My wins",
+    "results": "All results",
+    "schedule": "Draw dates",
+    "settings": "Settings",
+    "newWins": "{count, plural, one {# new win} other {# new wins}}"
+  },
   "grid": {
     "rowsPerPage": "Rows per page",
     "page": "Page {page} of {pages}",

@@ -10,11 +10,17 @@ import { todayInPakistan } from "@/features/bonds/format";
 import { alternates } from "@/features/bonds/seo";
 import { attempt, loadSchedule } from "@/features/bonds/server/pages";
 
-export const revalidate = 21600;
+export const revalidate = 86400;
 
 type Props = { params: Promise<{ locale: string; year: string }> };
 
 const FIRST_YEAR = 2000;
+
+/** Last, this and next year are built ahead; older years render on first visit, then stay cached. */
+export function generateStaticParams() {
+  const now = Number(todayInPakistan().slice(0, 4));
+  return [now - 1, now, now + 1].map((y) => ({ year: String(y) }));
+}
 
 function parseYear(value: string): number | null {
   const y = /^\d{4}$/.test(value) ? Number(value) : NaN;

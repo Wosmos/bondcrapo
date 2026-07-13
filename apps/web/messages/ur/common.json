@@ -42,6 +42,7 @@
     "cta": "ڈاؤن لوڈ",
     "close": "یہ نوٹس بند کریں"
   },
+  "bondTabs": {"label": "پرائز بانڈ کے صفحات", "check": "بانڈ چیک کریں", "mine": "میرے بانڈز", "wins": "میرے انعام", "results": "تمام نتائج", "schedule": "قرعہ اندازی کی تاریخیں", "settings": "ترتیبات", "newWins": "{count, plural, one {# نیا انعام} other {# نئے انعام}}"},
   "grid": {
     "rowsPerPage": "فی صفحہ قطاریں",
     "page": "صفحہ {page} از {pages}",

@@ -7,3 +7,4 @@ export { Badge, type BadgeProps } from "./Badge";
 export { EmptyState, type EmptyStateProps } from "./EmptyState";
 export { Skeleton, type SkeletonProps } from "./Skeleton";
 export * from "./SelectField";
+export { PageSkeleton } from "./PageSkeleton";

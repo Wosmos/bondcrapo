@@ -19,7 +19,7 @@ import { codeFromSlug, denominationSlug } from "@/features/bonds/labels";
 import { alternates, breadcrumbLd } from "@/features/bonds/seo";
 import { attempt, loadDraw, recentDrawParams } from "@/features/bonds/server/pages";
 
-export const revalidate = 21600;
+export const revalidate = 604800;
 
 type Props = { params: Promise<{ locale: string; denomination: string; drawNumber: string }> };
 

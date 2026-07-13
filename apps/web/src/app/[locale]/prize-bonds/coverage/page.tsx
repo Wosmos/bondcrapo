@@ -9,7 +9,7 @@ import { todayInPakistan } from "@/features/bonds/format";
 import { alternates } from "@/features/bonds/seo";
 import { attempt, loadCoverage } from "@/features/bonds/server/pages";
 
-export const revalidate = 21600;
+export const revalidate = 86400;
 
 type Props = { params: Promise<{ locale: string }> };
 

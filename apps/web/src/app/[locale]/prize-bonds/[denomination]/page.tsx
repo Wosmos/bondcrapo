@@ -15,7 +15,7 @@ import { codeFromSlug, denominationSlug } from "@/features/bonds/labels";
 import { alternates, breadcrumbLd } from "@/features/bonds/seo";
 import { attempt, loadDenomination, loadDenominations } from "@/features/bonds/server/pages";
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 type Props = { params: Promise<{ locale: string; denomination: string }> };
 

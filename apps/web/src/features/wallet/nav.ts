@@ -1,5 +1,4 @@
 import type { NavItem } from "../registry";
 
-export const nav: NavItem[] = [
-  { id: "wallet", href: "/my", labelKey: "wallet.nav.title", order: 30 },
-];
+/** Saved bonds are a tab of the prize bond section (BondTabs), not a menu entry of their own. */
+export const nav: NavItem[] = [];

@@ -6,7 +6,7 @@ import type { AbstractIntlMessages } from "next-intl";
  * call `useTranslations` wraps that island in `<ClientMessages locale paths>` (`./ClientMessages`),
  * which adds just the message paths the island uses.
  */
-export const CLIENT_PATHS = ["common.actions", "common.status", "common.grid"] as const;
+export const CLIENT_PATHS = ["common.actions", "common.status", "common.grid", "common.bondTabs"] as const;
 
 function getPath(obj: AbstractIntlMessages, path: string): unknown {
   return path.split(".").reduce<unknown>((acc, key) => (acc && typeof acc === "object" ? (acc as Record<string, unknown>)[key] : undefined), obj);

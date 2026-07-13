@@ -89,7 +89,7 @@ export function WinsView() {
                   </>
                 ),
               },
-              { key: "prize", header: t("prize"), filter: "select", cell: (m) => f.tier(m.tier) },
+              { key: "prize", header: t("prize"), filter: "select", cell: (m) => <span className="whitespace-nowrap">{f.tier(m.tier)}</span> },
               { key: "amount", header: t("amount"), numeric: true, value: (m) => m.amountPkr, cell: (m) => <span className="font-semibold">{f.rupees(m.amountPkr)}</span> },
               {
                 key: "claimed",

@@ -22,7 +22,7 @@ export function PrizeTable({ prizes, caption }: { prizes: PrizeRow[]; caption: s
         getRowKey={(p) => p.tier}
         fileName="bondcheck-prizes.csv"
         columns={[
-          { key: "tier", header: t("draw.prizeColumns.tier"), cell: (p) => <span className="font-medium">{t(`common.tier.${p.tier}`)}</span> },
+          { key: "tier", header: t("draw.prizeColumns.tier"), cell: (p) => <span className="font-medium whitespace-nowrap">{t(`common.tierShort.${p.tier}`)}</span> },
           {
             key: "amount",
             header: t("draw.prizeColumns.amount"),

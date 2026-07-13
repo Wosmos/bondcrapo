@@ -6,6 +6,8 @@ import type { ShellNavItem } from "./nav-items";
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
+  // Saved bonds live in the prize bond section.
+  if (href === "/prize-bonds" && (pathname === "/my" || pathname.startsWith("/my/"))) return true;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

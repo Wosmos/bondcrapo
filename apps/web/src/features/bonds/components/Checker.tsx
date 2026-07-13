@@ -3,6 +3,7 @@
 import { readSheetFile } from "@/features/wallet/client/files";
 import { Input } from "@/components/shadcn/input";
 import { Textarea } from "@/components/shadcn/textarea";
+import { Skeleton as ShimmerBlock } from "@/components/shadcn/skeleton";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -446,7 +447,14 @@ export function Checker() {
                 {state.message}
               </p>
             ) : null}
-            {state.kind === "done" ? <Results result={state.result} /> : null}
+            {state.kind === "checking" ? (
+            <div className="flex flex-col gap-2" aria-hidden="true">
+              {Array.from({ length: 6 }, (_, i) => (
+                <ShimmerBlock key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          ) : null}
+          {state.kind === "done" ? <Results result={state.result} /> : null}
           </div>
           {state.kind === "done" && checked.length ? (
             <SaveBonds bonds={checked} fallback={denomination} />
@@ -643,8 +651,8 @@ function Results({ result }: { result: CheckResponseExtra }) {
         id: "prize",
         accessorKey: "tier",
         header: t("check.columns.prize"),
-        meta: { filter: "select", text: (v) => t(`common.tier.${v as Win["tier"]}`) },
-        cell: ({ row }) => t(`common.tier.${row.original.tier}`),
+        meta: { filter: "select", text: (v) => t(`common.tierShort.${v as Win["tier"]}`) },
+        cell: ({ row }) => <span className="whitespace-nowrap">{t(`common.tierShort.${row.original.tier}`)}</span>,
       },
       {
         id: "amount",

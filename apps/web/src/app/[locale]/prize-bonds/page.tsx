@@ -10,7 +10,7 @@ import { ACTIVE_CODES, DISPLAY_ORDER, denominationSlug } from "@/features/bonds/
 import { alternates } from "@/features/bonds/seo";
 import { attempt, loadHub } from "@/features/bonds/server/pages";
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 type Props = { params: Promise<{ locale: string }> };
 

@@ -6,7 +6,9 @@ import { DataUnavailableError, read } from "./repo";
 /**
  * Cached loaders for the bond pages. Results are plain JSON (the cache serialises them) and
  * tagged so an ingest commit revalidates exactly what changed: `bonds`, `bonds:<code>`,
- * `draw:<id>` (apps/web/src/platform/revalidate.ts). A failed read is never cached.
+ * `draw:<id>` (apps/web/src/platform/revalidate.ts). A failed read is never cached. Results only
+ * change when a draw is ingested, which clears these tags, so the timers are long: they only
+ * move "days until the next draw" and "upcoming" along.
  */
 export interface DrawView {
   id: number;
@@ -72,7 +74,7 @@ export const loadHub = unstable_cache(
     };
   },
   ["bonds:hub"],
-  { tags: ["bonds"], revalidate: HOUR },
+  { tags: ["bonds"], revalidate: 6 * HOUR },
 );
 
 export const loadDenomination = unstable_cache(
@@ -88,7 +90,7 @@ export const loadDenomination = unstable_cache(
     };
   },
   ["bonds:denomination"],
-  { tags: ["bonds"], revalidate: HOUR },
+  { tags: ["bonds"], revalidate: 6 * HOUR },
 );
 
 export const loadDraw = unstable_cache(
@@ -112,19 +114,19 @@ export const loadDraw = unstable_cache(
     };
   },
   ["bonds:draw"],
-  { tags: ["bonds"], revalidate: 6 * HOUR },
+  { tags: ["bonds"], revalidate: 7 * 24 * HOUR },
 );
 
 export const loadSchedule = unstable_cache(
   async (year: number) => (await read((r) => r.drawsInYear(year))).map(toView),
   ["bonds:schedule"],
-  { tags: ["bonds"], revalidate: 6 * HOUR },
+  { tags: ["bonds"], revalidate: 24 * HOUR },
 );
 
 export const loadCoverage = unstable_cache(
   async (today: string): Promise<CoverageRow[]> => read((r) => r.coverage(today)),
   ["bonds:coverage"],
-  { tags: ["bonds"], revalidate: 6 * HOUR },
+  { tags: ["bonds"], revalidate: 24 * HOUR },
 );
 
 /** Latest numbered draws per denomination, for `generateStaticParams`. Empty without a database. */
