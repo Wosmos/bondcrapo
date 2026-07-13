@@ -12,7 +12,8 @@ import { Button, SelectField } from "@/components/ui";
 import { Link } from "@/i18n/navigation";
 import { formatDrawDate, formatNumber } from "../format";
 import { DISPLAY_ORDER, denominationSlug } from "../labels";
-import { extractBondNumbers, numbersFromFile } from "../ocr";
+import { parseBondHoldings, type SheetBond } from "@bondcheck/shared/wallet/parse";
+import { numbersFromFile } from "../ocr";
 import { BondNumber } from "./BondNumber";
 
 interface Range {
@@ -56,11 +57,12 @@ export function Checker() {
   const resultsRef = useRef<HTMLHeadingElement>(null);
   const autoRun = useRef(false);
 
-  const numbers = useMemo(() => extractBondNumbers(text), [text]);
+  // A pasted list may have denomination lines ("Rs 750") that apply to the numbers below them.
+  const numbers = useMemo(() => parseBondHoldings(text).bonds, [text]);
   const rangeTotal = ranges.reduce((a, r) => a + Number(r.to) - Number(r.from) + 1, 0);
   const total = numbers.length + rangeTotal;
 
-  async function runCheck(nums: string[], rs: Range[]) {
+  async function runCheck(nums: SheetBond[], rs: Range[]) {
     const count = nums.length + rs.reduce((a, r) => a + Number(r.to) - Number(r.from) + 1, 0);
     if (count === 0) {
       setFormError(t("check.nothingToCheck"));
@@ -71,7 +73,11 @@ export function Checker() {
       return;
     }
     const d = denomination || undefined;
-    await sendCheck([...nums.map((number) => ({ number, denomination: d })), ...rs.map((r) => ({ from: r.from, to: r.to, denomination: d }))]);
+    await sendCheck([
+      // A number under a denomination line keeps it; others use the denomination chosen below.
+      ...nums.map((b) => ({ number: b.bondNumber, denomination: b.denominationCode ?? d })),
+      ...rs.map((r) => ({ from: r.from, to: r.to, denomination: d })),
+    ]);
   }
 
   /** Sends the items (each may carry its own denomination, as rows of a spreadsheet do). */
@@ -100,7 +106,7 @@ export function Checker() {
   useEffect(() => {
     if (autoRun.current || !initial) return;
     autoRun.current = true;
-    void runCheck(extractBondNumbers(initial), []);
+    void runCheck(parseBondHoldings(initial).bonds, []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -123,6 +129,12 @@ export function Checker() {
     if (!file) return;
     setScan({ kind: "working", progress: 0 });
     const name = file.name.toLowerCase();
+    if (name.endsWith(".txt")) {
+      const written = (await file.text()).trim();
+      setText((v) => (v.trim() ? `${v.trim()}\n${written}` : written));
+      setScan({ kind: "done", count: parseBondHoldings(written).bonds.length });
+      return;
+    }
     if (/\.(csv|xlsx|xls|tsv)$/.test(name)) {
       try {
         const { sheet } = await readSheetFile(file);
@@ -145,7 +157,8 @@ export function Checker() {
     }
     try {
       const found = await numbersFromFile(file, (progress) => setScan({ kind: "working", progress }));
-      const fresh = found.filter((n) => !numbers.includes(n));
+      const have = new Set(numbers.map((b) => b.bondNumber));
+      const fresh = found.filter((n) => !have.has(n));
       if (fresh.length) setText((v) => (v.trim() ? `${v.trim()}\n${fresh.join(" ")}` : fresh.join(" ")));
       setScan({ kind: "done", count: fresh.length });
     } catch {
@@ -257,9 +270,15 @@ export function Checker() {
             <input id={ids.file} type="file" accept="image/*,.pdf,.txt,.csv,.tsv,.xlsx,.xls" className="sr-only" onChange={(e) => void onFile(e.target.files?.[0])} />
           </label>
           <p className="text-sm text-ink-2">{t("check.scanHint")}</p>
-          <a href="/templates/bondcheck-bonds-template.csv" download className="w-fit text-sm font-medium text-brand underline underline-offset-4">
-            {t("check.template")}
-          </a>
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+            <span className="text-ink-2">{t("check.template")}</span>
+            <a href="/templates/bondcheck-bonds-template.csv" download className="font-medium text-brand underline underline-offset-4">
+              CSV
+            </a>
+            <a href="/templates/bondcheck-bonds-template.txt" download className="font-medium text-brand underline underline-offset-4">
+              TXT
+            </a>
+          </p>
           <p className="text-sm text-ink" aria-live="polite">
             {scan.kind === "working" ? t("check.scanWorking", { progress: scan.progress }) : null}
             {scan.kind === "done" ? t("check.scanDone", { count: scan.count }) : null}

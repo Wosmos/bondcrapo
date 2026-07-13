@@ -110,9 +110,6 @@ export function normalizeDenomination(input: string | number | null | undefined)
   return (DENOMINATION_CODES as readonly string[]).includes(code) ? code : null;
 }
 
-/** A range written in one cell: `100100-100150`, `100100 to 100150`, `100100..100150`. */
-const RANGE_CELL = /^(\d{6})\s*(?:-|–|\.\.|to|TO|To)\s*(\d{6})$/;
-
 export interface SheetBond {
   denominationCode: string | null;
   bondNumber: string;
@@ -125,82 +122,180 @@ export interface ParsedSheet {
   duplicates: number;
 }
 
-const NUMBER_HEADERS = /^(bond|bond ?(no|number|#)|number|no\.?|serial|prize ?bond)$/i;
+const NUMBER_HEADERS = /^(bond|bonds|bond ?(no|number|numbers|#)s?|numbers?|no\.?|serial|prize ?bonds?)$/i;
 const DENOM_HEADERS = /^(denomination|denom|value|amount|rs|type|bond ?value)$/i;
-const LABEL_HEADERS = /^(label|note|notes|owner|name|comment)$/i;
+const LABEL_HEADERS = /^(label|note|notes|owner|owner or note|name|comment|holder)$/i;
+
+/** One bond number or a range (`100100-100150`, `100100 to 100150`, `100100..100150`). */
+const ENTRY = /(?<!\d)(\d{6})(?:\s*(?:-|–|\.\.|to|TO|To)\s*(\d{6}))?(?!\d)/g;
+/** "Owner: Aysha", "Name - Ammad": sets the owner for the lines that follow. */
+const OWNER_LINE = /^\s*(?:owner|name|holder|label)\s*[:\-]\s*(.*?)\s*$/i;
 
 /**
- * Rows from CSV or XLSX (first row may be a header). Without a header, the first cell holding a
- * six digit number is the bond and a cell that normalises to a denomination is the denomination.
- * A bond cell may also hold a range (`100100-100150`), which expands to every number in it, so one
- * file can list a whole series of every denomination at once.
+ * Collects bonds with their denomination and owner, dropping duplicates and stopping at `limit`.
+ * Shared by the spreadsheet and the text readers so both follow the same rules.
+ */
+class Holdings {
+  readonly bonds: SheetBond[] = [];
+  readonly invalid: string[] = [];
+  duplicates = 0;
+  truncated = false;
+  private readonly seen = new Set<string>();
+  constructor(private readonly limit: number) {}
+
+  /** Adds every number and range found in `text`; returns how many entries it held. */
+  addEntries(text: string, denom: string | null, label: string | undefined): number {
+    let found = 0;
+    for (const m of text.matchAll(ENTRY)) {
+      found++;
+      const a = Number(m[1]);
+      const b = m[2] ? Number(m[2]) : a;
+      if (b < a) {
+        this.invalid.push(m[0]);
+        continue;
+      }
+      for (let n = a; n <= b; n++) this.add(String(n).padStart(6, "0"), denom, label);
+    }
+    return found;
+  }
+
+  add(bondNumber: string, denom: string | null, label: string | undefined): void {
+    if (bondNumber === "000000") return;
+    const key = `${denom ?? "?"}:${bondNumber}`;
+    if (this.seen.has(key)) {
+      this.duplicates++;
+      return;
+    }
+    if (this.bonds.length >= this.limit) {
+      this.truncated = true;
+      return;
+    }
+    this.seen.add(key);
+    this.bonds.push({ denominationCode: denom, bondNumber, ...(label ? { label } : {}) });
+  }
+}
+
+/**
+ * A denomination written on its own ("750", "Rs 1,500", "40000 Premium", "Rs 750 bonds:"). A bond
+ * number always has six digits and a denomination never does, so the two cannot be confused.
+ */
+function headingDenomination(text: string): string | null {
+  const t = text.replace(/[:\-–]+\s*$/, "").replace(/\b(prize\s*)?bonds?\b/gi, "").trim();
+  if (!t || /\d{6}/.test(t)) return null;
+  return normalizeDenomination(t);
+}
+
+export interface ParsedHoldings {
+  bonds: SheetBond[];
+  invalid: string[];
+  duplicates: number;
+  truncated: boolean;
+}
+
+/**
+ * Reads a written list of bonds (pasted text, a .txt file, text pulled from a PDF), the way people
+ * keep them: a denomination on its own line applies to every number below it until the next one,
+ * "Owner: name" does the same for the owner, and a line may hold several numbers and ranges
+ * ("280321, 280324, 280353-280354"). "750: 123456, 654321" sets the denomination and lists numbers
+ * on one line. Anything after "#" on a line is a comment.
+ *
+ *   Rs 750
+ *   041733, 098148-098149
+ *   Owner: Aysha
+ *   Rs 1500
+ *   160213-160228
+ */
+export function parseBondHoldings(text: string, limit: number = MAX_BONDS_PER_ADD): ParsedHoldings {
+  const out = new Holdings(limit);
+  let denom: string | null = null;
+  let label: string | undefined;
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.replace(/#.*$/, "").trim();
+    if (!line) continue;
+    const owner = OWNER_LINE.exec(line);
+    if (owner) {
+      label = owner[1] ? owner[1].slice(0, 80) : undefined;
+      continue;
+    }
+    const heading = headingDenomination(line);
+    if (heading) {
+      denom = heading;
+      continue;
+    }
+    const prefix = /^([^:\d]*\d[\d,]*[^:\d]*?)\s*:\s*(.+)$/.exec(line);
+    if (prefix && headingDenomination(prefix[1]!)) {
+      denom = headingDenomination(prefix[1]!);
+      out.addEntries(prefix[2]!, denom, label);
+      continue;
+    }
+    // No whole six digit number on the line: try digits written in groups ("85 40 56").
+    if (out.addEntries(line, denom, label) === 0) for (const n of extractBondNumbers(line)) out.add(n, denom, label);
+  }
+  return { bonds: out.bonds, invalid: out.invalid, duplicates: out.duplicates, truncated: out.truncated };
+}
+
+/**
+ * Rows from CSV or XLSX. With a header row (bond number, denomination, owner), a blank denomination
+ * or owner cell repeats the one above it, as people fill sheets in Excel; a row holding only a
+ * denomination starts a new section; and a bond cell may hold several numbers and ranges
+ * ("280321, 280353-280354"). Excel drops leading zeros (55684 for 055684), so short numbers in the
+ * bond column are padded back to six digits. Without a header the rows are read like a written
+ * list (`parseBondHoldings`).
  */
 export function parseSheetRows(rows: readonly (readonly unknown[])[], limit: number = MAX_BONDS_PER_ADD): ParsedSheet {
   const cells = rows.map((r) => r.map((c) => (c === null || c === undefined ? "" : String(c).trim())));
-  let numberCol = -1;
-  let denomCol = -1;
-  let labelCol = -1;
-  let start = 0;
   const header = cells[0];
-  if (header && header.some((h) => NUMBER_HEADERS.test(h))) {
-    numberCol = header.findIndex((h) => NUMBER_HEADERS.test(h));
-    denomCol = header.findIndex((h) => DENOM_HEADERS.test(h));
-    labelCol = header.findIndex((h) => LABEL_HEADERS.test(h));
-    start = 1;
-  }
+  if (!header || !header.some((h) => NUMBER_HEADERS.test(h))) return parseHeaderlessRows(cells, limit);
+  const numberCol = header.findIndex((h) => NUMBER_HEADERS.test(h));
+  const denomCol = header.findIndex((h) => DENOM_HEADERS.test(h));
+  const labelCol = header.findIndex((h) => LABEL_HEADERS.test(h));
 
-  const seen = new Set<string>();
-  const bonds: SheetBond[] = [];
+  const out = new Holdings(limit);
   let invalidRows = 0;
-  let duplicates = 0;
-  for (let r = start; r < cells.length && bonds.length < limit; r++) {
-    const row = cells[r]!;
+  let denom: string | null = null;
+  let label: string | undefined;
+  for (const row of cells.slice(1)) {
     if (row.every((c) => c === "")) continue;
-    let num: string | undefined;
-    let denom: string | null = null;
-    const rangeCell = (numberCol >= 0 ? [row[numberCol] ?? ""] : row).map((c) => RANGE_CELL.exec(c)).find(Boolean);
-    if (rangeCell) {
-      const [, a, b] = rangeCell;
-      if (Number(b) < Number(a)) {
-        invalidRows++;
-        continue;
-      }
-      denom = numberCol >= 0 ? (denomCol >= 0 ? normalizeDenomination(row[denomCol]) : null) : (row.map((c) => (RANGE_CELL.test(c) ? null : normalizeDenomination(c))).find((d) => d !== null) ?? null);
-      const label = labelCol >= 0 ? row[labelCol]?.slice(0, 80) : undefined;
-      for (let n = Number(a); n <= Number(b) && bonds.length < limit; n++) {
-        const bondNumber = String(n).padStart(6, "0");
-        const key = `${denom ?? "?"}:${bondNumber}`;
-        if (seen.has(key)) {
-          duplicates++;
-          continue;
-        }
-        seen.add(key);
-        bonds.push({ denominationCode: denom, bondNumber, ...(label ? { label } : {}) });
-      }
+    const bondCell = row[numberCol] ?? "";
+    const denomCell = denomCol >= 0 ? (row[denomCol] ?? "") : "";
+    if (denomCell) denom = normalizeDenomination(denomCell) ?? denom;
+    if (labelCol >= 0 && row[labelCol]) label = row[labelCol]!.slice(0, 80);
+
+    if (!bondCell) {
+      // A section row: only a denomination (in any cell), no bond.
+      const heading = denomCell ? normalizeDenomination(denomCell) : row.map(headingDenomination).find((d) => d !== null) ?? null;
+      if (heading) denom = heading;
+      else invalidRows++;
       continue;
     }
-    if (numberCol >= 0) {
-      const v = (row[numberCol] ?? "").replace(/\D/g, "");
-      num = v.length > 0 && v.length <= 6 && /^\d+$/.test(row[numberCol] ?? "") ? v.padStart(6, "0") : v;
-      if (denomCol >= 0) denom = normalizeDenomination(row[denomCol]);
-    } else {
-      num = row.find((c) => /^\d{6}$/.test(c));
-      denom = row.map((c) => (c === num ? null : normalizeDenomination(c))).find((d) => d !== null) ?? null;
-    }
-    if (!num || !/^\d{6}$/.test(num)) {
-      invalidRows++;
-      continue;
-    }
-    const key = `${denom ?? "?"}:${num}`;
-    if (seen.has(key)) {
-      duplicates++;
-      continue;
-    }
-    seen.add(key);
-    const label = labelCol >= 0 ? row[labelCol]?.slice(0, 80) : undefined;
-    bonds.push({ denominationCode: denom, bondNumber: num, ...(label ? { label } : {}) });
+    // Excel stores 055684 as the number 55684.
+    const fixed = /^\d{1,5}$/.test(bondCell) ? bondCell.padStart(6, "0") : bondCell;
+    if (out.addEntries(fixed, denom, label) === 0) invalidRows++;
   }
-  return { bonds, invalidRows, duplicates };
+  return { bonds: out.bonds, invalidRows: invalidRows + out.invalid.length, duplicates: out.duplicates };
+}
+
+/**
+ * Rows without a header: a row holding only a denomination starts a section; a denomination cell
+ * next to bond numbers applies to that row only; other rows take the current section's.
+ */
+function parseHeaderlessRows(cells: string[][], limit: number): ParsedSheet {
+  const out = new Holdings(limit);
+  let invalidRows = 0;
+  let section: string | null = null;
+  for (const row of cells) {
+    const filled = row.filter(Boolean);
+    if (filled.length === 0) continue;
+    const bondCells = filled.filter((c) => /\d{6}/.test(c));
+    const rowDenom = filled.filter((c) => !/\d{6}/.test(c)).map(headingDenomination).find((d) => d !== null) ?? null;
+    if (bondCells.length === 0) {
+      if (rowDenom) section = rowDenom;
+      else invalidRows++;
+      continue;
+    }
+    if (out.addEntries(bondCells.join(" "), rowDenom ?? section, undefined) === 0) invalidRows++;
+  }
+  return { bonds: out.bonds, invalidRows: invalidRows + out.invalid.length, duplicates: out.duplicates };
 }
 
 /** Minimal RFC 4180 CSV reader (quoted fields, escaped quotes, CRLF). Spreadsheets go through `xlsx`. */

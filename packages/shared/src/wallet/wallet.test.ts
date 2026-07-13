@@ -10,6 +10,7 @@ import {
   expectedValuePerBond,
   expectedValuePerDraw,
   extractBondNumbers,
+  parseBondHoldings,
   faceValueTotal,
   findNearMisses,
   formatSyncCode,
@@ -276,9 +277,58 @@ describe("bond list parsing", () => {
       { denominationCode: "1500", bondNumber: "100101", label: "Mom" },
       { denominationCode: "1500", bondNumber: "100102", label: "Mom" },
       { denominationCode: "1500", bondNumber: "100103", label: "Mom" },
-      { denominationCode: "25000P", bondNumber: "654321" },
+      { denominationCode: "25000P", bondNumber: "654321", label: "Mom" },
     ]);
     expect(sheet.invalidRows).toBe(1);
+  });
+
+  it("reads a written list: a denomination line covers the numbers below it, owners the same", () => {
+    const parsed = parseBondHoldings(
+      [
+        "Rs 750",
+        "041733, 098148-098149   # bought 2019",
+        "Owner: Aysha",
+        "280321 280324",
+        "1500:",
+        "160213-160215",
+        "40000 Premium: 342709",
+        "Owner:",
+        "854063",
+      ].join("\n"),
+    );
+    expect(parsed.bonds).toEqual([
+      { denominationCode: "750", bondNumber: "041733" },
+      { denominationCode: "750", bondNumber: "098148" },
+      { denominationCode: "750", bondNumber: "098149" },
+      { denominationCode: "750", bondNumber: "280321", label: "Aysha" },
+      { denominationCode: "750", bondNumber: "280324", label: "Aysha" },
+      { denominationCode: "1500", bondNumber: "160213", label: "Aysha" },
+      { denominationCode: "1500", bondNumber: "160214", label: "Aysha" },
+      { denominationCode: "1500", bondNumber: "160215", label: "Aysha" },
+      { denominationCode: "40000P", bondNumber: "342709", label: "Aysha" },
+      { denominationCode: "40000P", bondNumber: "854063" },
+    ]);
+  });
+
+  it("reads a sheet written in sections: denomination once, several numbers per cell, Excel's lost zeros", () => {
+    const sheet = parseSheetRows([
+      ["Denomination", "Bond numbers", "Owner"],
+      ["Rs 750", "", ""],
+      ["", "41733", "Ammad"],
+      ["", "098148-098149, 280321", ""],
+      ["1500", "160213-160214", "NA"],
+      ["", "381911", ""],
+    ]);
+    expect(sheet.bonds).toEqual([
+      { denominationCode: "750", bondNumber: "041733", label: "Ammad" },
+      { denominationCode: "750", bondNumber: "098148", label: "Ammad" },
+      { denominationCode: "750", bondNumber: "098149", label: "Ammad" },
+      { denominationCode: "750", bondNumber: "280321", label: "Ammad" },
+      { denominationCode: "1500", bondNumber: "160213", label: "NA" },
+      { denominationCode: "1500", bondNumber: "160214", label: "NA" },
+      { denominationCode: "1500", bondNumber: "381911", label: "NA" },
+    ]);
+    expect(sheet.invalidRows).toBe(0);
   });
 
   it("normalises denominations", () => {
@@ -296,7 +346,8 @@ describe("bond list parsing", () => {
     const parsed = parseSheetRows(withHeader);
     expect(parsed.bonds).toEqual([
       { denominationCode: "750", bondNumber: "123456", label: "Ammi, gift" },
-      { denominationCode: "750", bondNumber: "012345" },
+      // a blank owner cell repeats the owner above, as in Excel
+      { denominationCode: "750", bondNumber: "012345", label: "Ammi, gift" },
     ]);
     expect(parsed.invalidRows).toBe(1);
     expect(parsed.duplicates).toBe(1);
