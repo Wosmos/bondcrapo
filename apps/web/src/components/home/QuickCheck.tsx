@@ -1,4 +1,4 @@
-import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
+import { MagnifyingGlassIcon } from "@/components/ui/icons";
 import { Input } from "@/components/shadcn/input";
 import { SelectField } from "@/components/ui/SelectField";
 import { DENOMINATIONS } from "@bondcheck/shared/constants";

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { XIcon } from "@phosphor-icons/react"
+import { XIcon } from "@/components/ui/icons"
 import { Dialog as DialogPrimitive } from "radix-ui"
 
 import { Button } from "@/components/shadcn/button"

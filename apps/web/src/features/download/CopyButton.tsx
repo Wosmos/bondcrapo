@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
+import { CheckIcon, CopyIcon } from "@/components/ui/icons";
 import { useState } from "react";
 
 /** Copies `value` to the clipboard and announces the result politely. */

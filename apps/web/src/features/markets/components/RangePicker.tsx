@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
-import { CalendarDotsIcon } from "@phosphor-icons/react";
+import { CalendarDotsIcon } from "@/components/ui/icons";
 import { Button } from "@/components/shadcn/button";
 import { Calendar } from "@/components/shadcn/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn/popover";

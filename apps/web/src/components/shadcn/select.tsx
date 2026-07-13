@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { CheckIcon, CaretDownIcon, CaretUpIcon } from "@phosphor-icons/react"
+import { CheckIcon, CaretDownIcon, CaretUpIcon } from "@/components/ui/icons"
 import { Select as SelectPrimitive } from "radix-ui"
 
 function Select({

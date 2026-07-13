@@ -6,7 +6,7 @@ import {
   CaretDownIcon,
   CaretLeftIcon,
   CaretRightIcon,
-} from "@phosphor-icons/react"
+} from "@/components/ui/icons"
 import {
   DayPicker,
   getDefaultClassNames,

@@ -1,4 +1,4 @@
-import { AndroidLogoIcon, TicketIcon } from "@phosphor-icons/react/dist/ssr";
+import { DownloadFilledIcon, TicketFilledIcon } from "@/components/ui/icons";
 import type { AppManifest } from "@bondcheck/shared";
 import { Badge, Card } from "@/components/ui";
 import { CopyButton } from "./CopyButton";
@@ -38,7 +38,7 @@ function formatDay(iso: string | null, locale: string): string | null {
   }).format(d);
 }
 
-const ANDROID_ICON = <AndroidLogoIcon aria-hidden="true" weight="fill" className="size-5" />;
+const ANDROID_ICON = <DownloadFilledIcon aria-hidden="true" className="size-5" />;
 
 /**
  * The /download page body. Pure (no data fetching) so it renders the same on the server and in
@@ -71,7 +71,7 @@ export function DownloadView({
           <div className="flex max-w-xl flex-col gap-4">
             <div className="flex items-center gap-3">
               <span aria-hidden="true" className="grid size-12 place-items-center rounded-2xl bg-white/15">
-                <TicketIcon weight="fill" className="size-7" />
+                <TicketFilledIcon className="size-7" />
               </span>
               {state.status === "ok" ? (
                 <span className="rounded-full bg-white/15 px-3 py-1 text-sm font-medium">

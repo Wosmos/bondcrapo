@@ -1,6 +1,6 @@
 "use client";
 
-import { DeviceMobileIcon, XIcon } from "@phosphor-icons/react";
+import { DeviceMobileIcon, XIcon } from "@/components/ui/icons";
 import { useSyncExternalStore } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 

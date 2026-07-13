@@ -1,4 +1,4 @@
-import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr";
+import { CircleNotchIcon } from "@/components/ui/icons";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Button as ShadcnButton } from "@/components/shadcn/button";
 import { cn } from "@/lib/utils";

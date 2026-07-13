@@ -15,10 +15,10 @@ import {
   TicketIcon,
   WalletIcon,
   WifiSlashIcon,
-} from "@phosphor-icons/react/dist/ssr";
-import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
+} from "@/components/ui/icons";
+import type { IconComponent as AppIcon } from "@/components/ui/icons";
 
-/** The app's icons, all from Phosphor (regular weight), by name. Decorative: always paired with text. */
+/** The app's icons, all from Fluent (regular), by name. Decorative: always paired with text. */
 const ICONS = {
   home: HouseIcon,
   bonds: TicketIcon,
@@ -36,7 +36,7 @@ const ICONS = {
   moon: MoonIcon,
   system: MonitorIcon,
   refresh: ArrowClockwiseIcon,
-} satisfies Record<string, PhosphorIcon>;
+} satisfies Record<string, AppIcon>;
 
 export type IconName = keyof typeof ICONS;
 

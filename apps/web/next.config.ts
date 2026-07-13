@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   // Workspace packages ship TypeScript source.
   transpilePackages: ["@bondcheck/shared", "@bondcheck/db", "@bondcheck/ingest"],
   poweredByHeader: false,
+  // Fluent ships thousands of icons from one entry; import only the ones used.
+  experimental: { optimizePackageImports: ["@fluentui/react-icons"] },
   // Without Vercel's Skew Protection (Hobby plan), a tab opened before a deploy asks the new
   // deployment for code that no longer exists. With the deployment id, Next notices the mismatch
   // and does a full page load instead of hanging.

@@ -13,7 +13,7 @@ import {
   DownloadSimpleIcon,
   FunnelIcon,
   FunnelXIcon,
-} from "@phosphor-icons/react";
+} from "@/components/ui/icons";
 import {
   flexRender,
   getCoreRowModel,
