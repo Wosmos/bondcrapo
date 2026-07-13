@@ -124,8 +124,11 @@
   },
   "bonds": {
     "title": "Manage my bonds",
-    "description": "Add bonds one by one, as a range, by pasting a list, from a spreadsheet or by scanning them.",
-    "loading": "Loading your bonds"
+    "description": "Every bond you saved, with its wins. We check them after every draw.",
+    "loading": "Loading your bonds",
+    "addTitle": "Add bonds",
+    "addBody": "Type, paste or upload your list (photo, PDF, Excel, CSV or text) on the check page. Check it, then press Save.",
+    "addButton": "Add or check bonds"
   },
   "add": {
     "title": "Add bonds",

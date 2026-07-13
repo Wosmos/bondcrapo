@@ -6,8 +6,7 @@ import { Badge, Button, DataTable, EmptyState, PageHeader, Skeleton } from "@/co
 import { useWallet, WalletActionError } from "../client/WalletProvider";
 import { useWalletFormat } from "../client/format";
 import type { WalletBond } from "../client/types";
-import { AddBonds } from "./AddBonds";
-import { BondNumber, Notice } from "./bits";
+import { BondNumber, LinkButton, Notice } from "./bits";
 
 function BondList() {
   const t = useTranslations("wallet.list");
@@ -134,7 +133,13 @@ export function BondsView() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title={t("title")} description={t("description")} />
-      <AddBonds />
+      <section className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-4 sm:flex-row sm:items-center">
+        <div className="me-auto">
+          <h2 className="font-semibold text-ink">{t("addTitle")}</h2>
+          <p className="text-sm text-ink-2">{t("addBody")}</p>
+        </div>
+        <LinkButton href="/prize-bonds/check">{t("addButton")}</LinkButton>
+      </section>
       {status === "loading" && !snapshot ? <Skeleton label={t("loading")} size="h-40 w-full" /> : <BondList />}
     </div>
   );

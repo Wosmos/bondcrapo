@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PageHeader } from "@/components/ui";
 import { Breadcrumbs } from "@/features/bonds/components/Breadcrumbs";
 import { Checker } from "@/features/bonds/components/Checker";
+import { WalletProvider } from "@/features/wallet/client/WalletProvider";
 import { alternates } from "@/features/bonds/seo";
 import { ClientMessages } from "@/i18n/ClientMessages";
 
@@ -26,7 +27,9 @@ export default async function CheckPage({ params }: Props) {
       {/* The checker reads `?numbers=` on the client; the page itself stays static. */}
       <Suspense>
         <ClientMessages locale={locale} paths={["bonds.check", "bonds.common", "bonds.hub.coverageLink"]}>
-          <Checker />
+          <WalletProvider>
+            <Checker />
+          </WalletProvider>
         </ClientMessages>
       </Suspense>
     </div>

@@ -1,5 +1,7 @@
 {
-  "nav": { "title": "Prize bonds" },
+  "nav": {
+    "title": "Prize bonds"
+  },
   "common": {
     "rs": "Rs {amount}",
     "drawNumber": "Draw {number}",
@@ -35,9 +37,20 @@
       "top": "Top prizes only",
       "none": "No results"
     },
-    "tier": { "1": "First prize", "2": "Second prize", "3": "Third prize" },
-    "tierShort": { "1": "1st", "2": "2nd", "3": "3rd" },
-    "kind": { "bearer": "Bearer", "premium_registered": "Premium (registered)" },
+    "tier": {
+      "1": "First prize",
+      "2": "Second prize",
+      "3": "Third prize"
+    },
+    "tierShort": {
+      "1": "1st",
+      "2": "2nd",
+      "3": "3rd"
+    },
+    "kind": {
+      "bearer": "Bearer",
+      "premium_registered": "Premium (registered)"
+    },
     "active": "Active",
     "discontinued": "Discontinued",
     "unavailableTitle": "Results are temporarily unavailable",
@@ -106,7 +119,11 @@
     "summaryTitle": "Draw details",
     "prizeTableTitle": "Prizes",
     "prizeTableCaption": "Prize amounts and number of winning numbers per series",
-    "prizeColumns": { "tier": "Prize", "amount": "Amount", "winners": "Winning numbers" },
+    "prizeColumns": {
+      "tier": "Prize",
+      "amount": "Amount",
+      "winners": "Winning numbers"
+    },
     "reference": "reference",
     "amountUnknown": "Not stated",
     "amountsUnknownNote": "No official document states the prize amounts for this draw, so they are not shown.",
@@ -133,7 +150,11 @@
     "checksum": "Checksum (SHA-256)",
     "sourcesTitle": "Sources",
     "sourcesIntro": "Every result is built from these documents, stored with their fetch time and SHA-256.",
-    "sourceRole": { "primary": "Primary", "corroborating": "Agrees", "conflicting": "Disagrees" },
+    "sourceRole": {
+      "primary": "Primary",
+      "corroborating": "Agrees",
+      "conflicting": "Disagrees"
+    },
     "sourceName": {
       "savings_gov_pk": "National Savings result file",
       "savings_gov_pk_legacy": "National Savings draw search",
@@ -156,7 +177,13 @@
     "title": "Draw schedule {year}",
     "description": "Dates come from the official National Savings draw list; cities and draw numbers are confirmed when the results are published.",
     "caption": "Prize bond draws in {year}",
-    "columns": { "date": "Date", "denomination": "Bond", "draw": "Draw", "city": "City", "status": "Status" },
+    "columns": {
+      "date": "Date",
+      "denomination": "Bond",
+      "draw": "Draw",
+      "city": "City",
+      "status": "Status"
+    },
     "empty": "No draws are recorded for {year}.",
     "previousYear": "{year}",
     "nextYear": "{year}",
@@ -168,7 +195,7 @@
     "metaTitle": "Prize bond checker",
     "metaDescription": "Check many prize bonds at once against every draw since 2000: single numbers, ranges, or a photo of your bonds.",
     "title": "Prize bond checker",
-    "description": "Check up to 1,000 numbers against every draw we hold. Nothing you enter is stored.",
+    "description": "Check up to 1,000 numbers against every draw we hold. Press Save to keep them and we'll check them after every draw.",
     "numbersLabel": "Bond numbers",
     "numbersHint": "Paste or type numbers and ranges (100100-100150); other text is ignored. Write a denomination on its own line, like Rs 750, and it applies to every number below it.",
     "found": "{count, plural, =0 {No six digit numbers found} one {# number found} other {# numbers found}}",
@@ -200,14 +227,32 @@
     "summaryWins": "{wins, plural, one {# win} other {# wins}} among {checked, plural, one {# number} other {# numbers}} checked.",
     "summaryNone": "None of the {checked, plural, one {# number} other {# numbers}} won in any draw we hold.",
     "winsCaption": "Winning numbers, newest draw first",
-    "columns": { "number": "Number", "bond": "Bond", "draw": "Draw", "date": "Date", "prize": "Prize", "amount": "Amount" },
+    "columns": {
+      "number": "Number",
+      "bond": "Bond",
+      "draw": "Draw",
+      "date": "Date",
+      "prize": "Prize",
+      "amount": "Amount"
+    },
     "amountUnknown": "Not stated",
     "disputedWin": "Sources disagree on this draw",
     "rateLimited": "Too many checks in a short time. Please wait a minute and try again.",
     "error": "The check could not be completed. Please try again.",
     "offline": "You appear to be offline. Connect to the internet and try again.",
-    "privacy": "Numbers are checked and discarded. They are not saved or logged.",
-    "coverageNote": "Older draws may be missing or hold top prizes only. See the coverage report."
+    "privacy": "Numbers are checked and then forgotten, unless you press Save.",
+    "coverageNote": "Older draws may be missing or hold top prizes only. See the coverage report.",
+    "saveTitle": "Keep these bonds",
+    "saveButton": "{count, plural, one {Save this bond to My bonds} other {Save these # bonds to My bonds}}",
+    "saveWhich": "Which bond are these?",
+    "saveWhichHint": "Some numbers in your list have no bond value. Pick it here.",
+    "saving": "Saving…",
+    "saved": "{count, plural, =0 {All of these were already in My bonds.} one {Saved 1 bond to My bonds.} other {Saved # bonds to My bonds.}}",
+    "saveError": "Could not save. Please try again.",
+    "saveNote": "Saved on this phone or computer. No sign-up needed. We check them after every draw.",
+    "savedAlert": "{count, plural, one {You have 1 saved bond.} other {You have # saved bonds.}}",
+    "checkSaved": "Check my saved bonds",
+    "openMyBonds": "Open My bonds"
   },
   "coverage": {
     "metaTitle": "Prize bond data coverage",
