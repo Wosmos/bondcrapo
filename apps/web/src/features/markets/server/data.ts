@@ -1,7 +1,5 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
 import type { Metal } from "@bondcheck/shared";
-import { MARKETS_TAG } from "@/platform/revalidate";
 import {
   getFxHistory,
   getFxLatest,
@@ -21,7 +19,7 @@ export const MARKETS_REVALIDATE_SECONDS = 900;
 export type Loaded<T> = ({ ok: true; sample: boolean } & Result<T>) | { ok: false };
 
 /**
- * Loads page data through the Next data cache. Failures (no database at build time, an outage)
+ * Loads page data. Failures (no database at build time, an outage)
  * become `{ ok: false }` and are not cached, so pages render an "unavailable" state and recover
  * on the next revalidation.
  */
@@ -33,9 +31,9 @@ async function load<T>(key: string[], fn: (store: MarketsStore) => Promise<Resul
     return { ok: false };
   }
   try {
-    if (store.sample) return { ok: true, sample: true, ...(await fn(store)) };
-    const cached = unstable_cache(() => fn(store), ["markets", ...key], { tags: [MARKETS_TAG], revalidate: MARKETS_REVALIDATE_SECONDS });
-    return { ok: true, sample: false, ...(await cached()) };
+    // Read straight from the store: the pages themselves are rebuilt every 15 minutes and after
+    // each ingest. A data cache in between kept serving the numbers from the last deploy.
+    return { ok: true, sample: store.sample, ...(await fn(store)) };
   } catch (error) {
     console.warn(`[markets] ${key.join(":")} unavailable: ${error instanceof Error ? error.message : String(error)}`);
     return { ok: false };

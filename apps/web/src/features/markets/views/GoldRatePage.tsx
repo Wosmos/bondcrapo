@@ -61,6 +61,8 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
   const kinds = kindLabels(t);
   // On a day the association has not reported yet, its newest rate is shown next to the estimate.
   const official = hero?.kind === "derived" && latestReported?.ok ? pickRate(latestReported.data, "XAU", 24, unit) : undefined;
+  // An association rate three days older than the estimate is not today's price: say so instead.
+  const officialStale = official && hero ? Date.parse(official.date) < Date.parse(hero.observedAt) - 3 * 86_400_000 : false;
   const reportLink = (r: Rate | undefined) => (r?.sourceUrl ? { url: r.sourceUrl, label: t("provenance.readReport") } : null);
   const date = hero?.date ?? rows[0]?.date;
   const faq = (t.raw(isPk ? "gold.faq.PK" : "gold.faq.other") as { q: string; a: string }[]).map((f) => ({
@@ -151,7 +153,12 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
                   <SourceLine className="mt-1" label={t("provenance.internationalPrice")} ids={spot.ok ? spot.sources : []} />
                 )}
               </div>
-              {official ? (
+              {official && officialStale ? (
+                <div className="relative mt-4 rounded-lg border border-line bg-surface-2 p-3 text-xs leading-relaxed text-ink-2">
+                  <p className="text-sm text-ink">{t("provenance.officialStale", { date: formatDate(locale, official.date, "long") })}</p>
+                  <p className="mt-2">{t("provenance.associationsNote")}</p>
+                </div>
+              ) : official ? (
                 <div className="relative mt-4 rounded-lg border border-line bg-surface-2 p-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-sm font-medium text-ink">{t("provenance.officialTitle")}</h3>
@@ -164,6 +171,7 @@ export async function GoldRatePage({ locale, config, city }: { locale: string; c
                   <p className="mt-1 text-xs text-ink-2">{t("provenance.officialDate", { date: formatDate(locale, official.date, "long") })}</p>
                   <SourceLine className="mt-1" label={t("provenance.source")} ids={[official.source]} report={reportLink(official)} />
                   <p className="mt-2 text-xs leading-relaxed text-ink-2">{t("provenance.estimateBecause")}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-ink-2">{t("provenance.associationsNote")}</p>
                 </div>
               ) : null}
             </div>

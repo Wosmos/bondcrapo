@@ -291,6 +291,8 @@
     "estimateBecause": "Today’s sarafa rate is not out yet, so the price above is an estimate from the international price and the open market dollar rate, adjusted to this latest association rate.",
     "legend": "Reported figures are published by the source named under the price. Estimated figures are calculated by BondCheck from the international price, the exchange rate and purity; shops add making charges and taxes.",
     "openMarketFrom": "Open market rates from:",
-    "interbankFrom": "Interbank rates from:"
+    "interbankFrom": "Interbank rates from:",
+    "officialStale": "The association's daily rate has not reached us since {date}, so the price above is our estimate.",
+    "associationsNote": "Two sarafa associations publish gold rates in Pakistan and their numbers differ by a few thousand rupees, so other sites may show a slightly different price. Shops add making charges."
   }
 }
