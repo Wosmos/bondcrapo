@@ -196,7 +196,7 @@ jobs:
           echo "apk=$name" >> "$GITHUB_OUTPUT"
           ls -l out
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: android-release
           path: out/*
