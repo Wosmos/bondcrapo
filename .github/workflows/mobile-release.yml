@@ -196,7 +196,7 @@ jobs:
           echo "apk=$name" >> "$GITHUB_OUTPUT"
           ls -l out
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: android-release
           path: out/*
@@ -233,7 +233,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: bash -c 'set -u; apk=$(find out -maxdepth 1 -name "*.apk" | head -1); adb install -r "$apk"; adb logcat -c; adb shell monkey -p pk.bondcheck.app -c android.intent.category.LAUNCHER 1; sleep 25; adb logcat -d > out/logcat.txt; pid=$(adb shell pidof pk.bondcheck.app | tr -d "\r"); grep -n -A40 "FATAL EXCEPTION" out/logcat.txt | head -120 || true; if [ -z "$pid" ] || grep -q "FATAL EXCEPTION" out/logcat.txt; then echo "::error title=App crashed on launch::See the logcat artifact (lines after FATAL EXCEPTION)."; exit 1; fi; echo "App is running (pid $pid)."'
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: launch-logcat
