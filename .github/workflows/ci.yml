@@ -65,7 +65,7 @@ jobs:
         run: bun run --cwd apps/web e2e:wallet
       - name: Upload the Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: |
@@ -92,7 +92,7 @@ jobs:
       - name: Lighthouse CI (mobile profile)
         working-directory: apps/web
         run: bunx @lhci/cli@0.15.1 autorun --config=lighthouserc.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: lighthouse
