@@ -1,21 +1,20 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
-import { POPULAR_PKR_PAIRS } from "@bondcheck/ingest/markets/currencies";
 import { routing } from "@/i18n/routing";
 import { marketsMetadata } from "@/features/markets/lib/seo";
 import { currencyNames } from "@/features/markets/lib/names";
-import { pairSlug, parsePair } from "@/features/markets/lib/slugs";
+import { pairPageSlugs, parsePair } from "@/features/markets/lib/slugs";
 import { marketsT } from "@/features/markets/views/labels";
 import { PairPage } from "@/features/markets/views/CurrencyPages";
 
-export const revalidate = 900;
+export const revalidate = 43200;
+export const dynamicParams = false;
 
 type Props = { params: Promise<{ locale: string; pair: string }> };
 
-/** Popular rupee pairs are prebuilt; any other valid pair renders on first request and is then cached. */
 export function generateStaticParams() {
-  return routing.locales.flatMap((locale) => POPULAR_PKR_PAIRS.map((c) => ({ locale, pair: pairSlug(c, "PKR") })));
+  return routing.locales.flatMap((locale) => pairPageSlugs().map((pair) => ({ locale, pair })));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -163,10 +163,21 @@ describe("PgRateLimiter", () => {
 });
 
 describe("cron wrapper", () => {
-  it("revalidates the markets tag after a run", async () => {
+  async function rebuiltAfter(name: string): Promise<string[][]> {
     const tags: string[][] = [];
-    const job = withMarketsRevalidation({ name: "fx-daily", run: async () => ({ done: true, cursor: null, stats: {} }) }, (x) => tags.push([...x]));
+    const job = withMarketsRevalidation({ name, run: async () => ({ done: true, cursor: null, stats: {} }) }, (x) => tags.push([...x]));
     await job.run({} as never, null);
-    expect(tags).toEqual([["markets"]]);
+    return tags;
+  }
+
+  it("rebuilds only the section a job feeds", async () => {
+    expect(await rebuiltAfter("fx-daily")).toEqual([["markets:fx"]]);
+    expect(await rebuiltAfter("local-rates-derive")).toEqual([["markets:gold"]]);
+    expect(await rebuiltAfter("pk-market")).toEqual([["markets"]]);
+  });
+
+  it("leaves the half-hourly spot price and housekeeping to the page timers", async () => {
+    expect(await rebuiltAfter("metals-spot")).toEqual([]);
+    expect(await rebuiltAfter("housekeeping")).toEqual([]);
   });
 });

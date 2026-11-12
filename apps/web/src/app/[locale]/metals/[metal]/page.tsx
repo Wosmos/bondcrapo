@@ -7,7 +7,7 @@ import { METAL_SLUGS, metalFromSlug } from "@/features/markets/lib/slugs";
 import { marketsT } from "@/features/markets/views/labels";
 import { MetalPage } from "@/features/markets/views/MetalPages";
 
-export const revalidate = 900;
+export const revalidate = 10800;
 export const dynamicParams = false;
 
 type Props = { params: Promise<{ locale: string; metal: string }> };

@@ -7,7 +7,7 @@ import { Breadcrumbs, Faq, JsonLd, MarketsSubnav, Price, SampleNotice, SourceLin
 import { formatDate, formatMoney, formatNumber } from "../lib/format";
 import { currencyNames } from "../lib/names";
 import { breadcrumbJsonLd, faqJsonLd } from "../lib/seo";
-import { pairSlug } from "../lib/slugs";
+import { hasPairPage, pairSlug } from "../lib/slugs";
 import { loadFxHistory, loadFxLatest, loadPkrRates } from "../server/data";
 import type { PkrRates } from "../server/service";
 import { chartLabels, marketsT, subnavLabels, type MarketsT } from "./labels";
@@ -64,12 +64,21 @@ function PkrTable({ locale, t, rows, names }: { locale: string; t: MarketsT; row
         {
           key: "currency",
           header: t("currency.currencyCol"),
-          cell: (r: PkrRow) => (
-            <Link href={`/currency/${pairSlug(r.currency, "PKR")}`} className="inline-flex min-h-6 flex-col underline-offset-2 hover:underline">
-              <span className="font-semibold text-ink">{r.currency}</span>
-              <span className="text-xs text-ink-2">{names[r.currency]}</span>
-            </Link>
-          ),
+          cell: (r: PkrRow) => {
+            const label = (
+              <>
+                <span className="font-semibold text-ink">{r.currency}</span>
+                <span className="text-xs text-ink-2">{names[r.currency]}</span>
+              </>
+            );
+            return hasPairPage(r.currency, "PKR") ? (
+              <Link href={`/currency/${pairSlug(r.currency, "PKR")}`} className="inline-flex min-h-6 flex-col underline-offset-2 hover:underline">
+                {label}
+              </Link>
+            ) : (
+              <span className="inline-flex min-h-6 flex-col">{label}</span>
+            );
+          },
         },
         { key: "ob", header: `${t("currency.openMarket")}: ${t("currency.buying")}`, numeric: true, cell: (r: PkrRow) => cell(r.open?.buy) },
         { key: "os", header: `${t("currency.openMarket")}: ${t("currency.selling")}`, numeric: true, cell: (r: PkrRow) => cell(r.open?.sell) },
@@ -300,11 +309,13 @@ export async function PairPage({ locale, from, to }: { locale: string; from: str
         </section>
       ) : null}
 
-      <p className="mt-6">
-        <Link href={`/currency/${pairSlug(to, from)}`} className="font-medium text-info underline underline-offset-2">
-          {t("currency.reverse", { from, to })}
-        </Link>
-      </p>
+      {hasPairPage(to, from) ? (
+        <p className="mt-6">
+          <Link href={`/currency/${pairSlug(to, from)}`} className="font-medium text-info underline underline-offset-2">
+            {t("currency.reverse", { from, to })}
+          </Link>
+        </p>
+      ) : null}
       <PopularPairs t={t} names={names} exclude={from} />
       <Faq title={t("common.faq")} items={faq} />
       <Sources

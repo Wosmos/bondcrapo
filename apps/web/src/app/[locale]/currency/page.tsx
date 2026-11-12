@@ -4,7 +4,7 @@ import { marketsMetadata } from "@/features/markets/lib/seo";
 import { marketsT } from "@/features/markets/views/labels";
 import { CurrencyPage } from "@/features/markets/views/CurrencyPages";
 
-export const revalidate = 900;
+export const revalidate = 43200;
 
 type Props = { params: Promise<{ locale: string }> };
 

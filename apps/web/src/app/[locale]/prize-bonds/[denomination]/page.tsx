@@ -16,6 +16,7 @@ import { alternates, breadcrumbLd } from "@/features/bonds/seo";
 import { attempt, loadDenomination, loadDenominations } from "@/features/bonds/server/pages";
 
 export const revalidate = 21600;
+export const dynamicParams = false;
 
 type Props = { params: Promise<{ locale: string; denomination: string }> };
 
